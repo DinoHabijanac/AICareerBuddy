@@ -1,0 +1,36 @@
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\appsettings.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.staticwebassets.endpoints.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.exe
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.deps.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.runtimeconfig.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\AI CareerBuddy.pdb
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.AssemblyInfoInputs.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.AssemblyInfo.cs
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.sourcelink.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\scopedcss\bundle\AI CareerBuddy.styles.css
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI Caree.DDE4C07F.Up2Date
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\refint\AI CareerBuddy.dll
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.pdb
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\AI CareerBuddy.genruntimeconfig.cache
+C:\Users\user\Desktop\FAKS\1.godina DIPL IPI\AIR\Backend\AI CareerBuddy\AI CareerBuddy\obj\Debug\net8.0\ref\AI CareerBuddy.dll
