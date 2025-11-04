@@ -1,0 +1,6 @@
+@AI_CareerBuddy_Backend_HostAddress = http://localhost:5239
+
+GET {{AI_CareerBuddy_Backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
