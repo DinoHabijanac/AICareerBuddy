@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AICareerBuddy_DataAccessLayer.Repositories;
 
 namespace AICareerBuddy_DataAccessLayer.Services
 {
@@ -12,8 +13,8 @@ namespace AICareerBuddy_DataAccessLayer.Services
         public static List<Resume> GetResumes()
         {
             //implementiraj
-            //implementiraj
-            return new List<Resume>();
+
+            return ResumeRepo.GetResumes().ToList();
         }
     }
 }
