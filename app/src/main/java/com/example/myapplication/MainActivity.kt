@@ -1,17 +1,53 @@
+
 package com.example.myapplication
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import com.example.myapplication.ui.theme.MyApplicationTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +56,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    ResumeUploadScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -31,17 +64,164 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
+fun ResumeUploadScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    val savedUris = remember { mutableStateListOf<Uri>() }
+    val currentUri = remember { mutableStateOf<Uri?>(null) }
+
+    LaunchedEffect(Unit) {
+        val prefs = context.getSharedPreferences("resume_prefs", 0)
+        val uriSet = prefs.getStringSet("resume_uris", emptySet()) ?: emptySet()
+        uriSet.forEach { uriString ->
+            try {
+                val uri = uriString.toUri()
+                savedUris.add(uri)
+            } catch (_: Exception) { }
+        }
+        currentUri.value = savedUris.firstOrNull()
+    }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: Exception) { }
+            val prefs = context.getSharedPreferences("resume_prefs", 0)
+            val uriSet = prefs.getStringSet("resume_uris", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+            val added = uriSet.add(it.toString())
+            if (added) {
+                prefs.edit { putStringSet("resume_uris", uriSet) }
+                if (!savedUris.contains(it)) savedUris.add(it)
+                currentUri.value = it
+            } else {
+                currentUri.value = it
+            }
+        }
+    }
+
+    Column(
         modifier = modifier
-    )
+            .fillMaxSize()
+            //.padding(16.dp),
+                ,
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Blue)
+            .height(80.dp))
+
+            //horizontalArrangement = Arrangement.Center
+        {
+            Text(text = "AI Career Buddy", style = MaterialTheme.typography.headlineLarge)
+            Spacer(modifier = Modifier.weight(1f))
+            Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Logo", modifier = Modifier.fillMaxHeight())
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Učitaj svoj životopis", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Učitaj svoj životopis za prijavu na oglas za posao ili za AI analizu sadržaja",
+                textAlign = TextAlign.Center
+            )
+        }
+
+        val boxSize = 220.dp
+        Box(
+            modifier = Modifier
+                .size(boxSize)
+                .drawBehind {
+                    val strokePx = with(density) { 2.dp.toPx() }
+                    drawRoundRect(
+                        color = Color.Transparent,
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(
+                            12.dp.toPx(),
+                            12.dp.toPx()
+                        ),
+                        style = Stroke(
+                            width = strokePx,
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 12f), 0f)
+                        )
+                    )
+                }
+                .background(Color(0xFFF5F7FB), shape = RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            val uri = currentUri.value
+            if (uri == null) {
+                Text("📤", fontSize = 90.sp)
+            } else {
+                val name = remember(uri) {
+                    var display = uri.lastPathSegment ?: uri.toString()
+                    try {
+                        val cursor = context.contentResolver.query(uri, null, null, null, null)
+                        cursor?.use {
+                            if (it.moveToFirst()) {
+                                val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                                if (idx >= 0) display = it.getString(idx)
+                            }
+                        }
+                    } catch (_: Exception) { }
+                    display
+                }
+                Text(text = name, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(12.dp))
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            currentUri.value?.let { uri ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setData(uri)
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        android.widget.Toast.makeText(context, "Ne mogu otvoriti dokument: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                    }
+                }) {
+                    Text("Otvori")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = {
+                    val removed = uri
+                    savedUris.remove(removed)
+                    val prefs = context.getSharedPreferences("resume_prefs", 0)
+                    val uriSet = prefs.getStringSet("resume_uris", emptySet())?.toMutableSet() ?: mutableSetOf()
+                    uriSet.remove(removed.toString())
+                    prefs.edit { putStringSet("resume_uris", uriSet) }
+                    currentUri.value = savedUris.firstOrNull()
+                }) {
+                    Text("Ukloni")
+                }
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = {
+                launcher.launch(arrayOf("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "*/*"))
+            }) {
+                Text("Prenesi životopis")
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun ResumeUploadPreview() {
     MyApplicationTheme {
-        Greeting("Android")
+        ResumeUploadScreen(Modifier.background(Color(0xFFBBDEFB)))
     }
 }
