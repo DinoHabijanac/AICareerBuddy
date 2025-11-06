@@ -2,13 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>AICareerBuddy_DataAccessLayer</RootNamespace>
+    <RootNamespace>AICareerBuddy_Entities</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\AICareerBuddy-Entities\AICareerBuddy-Entities.csproj" />
-  </ItemGroup>
 
 </Project>
