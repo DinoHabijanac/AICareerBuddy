@@ -22,5 +22,11 @@ namespace AI_CareerBuddy_Backend.Controllers
         {
             return ResumeService.GetResumes().ToList();
         }
+
+        [HttpPost(Name = "PostResume")]
+        public async Task<IActionResult> Post(IFormFile file) 
+        {
+            return await ResumeService.PostResume(file);
+        }
     }
 }
