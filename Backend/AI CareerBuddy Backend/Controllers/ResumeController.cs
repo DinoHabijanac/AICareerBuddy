@@ -18,9 +18,15 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         [HttpGet(Name = "GetResumes")]
-        public IEnumerable<Resume> Get()
+        public IEnumerable<Resume> GetResumes()
         {
             return ResumeService.GetResumes().ToList();
+        }
+
+        [HttpGet("GetResume/{id}")]
+        public Resume Get(int id)
+        {
+            return ResumeService.GetResume(id);
         }
 
         [HttpPost(Name = "PostResume")]

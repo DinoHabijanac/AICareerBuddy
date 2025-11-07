@@ -9,6 +9,12 @@ namespace AICareerBuddy_DataAccessLayer.Repositories
 {
     public class ResumeRepo
     {
+        public static IQueryable<Resume> GetResume()
+        {
+            //implementiraj
+            return null;
+        }
+
         public static IQueryable<Resume> GetResumes()
         {
             //implementiraj
