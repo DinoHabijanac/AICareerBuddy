@@ -58,9 +58,13 @@ namespace AICareerBuddy_DataAccessLayer.Services
             else if (allowedExtensions.Contains(Path.GetExtension(file.FileName)) == false)
             {
                 return new BadRequestObjectResult("Wrong file extension - allowed (.pdf, .doc, .docx)");
-            }    
-            else 
-            { 
+            }
+            else if(file.Length > 5 * 1024 * 1024)
+            {
+                return new BadRequestObjectResult("File is to large (>5MB)");
+            }
+            else
+            {
                 try
                 {
                     var shareClient = new ShareClient(connectionString, shareName);
