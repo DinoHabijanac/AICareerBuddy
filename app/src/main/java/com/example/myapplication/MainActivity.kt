@@ -1,4 +1,3 @@
-
 package com.example.myapplication
 
 import android.content.Intent
@@ -29,9 +28,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 
@@ -64,11 +66,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ResumeUploadScreen(modifier: Modifier = Modifier) {
+fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadViewModel = viewModel()) {
     val context = LocalContext.current
 
     val savedUris = remember { mutableStateListOf<Uri>() }
     val currentUri = remember { mutableStateOf<Uri?>(null) }
+
+    val uploadState by uploadViewModel.uploadState.collectAsState()
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
@@ -100,14 +104,13 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier) {
             } else {
                 currentUri.value = it
             }
+            uploadViewModel.uploadResume(context, it)
         }
     }
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            //.padding(16.dp),
-                ,
+            .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -115,11 +118,9 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Blue)
-            .height(80.dp))
-
-            //horizontalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .background(Color.Blue)
+                .height(80.dp))
         {
             Text(text = "AI Career Buddy", style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.weight(1f))
@@ -178,6 +179,13 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier) {
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            when (uploadState) {
+                is UploadState.Idle -> { /* nothing */ }
+                is UploadState.Uploading -> Text("Učitavanje...", color = Color.Gray)
+                is UploadState.Success -> Text((uploadState as UploadState.Success).message, color = Color.Green)
+                is UploadState.Error -> Text((uploadState as UploadState.Error).message, color = Color.Red)
+            }
+
             currentUri.value?.let { uri ->
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(onClick = {
@@ -202,6 +210,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier) {
                     uriSet.remove(removed.toString())
                     prefs.edit { putStringSet("resume_uris", uriSet) }
                     currentUri.value = savedUris.firstOrNull()
+                   // uploadState = UploadState.Idle
                 }) {
                     Text("Ukloni")
                 }
