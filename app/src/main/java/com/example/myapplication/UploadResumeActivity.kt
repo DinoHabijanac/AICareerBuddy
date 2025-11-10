@@ -202,7 +202,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(onClick = {
                 launcher.launch(arrayOf("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "*/*"))
-            }) {
+            }, enabled = currentUri.value == null) {
                 Text("Prenesi životopis")
             }
         }
