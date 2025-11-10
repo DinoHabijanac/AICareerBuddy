@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
@@ -64,26 +63,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadViewModel = viewModel()) {
     val context = LocalContext.current
-
-    val savedUris = remember { mutableStateListOf<Uri>() }
     val currentUri = remember { mutableStateOf<Uri?>(null) }
-
     val uploadState by uploadViewModel.uploadState.collectAsState()
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
-        val uriSet = prefs.getStringSet("resume_uris", emptySet()) ?: emptySet()
-        uriSet.forEach { uriString ->
+        val uriString = prefs.getString("resume_uri", null)
+        uriString?.let {
             try {
-                val uri = uriString.toUri()
-                savedUris.add(uri)
+                currentUri.value = it.toUri()
             } catch (_: Exception) { }
         }
-        currentUri.value = savedUris.firstOrNull()
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -95,15 +88,8 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                 )
             } catch (_: Exception) { }
             val prefs = context.getSharedPreferences("resume_prefs", 0)
-            val uriSet = prefs.getStringSet("resume_uris", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
-            val added = uriSet.add(it.toString())
-            if (added) {
-                prefs.edit { putStringSet("resume_uris", uriSet) }
-                if (!savedUris.contains(it)) savedUris.add(it)
-                currentUri.value = it
-            } else {
-                currentUri.value = it
-            }
+            prefs.edit { putString("resume_uri", it.toString()) }
+            currentUri.value = it
             uploadViewModel.uploadResume(context, it)
         }
     }
@@ -180,7 +166,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when (uploadState) {
-                is UploadState.Idle -> { /* nothing */ }
+                is UploadState.Idle -> {  }
                 is UploadState.Uploading -> Text("Učitavanje...", color = Color.Gray)
                 is UploadState.Success -> Text((uploadState as UploadState.Success).message, color = Color.Green)
                 is UploadState.Error -> Text((uploadState as UploadState.Error).message, color = Color.Red)
@@ -203,14 +189,10 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {
-                    val removed = uri
-                    savedUris.remove(removed)
                     val prefs = context.getSharedPreferences("resume_prefs", 0)
-                    val uriSet = prefs.getStringSet("resume_uris", emptySet())?.toMutableSet() ?: mutableSetOf()
-                    uriSet.remove(removed.toString())
-                    prefs.edit { putStringSet("resume_uris", uriSet) }
-                    currentUri.value = savedUris.firstOrNull()
-                   // uploadState = UploadState.Idle
+                    prefs.edit { remove("resume_uri") }
+                    currentUri.value = null
+                    uploadViewModel.reset()
                 }) {
                     Text("Ukloni")
                 }
