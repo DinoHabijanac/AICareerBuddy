@@ -1,23 +1,12 @@
 ﻿using AICareerBuddy_DataAccessLayer.Repositories;
 using AICareerBuddy_Entities.Entities;
 using Azure;
-using Azure.Storage;
-using Azure.Storage.Blobs;
 using Azure.Storage.Files.Shares;
-using Azure.Storage.Files.Shares.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace AICareerBuddy_DataAccessLayer.Services
+
+namespace AICareerBuddy_BussinesLogic.Services
 {
     public class ResumeService
     {
@@ -36,7 +25,6 @@ namespace AICareerBuddy_DataAccessLayer.Services
             //return ResumeRepo.GetResume();
             return new Resume();
         }
-        
         
         //PROMJENITI NA studentski račun
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";

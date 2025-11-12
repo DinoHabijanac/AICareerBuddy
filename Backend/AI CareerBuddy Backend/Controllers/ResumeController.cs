@@ -1,4 +1,4 @@
-using AICareerBuddy_DataAccessLayer.Services;
+using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
