@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "http": {
+    "AI CareerBuddy-APILayer (HTTP)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -19,7 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "https": {
+    "AI CareerBuddy-APILayer (HTTPS)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -28,11 +28,12 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
+    },  
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:10892",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
