@@ -52,27 +52,20 @@ class RegisterActivity : ComponentActivity() {
 
 @Composable
 fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel = viewModel()) {
-    // Pribavljanje trenutnog konteksta (za navigaciju nakon uspjeha)
     val context = LocalContext.current
-    // Lokalni state za unesene podatke forme
     val usernameState = remember { mutableStateOf("") }
     val emailState = remember { mutableStateOf("") }
     val passwordState = remember { mutableStateOf("") }
     val confirmPasswordState = remember { mutableStateOf("") }
-    // Prikupljanje trenutnog stanja registracije iz ViewModel-a
     val registerState by viewModel.registerState.collectAsState()
 
-    // Efekt pokretanja: ako je registracija uspjela, pokreni MainActivity i završi ovu aktivnost
     if (registerState is RegisterState.Success) {
         LaunchedEffect(registerState) {
-            // Pokretanje MainActivity
-            context.startActivity(Intent(context, MainActivity::class.java))
-            // Zatvaranje RegisterActivity
-            (context as? Activity)?.finish()
+             context.startActivity(Intent(context, MainActivity::class.java))
+             (context as? Activity)?.finish()
         }
     }
 
-    // UI za unos podataka i prikaz stanja
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -86,7 +79,6 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel =
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Polje za korisničko ime
         OutlinedTextField(
             value = usernameState.value,
             onValueChange = { usernameState.value = it },
@@ -94,15 +86,13 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel =
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
-        // Polje za email
-        OutlinedTextField(
+       OutlinedTextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
             label = { Text(text = "Email") },
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
-        // Polje za lozinku
         OutlinedTextField(
             value = passwordState.value,
             onValueChange = { passwordState.value = it },
@@ -111,8 +101,7 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel =
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
-        // Polje za potvrdu lozinke
-        OutlinedTextField(
+         OutlinedTextField(
             value = confirmPasswordState.value,
             onValueChange = { confirmPasswordState.value = it },
             label = { Text(text = "Potvrda lozinke") },
@@ -120,10 +109,9 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel =
             singleLine = true
         )
         Spacer(modifier = Modifier.height(24.dp))
-        // Gumb za registraciju
+
         Button(
             onClick = {
-                // Poziv ViewModel-a za pokretanje registracije s unesenim podacima
                 viewModel.registerUser(
                     usernameState.value,
                     emailState.value,
@@ -136,7 +124,6 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel =
             Text(text = "Registriraj se")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        // Prikaz poruke o stanju (loading / success / error)
         when (registerState) {
             is RegisterState.Loading -> {
                 Text(text = "Registracija u tijeku...", color = androidx.compose.ui.graphics.Color.Gray)

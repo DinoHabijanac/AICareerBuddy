@@ -18,8 +18,7 @@ object NetworkModule {
     private const val DEBUG = true
     private const val BASE_URL = "https://10.0.2.2:7058/"  // bazni URL backend-a (primjer)
 
-    // Interceptor za jednostavno logiranje osnovnih informacija o zahtjevu/odgovoru
-    private val simpleLoggingInterceptor = Interceptor { chain ->
+   private val simpleLoggingInterceptor = Interceptor { chain ->
         val request = chain.request()
         try {
             Log.d("NetworkModule", "--> ${'$'}{request.method} ${'$'}{request.url}")
@@ -32,8 +31,7 @@ object NetworkModule {
         }
     }
 
-    // Konfiguracija OkHttp klijenta
-    private fun provideOkHttpClient(): OkHttpClient {
+   private fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor { message -> Log.d("OkHttp", message) }
         logging.level = HttpLoggingInterceptor.Level.BODY
 
@@ -44,7 +42,6 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
 
-        // Ako je DEBUG, postaviti "trust-all" SSL context (samo za razvojne svrhe - nesigurno)
         if (DEBUG) {
             try {
                 val trustAllCerts = arrayOf<TrustManager>(
@@ -67,8 +64,7 @@ object NetworkModule {
         return builder.build()
     }
 
-    // Lazy inicijalizacija Retrofit instance i API servisa
-    private val retrofit: Retrofit by lazy {
+   private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(provideOkHttpClient())
