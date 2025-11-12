@@ -1,24 +1,24 @@
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
         policy
-            .AllowAnyOrigin()   // dopušta zahtjeve s bilo koje domene (npr. 10.0.2.2)
-            .AllowAnyMethod()   // dopušta GET, POST, PUT, DELETE itd.
-            .AllowAnyHeader();  // dopušta custom headere (npr. Authorization)
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
-
 var app = builder.Build();
 
+app.Urls.Add("http://0.0.0.0:5096");
 
 if (app.Environment.IsDevelopment())
 {
@@ -26,11 +26,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-app.UseCors("AllowAll");      // mora iæi prije UseAuthorization
-app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+//app.UseHttpsRedirection();
 app.UseAuthorization();
-
 
 app.MapControllers();
 
