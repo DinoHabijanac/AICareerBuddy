@@ -1,4 +1,4 @@
-using AICareerBuddy_DataAccessLayer.Services;
+using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,9 +18,21 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         [HttpGet(Name = "GetResumes")]
-        public IEnumerable<Resume> Get()
+        public IEnumerable<Resume> GetResumes()
         {
             return ResumeService.GetResumes().ToList();
+        }
+
+        [HttpGet("GetResume/{id}")]
+        public Resume Get(int id)
+        {
+            return ResumeService.GetResume(id);
+        }
+
+        [HttpPost(Name = "PostResume")]
+        public async Task<IActionResult> Post(IFormFile file) 
+        {
+            return await ResumeService.PostResume(file);
         }
     }
 }
