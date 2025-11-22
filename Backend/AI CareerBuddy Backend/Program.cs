@@ -1,6 +1,16 @@
+using AICareerBuddy_BussinesLayer.Services;
+using AICareerBuddy_BussinesLogic.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Configuration.AddUserSecrets<Program>();
+
+
+builder.Services.AddScoped<ResumeService>();
+builder.Services.AddScoped<JobService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
