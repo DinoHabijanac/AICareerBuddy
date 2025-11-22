@@ -1,4 +1,5 @@
-﻿using AICareerBuddy_DataAccessLayer.Repositories;
+﻿using AICareerBuddy_BussinesLayer.Interfaces;
+using AICareerBuddy_DataAccessLayer.Repositories;
 using AICareerBuddy_Entities.Entities;
 using Azure;
 using Azure.Storage.Files.Shares;
@@ -8,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AICareerBuddy_BussinesLogic.Services
 {
-    public class ResumeService
+    public class ResumeService : IResumeService
     {
-        public static List<Resume> GetResumes()
+        public List<Resume> GetResumes()
         {
             //implementiraj
 
@@ -18,19 +19,19 @@ namespace AICareerBuddy_BussinesLogic.Services
             return new List<Resume> { new Resume { Id = 1, Name = "Franja" }, new Resume { Id = 2, Name = "Anta" } };
         }
 
-        public static Resume GetResume(int id)
+        public Resume GetResume(int id)
         {
             //implementiraj
 
             //return ResumeRepo.GetResume();
             return new Resume();
         }
-        
+
         //PROMJENITI NA studentski račun
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
         private static string shareName = "portalfiles";
 
-        public async static Task<IActionResult> PostResume(IFormFile file)
+        public async Task<FilesInfo> PostResume(IFormFile file)
         {
             var allowedExtensions = new List<string>
             {
@@ -41,15 +42,15 @@ namespace AICareerBuddy_BussinesLogic.Services
 
             if (file == null || file.Length == 0)
             {
-                return new BadRequestObjectResult("No file provided.");
+                throw new ArgumentNullException("File not provided");
             }
             else if (allowedExtensions.Contains(Path.GetExtension(file.FileName)) == false)
             {
-                return new BadRequestObjectResult("Wrong file extension - allowed (.pdf, .doc, .docx)");
+                throw new FormatException("Wrong file extension - allowed (.pdf, .doc, .docx)");
             }
-            else if(file.Length > 5 * 1024 * 1024)
+            else if (file.Length > 5 * 1024 * 1024)
             {
-                return new BadRequestObjectResult("File is to large (>5MB)");
+                throw new ArgumentOutOfRangeException("File is to large (>5MB)");
             }
             else
             {
@@ -71,13 +72,20 @@ namespace AICareerBuddy_BussinesLogic.Services
 
                         await fileClient.UploadRangeAsync(new HttpRange(0, file.Length), stream);
                     }
-                    return new OkObjectResult(new { FileName = fileName, Uri = fileClient.Uri.ToString() });
+                    return new FilesInfo()
+                    {
+                        ///IMPLEMENTIRAJ SPREMANJE FILE INFO-za svaki resume uploadan u bazu isto
+                        Name = fileName,
+                        Path = fileClient.Uri.ToString(),
+                        Extension = fileName.Substring(fileName.LastIndexOf('.'))
+                    };
                 }
                 catch (Exception ex)
                 {
-                    return new ObjectResult(ex.Message) { StatusCode = 500 };
+                    throw new InvalidOperationException(ex.Message);
                 }
             }
+
             ///IMPLEMENTIRAJ SPREMANJE GUID-a U BAZU (PREKO REPO-A) TAKO DA SE MOŽE DOHVATITI FILE    
         }
     }

@@ -1,7 +1,7 @@
+using AICareerBuddy_BussinesLayer.Interfaces;
 using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace AI_CareerBuddy_Backend.Controllers
 {
@@ -9,18 +9,20 @@ namespace AI_CareerBuddy_Backend.Controllers
     [Route("api/[controller]")]
     public class ResumeController : ControllerBase
     {
-        
-        private readonly ILogger<ResumeController> _logger;
 
-        public ResumeController(ILogger<ResumeController> logger)
+        private readonly ILogger<ResumeController> _logger;
+        private readonly IResumeService ResumeService;
+
+        public ResumeController(ILogger<ResumeController> logger, ResumeService resumeService)
         {
             _logger = logger;
+            ResumeService = resumeService;
         }
 
         [HttpGet(Name = "GetResumes")]
         public IEnumerable<Resume> GetResumes()
         {
-            return ResumeService.GetResumes().ToList();
+            return ResumeService.GetResumes();
         }
 
         [HttpGet("GetResume/{id}")]
@@ -30,9 +32,18 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         [HttpPost(Name = "PostResume")]
-        public async Task<IActionResult> Post(IFormFile file) 
+        public async Task<IActionResult> Post(IFormFile file)
         {
-            return await ResumeService.PostResume(file);
+            try
+            {
+                var fileInfo = await ResumeService.PostResume(file);
+                return Ok(fileInfo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
