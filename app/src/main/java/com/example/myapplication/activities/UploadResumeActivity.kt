@@ -1,8 +1,10 @@
-package com.example.myapplication
+package com.example.myapplication.activities
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -35,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -47,6 +50,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.R
+import com.example.myapplication.UploadState
+import com.example.myapplication.UploadViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 
@@ -130,7 +136,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                     val strokePx = with(density) { 2.dp.toPx() }
                     drawRoundRect(
                         color = Color.Transparent,
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(
+                        cornerRadius = CornerRadius(
                             12.dp.toPx(),
                             12.dp.toPx()
                         ),
@@ -153,7 +159,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                         val cursor = context.contentResolver.query(uri, null, null, null, null)
                         cursor?.use {
                             if (it.moveToFirst()) {
-                                val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                                val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                                 if (idx >= 0) display = it.getString(idx)
                             }
                         }
@@ -182,7 +188,7 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                         }
                         context.startActivity(intent)
                     } catch (e: Exception) {
-                        android.widget.Toast.makeText(context, "Ne mogu otvoriti dokument: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Ne mogu otvoriti dokument: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }) {
                     Text("Otvori")
