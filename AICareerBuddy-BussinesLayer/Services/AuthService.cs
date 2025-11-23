@@ -20,7 +20,7 @@ namespace AICareerBuddy_BusinessLogicLayer.Services
             var user = _users.GetByCredentials(username, password);
             if (user is null)
                 return (false, "Neispravni korisnički podaci.", null);
-
+            //test
             return (true, "Prijava uspješna.", user);
         }
     }
