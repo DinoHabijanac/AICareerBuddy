@@ -1,8 +1,10 @@
-package com.example.myapplication
+package com.example.myapplication.network
 
+import com.example.myapplication.entities.JobListing
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -22,4 +24,8 @@ interface ApiService {
         @Part file: MultipartBody.Part,
         @Part("userId") userId: RequestBody? = null
     ): Response<UploadResponse>
+
+    @GET("api/Job")
+    suspend fun getJobs(): List<JobListing>
 }
+

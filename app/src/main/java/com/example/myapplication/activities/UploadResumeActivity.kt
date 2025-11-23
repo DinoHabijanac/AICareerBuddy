@@ -56,7 +56,7 @@ import com.example.myapplication.UploadViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 
-class MainActivity : ComponentActivity() {
+class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
