@@ -14,7 +14,7 @@ namespace AICareerBuddy_BussinesLayer.Interfaces
         public JobListing GetJob(string jobName);
         public JobListing PostJob(JobListing jobListing);
         public JobListing PutJob(JobListing jobListing);
-        public JobListing DeleteJob(int id);
-        public JobListing DeleteJob(string jobName);
+        public bool DeleteJob(int id);
+        public bool DeleteJob(string jobName);
     }
 }

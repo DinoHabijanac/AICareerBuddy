@@ -10,12 +10,12 @@ namespace AICareerBuddy_BussinesLayer.Services
 {
     public class JobService : IJobService
     {
-        public JobListing DeleteJob(int id)
+        public bool DeleteJob(int id)
         {
             throw new NotImplementedException();
         }
 
-        public JobListing DeleteJob(string jobName)
+        public bool DeleteJob(string jobName)
         {
             throw new NotImplementedException();
         }
@@ -37,7 +37,17 @@ namespace AICareerBuddy_BussinesLayer.Services
 
         public JobListing GetJob(string jobName)
         {
-            throw new NotImplementedException();
+            //TODO: IMPLEMENTIRAT VRAĆANJE IZ BAZE
+            return new JobListing()
+            {
+                Id = 7,
+                Name = jobName,
+                Description = "Work on backend features, write unit tests and fix bugs in a .NET 8 codebase.",
+                Category = "Software Development",
+                Location = "Zagreb, Croatia (Hybrid)",
+                ListingExpires = DateTime.UtcNow.AddDays(30),
+                Terms = new List<string> { "Full-time", "Hybrid", "Junior" }
+            };
         }
 
         public List<JobListing> GetJobs()
@@ -52,7 +62,8 @@ namespace AICareerBuddy_BussinesLayer.Services
                     Category = "Software Development",
                     Location = "Zagreb, Croatia (Hybrid)",
                     ListingExpires = DateTime.UtcNow.AddDays(30),
-                    Terms = new List<string> { "Full-time", "Hybrid", "Junior" }
+                    Terms = new List<string> { "Full-time", "Hybrid", "Junior" },
+                    PayPerHour = 17
                 },
                 new JobListing
                 {
@@ -61,7 +72,8 @@ namespace AICareerBuddy_BussinesLayer.Services
                     Category = "Frontend Development",
                     Location = "Remote",
                     ListingExpires = DateTime.UtcNow.AddDays(25),
-                    Terms = new List<string> { "Full-time", "Remote", "Mid-level" }
+                    Terms = new List<string> { "Full-time", "Remote", "Mid-level" },
+                    PayPerHour = 12
                 },
                 new JobListing
                 {
@@ -70,8 +82,10 @@ namespace AICareerBuddy_BussinesLayer.Services
                     Category = "Data & Analytics",
                     Location = "Split, Croatia (On-site)",
                     ListingExpires = DateTime.UtcNow.AddDays(45),
-                    Terms = new List<string> { "Internship", "On-site", "Part-time" }
-                },
+                    Terms = new List<string> { "Internship", "On-site", "Part-time" },
+                    PayPerHour = 18
+                } /*,
+
                 new JobListing
                 {
                     Name = "DevOps Engineer",
@@ -79,7 +93,8 @@ namespace AICareerBuddy_BussinesLayer.Services
                     Category = "DevOps",
                     Location = "Zagreb, Croatia (On-site)",
                     ListingExpires = DateTime.UtcNow.AddDays(20),
-                    Terms = new List<string> { "Full-time", "On-site", "Experienced" }
+                    Terms = new List<string> { "Full-time", "On-site", "Experienced" },
+                    PayPerHour = 20
                 },
                 new JobListing
                 {
@@ -88,8 +103,9 @@ namespace AICareerBuddy_BussinesLayer.Services
                     Category = "Product",
                     Location = "Hybrid / Remote",
                     ListingExpires = DateTime.UtcNow.AddDays(60),
-                    Terms = new List<string> { "Full-time", "Hybrid", "Senior" }
-                }
+                    Terms = new List<string> { "Full-time", "Hybrid", "Senior" },
+                    PayPerHour = 25 
+                } */
             };
         }
 

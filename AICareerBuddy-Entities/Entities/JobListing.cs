@@ -15,5 +15,6 @@ namespace AICareerBuddy_Entities.Entities
         public string Location { get; set; }
         public DateTime ListingExpires { get; set; }
         public List<string> Terms { get; set; }
+        public int PayPerHour { get; set; } 
     }
 }

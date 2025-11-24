@@ -10,18 +10,18 @@ namespace AI_CareerBuddy_Backend.Controllers
     [ApiController]
     public class JobController : ControllerBase
     {
-        private readonly IJobService _jobService;
+        private readonly IJobService JobService;
 
         public JobController(JobService jobService)
         {
-            _jobService = jobService;
+            JobService = jobService;
         }
 
         // GET: api/Job
         [HttpGet]
         public ActionResult<IEnumerable<JobListing>> Get()
         {
-            var jobs = _jobService.GetJobs();
+            var jobs = JobService.GetJobs();
             return Ok(jobs);
         }
 
@@ -29,7 +29,7 @@ namespace AI_CareerBuddy_Backend.Controllers
         [HttpGet("{id}")]
         public ActionResult<JobListing> Get(int id)
         {
-            var job = _jobService.GetJob(id);
+            var job = JobService.GetJob(id);
             if (job == null) return NotFound();
             return Ok(job);
         }
@@ -39,7 +39,7 @@ namespace AI_CareerBuddy_Backend.Controllers
         public ActionResult<JobListing> Post([FromBody] JobListing job)
         {
             if (job == null) return BadRequest();
-            var created = _jobService.PostJob(job);
+            var created = JobService.PostJob(job);
             if (created == null) return BadRequest();
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
@@ -49,7 +49,7 @@ namespace AI_CareerBuddy_Backend.Controllers
         public ActionResult<JobListing> Put(int id, [FromBody] JobListing job)
         {
             if (job == null || job.Id != id) return BadRequest();
-            var updated = _jobService.PutJob(job);
+            var updated = JobService.PutJob(job);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
@@ -58,8 +58,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var deleted = _jobService.DeleteJob(id);
-            if (deleted == null) return NotFound();
+            var deleted = JobService.DeleteJob(id);
+            if (deleted == false) return NotFound();
             return NoContent();
         }
     }
