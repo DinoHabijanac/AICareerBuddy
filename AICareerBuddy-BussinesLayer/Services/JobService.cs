@@ -1,5 +1,8 @@
 ﻿using AICareerBuddy_BussinesLayer.Interfaces;
+using AICareerBuddy_DataAccessLayer.Repositories;
 using AICareerBuddy_Entities.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,113 +13,52 @@ namespace AICareerBuddy_BussinesLayer.Services
 {
     public class JobService : IJobService
     {
-        public bool DeleteJob(int id)
+        private readonly JobRepository Repository;
+
+        public JobService()
         {
-            throw new NotImplementedException();
+            Repository = new JobRepository();
         }
 
-        public bool DeleteJob(string jobName)
+        public async Task<JobListing> GetJob(int id)
         {
-            throw new NotImplementedException();
+            return await Repository.GetJob(id).FirstAsync();
         }
 
-        public JobListing GetJob(int id)
+        public async Task<JobListing> GetJob(string jobName)
         {
-            //TODO: IMPLEMENTIRAT VRAĆANJE IZ BAZE
-            return new JobListing()
-            {
-                Id = id,
-                Name = "Junior .NET Developer",
-                Description = "Work on backend features, write unit tests and fix bugs in a .NET 8 codebase.",
-                Category = "Software Development",
-                Location = "Zagreb, Croatia (Hybrid)",
-                ListingExpires = DateTime.UtcNow.AddDays(30),
-                Terms = new List<string> { "Full-time", "Hybrid", "Junior" }
-            };
+            return await Repository.GetJob(jobName).FirstAsync();
+        }
+        public async Task<List<JobListing>> GetJobs()
+        {
+            return await Repository.GetAll().ToListAsync();
+        }
+        public async Task<bool> PostJob(JobListing jobListing)
+        {
+            var result = await Repository.Add(jobListing);
+            if (result == 1) return true;
+            else return false;
         }
 
-        public JobListing GetJob(string jobName)
+        public async Task<bool> PutJob(JobListing jobListing)
         {
-            //TODO: IMPLEMENTIRAT VRAĆANJE IZ BAZE
-            return new JobListing()
-            {
-                Id = 7,
-                Name = jobName,
-                Description = "Work on backend features, write unit tests and fix bugs in a .NET 8 codebase.",
-                Category = "Software Development",
-                Location = "Zagreb, Croatia (Hybrid)",
-                ListingExpires = DateTime.UtcNow.AddDays(30),
-                Terms = new List<string> { "Full-time", "Hybrid", "Junior" }
-            };
+            var result = await Repository.Update(jobListing);        
+            if(result==1) return true;
+            else return false;
         }
-
-        public List<JobListing> GetJobs()
+        public async Task<bool> DeleteJob(int id)
         {
-            //TODO: IMPLEMENTIRAT VRAĆANJE IZ BAZE
-            return new List<JobListing>
-            {
-                new JobListing
-                {
-                    Name = "Junior .NET Developer",
-                    Description = "Work on backend features, write unit tests and fix bugs in a .NET 8 codebase.",
-                    Category = "Software Development",
-                    Location = "Zagreb, Croatia (Hybrid)",
-                    ListingExpires = DateTime.UtcNow.AddDays(30),
-                    Terms = new List<string> { "Full-time", "Hybrid", "Junior" },
-                    PayPerHour = 17
-                },
-                new JobListing
-                {
-                    Name = "Frontend Engineer (React)",
-                    Description = "Build responsive UI components and collaborate with designers to improve UX.",
-                    Category = "Frontend Development",
-                    Location = "Remote",
-                    ListingExpires = DateTime.UtcNow.AddDays(25),
-                    Terms = new List<string> { "Full-time", "Remote", "Mid-level" },
-                    PayPerHour = 12
-                },
-                new JobListing
-                {
-                    Name = "Data Analyst Intern",
-                    Description = "Support data collection and analysis, prepare dashboards and reports using SQL and Power BI.",
-                    Category = "Data & Analytics",
-                    Location = "Split, Croatia (On-site)",
-                    ListingExpires = DateTime.UtcNow.AddDays(45),
-                    Terms = new List<string> { "Internship", "On-site", "Part-time" },
-                    PayPerHour = 18
-                } /*,
-
-                new JobListing
-                {
-                    Name = "DevOps Engineer",
-                    Description = "Maintain CI/CD pipelines, infrastructure-as-code and monitor cloud services (Azure).",
-                    Category = "DevOps",
-                    Location = "Zagreb, Croatia (On-site)",
-                    ListingExpires = DateTime.UtcNow.AddDays(20),
-                    Terms = new List<string> { "Full-time", "On-site", "Experienced" },
-                    PayPerHour = 20
-                },
-                new JobListing
-                {
-                    Name = "Product Manager",
-                    Description = "Define product roadmap, gather requirements and coordinate cross-functional teams.",
-                    Category = "Product",
-                    Location = "Hybrid / Remote",
-                    ListingExpires = DateTime.UtcNow.AddDays(60),
-                    Terms = new List<string> { "Full-time", "Hybrid", "Senior" },
-                    PayPerHour = 25 
-                } */
-            };
+            var job = Repository.GetJob(id).FirstOrDefault();
+            var result = await Repository.Remove(job);
+            if(result==1) return true;
+            else return false;
         }
-
-        public JobListing PostJob(JobListing jobListing)
+        public async Task<bool> DeleteJob(string jobName)
         {
-            throw new NotImplementedException();
-        }
-
-        public JobListing PutJob(JobListing jobListing)
-        {
-            throw new NotImplementedException();
+            var job = Repository.GetJob(jobName).FirstOrDefault();
+            var result = await Repository.Remove(job);
+            if (result == 1) return true;
+            else return false;
         }
     }
 }

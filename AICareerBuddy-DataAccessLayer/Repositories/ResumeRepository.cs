@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace AICareerBuddy_DataAccessLayer.Repositories
 {
-    public class ResumeRepo
+    public class ResumeRepository
     {
-        public static IQueryable<Resume> GetResume()
+        public IQueryable<Resume> GetResume()
         {
             //implementiraj
             return null;
         }
 
-        public static IQueryable<Resume> GetResumes()
+        public IQueryable<Resume> GetResumes()
         {
             //implementiraj
             return null;

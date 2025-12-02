@@ -1,5 +1,10 @@
+using AICareerBuddy_BussinesLayer.Interfaces;
 using AICareerBuddy_BussinesLayer.Services;
 using AICareerBuddy_BussinesLogic.Services;
+using AICareerBuddy_DataAccessLayer.Repositories;
+using AICareerBuddy_Entities.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
 
 
-builder.Services.AddScoped<ResumeService>();
-builder.Services.AddScoped<JobService>();
+//builder.Services.AddDbContext<AIR_projektContext>(options =>
+ //   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddScoped<JobRepository>();
+
+builder.Services.AddScoped<IResumeService, ResumeService>();
+builder.Services.AddScoped<IJobService, JobService>();
 
 
 builder.Services.AddControllers();
