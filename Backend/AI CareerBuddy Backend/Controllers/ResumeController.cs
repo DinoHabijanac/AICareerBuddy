@@ -2,6 +2,7 @@ using AICareerBuddy_BussinesLayer.Interfaces;
 using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace AI_CareerBuddy_Backend.Controllers
 {
@@ -13,30 +14,30 @@ namespace AI_CareerBuddy_Backend.Controllers
         private readonly ILogger<ResumeController> _logger;
         private readonly IResumeService ResumeService;
 
-        public ResumeController(ILogger<ResumeController> logger, ResumeService resumeService)
+        public ResumeController(ILogger<ResumeController> logger, IResumeService resumeService)
         {
             _logger = logger;
             ResumeService = resumeService;
         }
 
         [HttpGet(Name = "GetResumes")]
-        public IEnumerable<Resume> GetResumes()
+        public async Task<IEnumerable<ResumeFileInfo>> GetResumes()
         {
-            return ResumeService.GetResumes();
+            return await ResumeService.GetResumes();
         }
 
         [HttpGet("GetResume/{id}")]
-        public Resume Get(int id)
+        public async Task<ResumeFileInfo> Get(int id)
         {
-            return ResumeService.GetResume(id);
+            return await ResumeService.GetResume(id);
         }
 
         [HttpPost(Name = "PostResume")]
-        public async Task<IActionResult> Post(IFormFile file)
+        public async Task<IActionResult> Post(IFormFile file, int userId)
         {
             try
             {
-                var fileInfo = await ResumeService.PostResume(file);
+                var fileInfo = await ResumeService.PostResume(file, userId);
                 return Ok(fileInfo);
             }
             catch (Exception ex)

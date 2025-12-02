@@ -4,34 +4,34 @@ using AICareerBuddy_Entities.Entities;
 using Azure;
 using Azure.Storage.Files.Shares;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace AICareerBuddy_BussinesLogic.Services
 {
     public class ResumeService : IResumeService
     {
-        public List<Resume> GetResumes()
-        {
-            //implementiraj
+        private ResumeFileRepository Repository;
 
-            //return ResumeRepo.GetResumes().ToList();
-            return new List<Resume> { new Resume { Id = 1, Name = "Franja" }, new Resume { Id = 2, Name = "Anta" } };
+        public ResumeService() 
+        {
+            Repository = new ResumeFileRepository();
         }
 
-        public Resume GetResume(int id)
+        public async Task<List<ResumeFileInfo>> GetResumes()
         {
-            //implementiraj
+            return await Repository.GetAll().ToListAsync();
+        }
 
-            //return ResumeRepo.GetResume();
-            return new Resume();
+        public async Task<ResumeFileInfo> GetResume(int userId)
+        {
+            return await Repository.GetResume(userId).FirstOrDefaultAsync();
         }
 
         //PROMJENITI NA studentski račun
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
         private static string shareName = "portalfiles";
 
-        public async Task<FilesInfo> PostResume(IFormFile file)
+        public async Task<ResumeFileInfo> PostResume(IFormFile file, int userId)
         {
             var allowedExtensions = new List<string>
             {
@@ -51,6 +51,10 @@ namespace AICareerBuddy_BussinesLogic.Services
             else if (file.Length > 5 * 1024 * 1024)
             {
                 throw new ArgumentOutOfRangeException("File is to large (>5MB)");
+            }
+            else if (userId <= 0)
+            {
+                throw new ArgumentOutOfRangeException("User ID is has a negative value");
             }
             else
             {
@@ -72,21 +76,23 @@ namespace AICareerBuddy_BussinesLogic.Services
 
                         await fileClient.UploadRangeAsync(new HttpRange(0, file.Length), stream);
                     }
-                    return new FilesInfo()
+
+                    var fileInfo = new ResumeFileInfo()
                     {
-                        ///IMPLEMENTIRAJ SPREMANJE FILE INFO-za svaki resume uploadan u bazu isto
                         Name = fileName,
                         Path = fileClient.Uri.ToString(),
-                        Extension = fileName.Substring(fileName.LastIndexOf('.'))
+                        Extension = fileName.Substring(fileName.LastIndexOf('.')),
+                        UserId = userId
                     };
+                    var result = await Repository.Add(fileInfo);
+                    if (result == 1) return fileInfo;
+                    else return null;
                 }
                 catch (Exception ex)
                 {
                     throw new InvalidOperationException(ex.Message);
                 }
             }
-
-            ///IMPLEMENTIRAJ SPREMANJE GUID-a U BAZU (PREKO REPO-A) TAKO DA SE MOŽE DOHVATITI FILE    
         }
     }
 }

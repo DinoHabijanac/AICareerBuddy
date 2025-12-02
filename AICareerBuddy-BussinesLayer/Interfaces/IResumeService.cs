@@ -10,8 +10,8 @@ namespace AICareerBuddy_BussinesLayer.Interfaces
 {
     public interface IResumeService
     {
-        public List<Resume> GetResumes();
-        public Resume GetResume(int id);
-        public Task<FilesInfo> PostResume(IFormFile file);
+        public Task<List<ResumeFileInfo>> GetResumes();
+        public Task<ResumeFileInfo> GetResume(int id);
+        public Task<ResumeFileInfo> PostResume(IFormFile file, int userId);
     }
 }

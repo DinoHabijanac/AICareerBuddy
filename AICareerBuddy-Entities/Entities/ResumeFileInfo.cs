@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 namespace AICareerBuddy_Entities.Entities;
 
-public partial class FilesInfo
+public partial class ResumeFileInfo
 {
+    public int Id { get; set; }
+
     public string Name { get; set; }
 
     public string Path { get; set; }
@@ -16,4 +18,6 @@ public partial class FilesInfo
     public string Extension { get; set; }
 
     public DateOnly? CreateDate { get; set; }
+
+    public int UserId { get; set; }
 }

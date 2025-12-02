@@ -17,11 +17,9 @@ public partial class AIR_projektContext : DbContext
     {
     }
 
-    public virtual DbSet<FilesInfo> FilesInfos { get; set; }
-
     public virtual DbSet<JobListing> JobListings { get; set; }
 
-    public virtual DbSet<Resume> Resumes { get; set; }
+    public virtual DbSet<ResumeFileInfo> ResumeFileInfos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -29,21 +27,6 @@ public partial class AIR_projektContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<FilesInfo>(entity =>
-        {
-            entity.HasKey(e => e.Name);
-
-            entity.ToTable("FilesInfo");
-
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Extension)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Path).HasColumnType("text");
-        });
-
         modelBuilder.Entity<JobListing>(entity =>
         {
             entity.ToTable("JobListing");
@@ -62,26 +45,22 @@ public partial class AIR_projektContext : DbContext
             entity.Property(e => e.Terms).HasColumnType("text");
         });
 
-        modelBuilder.Entity<Resume>(entity =>
+        modelBuilder.Entity<ResumeFileInfo>(entity =>
         {
-            entity.ToTable("Resume");
+            entity.ToTable("ResumeFileInfo");
+
+            entity.HasIndex(e => e.Id, "IX_ResumeFileInfo").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.AboutMe).HasColumnType("text");
-            entity.Property(e => e.Email)
+            entity.Property(e => e.Extension)
+                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Name)
+                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Projects).HasColumnType("text");
-            entity.Property(e => e.Surname)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.WorkExperience).HasColumnType("text");
+            entity.Property(e => e.Path).HasColumnType("text");
         });
 
         OnModelCreatingPartial(modelBuilder);
