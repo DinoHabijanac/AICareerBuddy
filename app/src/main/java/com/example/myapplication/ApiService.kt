@@ -1,25 +1,44 @@
 package com.example.myapplication
 
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Headers
+import retrofit2.http.DELETE
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 
-data class UploadResponse(
-    val success: Boolean = false,
-    val message: String? = null,
-    val fileUrl: String? = null
-)
-
 interface ApiService {
+    /**
+     * Uploada novi životopis korisnika.
+     * Identifikacija korisnika se radi na backendu putem JWT tokena.
+     */
     @Multipart
-    @Headers("Accept: application/json")
     @POST("api/Resume")
-    suspend fun uploadResume(
-        @Part file: MultipartBody.Part,
-        @Part("userId") userId: RequestBody? = null
-    ): Response<UploadResponse>
+    suspend fun uploadCv(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Response<ResponseBody>
+
+    /**
+     * Ažurira (ili uploada novi) životopis korisnika.
+     * Identifikacija korisnika se radi na backendu putem JWT tokena.
+     */
+    @Multipart
+    @PUT("api/cv/update")
+    suspend fun updateCv(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Response<ResponseBody>
+
+    /**
+     * Briše životopis korisnika.
+     * Identifikacija korisnika se radi na backendu putem JWT tokena.
+     */
+    @DELETE("api/cv/delete")
+    suspend fun deleteCv(
+        @Header("Authorization") token: String
+    ): Response<ResponseBody>
 }
