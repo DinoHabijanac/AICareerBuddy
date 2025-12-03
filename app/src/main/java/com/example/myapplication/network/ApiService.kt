@@ -22,7 +22,7 @@ interface ApiService {
     @POST("api/Resume")
     suspend fun uploadResume(
         @Part file: MultipartBody.Part,
-        @Part("userId") userId: RequestBody? = null
+        @Part("userId") userId: RequestBody
     ): Response<UploadResponse>
 
     @GET("api/Job")
