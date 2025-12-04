@@ -49,8 +49,12 @@ namespace AICareerBuddy_BussinesLayer.Services
         public async Task<bool> DeleteJob(int id)
         {
             var job = Repository.GetJob(id).FirstOrDefault();
-            var result = await Repository.Remove(job);
-            if(result==1) return true;
+            int result;
+            if (job != null) result = await Repository.Remove(job);
+            else result = 0;
+
+
+            if (result == 1) return true;
             else return false;
         }
         public async Task<bool> DeleteJob(string jobName)

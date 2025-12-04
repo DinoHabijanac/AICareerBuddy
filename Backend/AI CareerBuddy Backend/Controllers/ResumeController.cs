@@ -27,13 +27,22 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         [HttpGet("GetResume/{id}")]
-        public async Task<ResumeFileInfo> Get(int id)
+        public async Task<ActionResult<ResumeFileInfo>> Get(int id)
         {
-            return await ResumeService.GetResume(id);
+            try
+            {
+                return await ResumeService.GetResume(id);
+            }
+            catch
+            {
+                return NotFound();
+            }
+            
         }
 
         [HttpPost(Name = "PostResume")]
-        public async Task<IActionResult> Post(IFormFile file, int userId)
+        [Consumes ("multipart/form-data")]
+        public async Task<IActionResult> Post(IFormFile file, [FromForm] int userId)
         {
             try
             {

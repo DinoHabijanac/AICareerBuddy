@@ -24,12 +24,14 @@ namespace AICareerBuddy_BussinesLogic.Services
 
         public async Task<ResumeFileInfo> GetResume(int userId)
         {
-            return await Repository.GetResume(userId).FirstOrDefaultAsync();
+            var resume = await Repository.GetResume(userId).FirstAsync();
+            if (resume != null) return resume;
+            else return null;
         }
 
         //PROMJENITI NA studentski račun
-        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
-        private static string shareName = "portalfiles";
+        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=infoguardians;AccountKey=nvu6Lea2QGu1IoVTaBKLgTWyTZM68vFsKp+bR5FItKOtJmJeurRJgWi1+J41OVxJIzs66nMvIBdS+AStEUv6MA==;EndpointSuffix=core.windows.net";
+        private static string shareName = "infoguardians";
 
         public async Task<ResumeFileInfo> PostResume(IFormFile file, int userId)
         {
@@ -54,7 +56,7 @@ namespace AICareerBuddy_BussinesLogic.Services
             }
             else if (userId <= 0)
             {
-                throw new ArgumentOutOfRangeException("User ID is has a negative value");
+                throw new ArgumentOutOfRangeException($"User ID is has a negative value - {userId}");
             }
             else
             {
@@ -82,6 +84,7 @@ namespace AICareerBuddy_BussinesLogic.Services
                         Name = fileName,
                         Path = fileClient.Uri.ToString(),
                         Extension = fileName.Substring(fileName.LastIndexOf('.')),
+                        CreateDate = DateOnly.FromDateTime(DateTime.Now),
                         UserId = userId
                     };
                     var result = await Repository.Add(fileInfo);
