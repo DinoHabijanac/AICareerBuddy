@@ -55,7 +55,7 @@ import com.example.myapplication.UploadState
 import com.example.myapplication.UploadViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
-
+// ova aktivnost omogućuje upload zivotopisa studentima i spremanje na azure i u bazu referencu
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
