@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.viewmodels
 
 import android.content.Context
 import android.net.Uri
@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.network.NetworkModule
+import com.example.myapplication.helpers.uriToMultipart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,8 +42,6 @@ class UploadViewModel : ViewModel() {
                     val body = response.body()
                     if (body != null) {
                         _uploadState.value = UploadState.Success(body.message ?: "Uspješno učitano")
-                    } else {
-                        _uploadState.value = UploadState.Success("Uspjeh (bez tijela odgovora)")
                     }
                 } else {
                     val err = response.errorBody()?.string() ?: "HTTP ${response.code()}"

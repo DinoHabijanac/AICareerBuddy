@@ -1,6 +1,6 @@
 package com.example.myapplication.network
 
-import com.example.myapplication.entities.JobListing
+import com.example.myapplication.models.JobListing
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

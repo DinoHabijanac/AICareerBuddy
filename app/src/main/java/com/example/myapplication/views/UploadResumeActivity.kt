@@ -1,4 +1,4 @@
-package com.example.myapplication.activities
+package com.example.myapplication.views
 
 import android.content.Intent
 import android.net.Uri
@@ -51,8 +51,8 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.R
-import com.example.myapplication.UploadState
-import com.example.myapplication.UploadViewModel
+import com.example.myapplication.viewmodels.UploadState
+import com.example.myapplication.viewmodels.UploadViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 // ova aktivnost omogućuje upload zivotopisa studentima i spremanje na azure i u bazu referencu

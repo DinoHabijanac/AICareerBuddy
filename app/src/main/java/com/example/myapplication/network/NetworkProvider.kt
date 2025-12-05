@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.Instant
 import java.time.ZoneId
-import com.example.myapplication.entities.JobListing
+import com.example.myapplication.models.JobListing
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

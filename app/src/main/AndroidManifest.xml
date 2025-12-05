@@ -17,22 +17,22 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".activities.CreateJobActivity"
+            android:name=".views.CreateJobActivity"
             android:exported="false"
             android:label="@string/title_activity_create_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".activities.JobActivity"
+            android:name=".views.JobActivity"
             android:exported="false"
             android:label="@string/title_activity_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".activities.UploadResumeActivity"
+            android:name=".views.UploadResumeActivity"
             android:exported="false"
             android:label="Učitaj životopis"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".views.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication">

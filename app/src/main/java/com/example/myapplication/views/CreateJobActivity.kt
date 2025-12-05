@@ -1,4 +1,4 @@
-package com.example.myapplication.activities
+package com.example.myapplication.views
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,7 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
-import com.example.myapplication.activities.ui.theme.MyApplicationTheme
+import com.example.myapplication.views.ui.theme.MyApplicationTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

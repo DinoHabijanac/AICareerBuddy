@@ -1,4 +1,4 @@
-package com.example.myapplication.activities
+package com.example.myapplication.views
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -38,7 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
-import com.example.myapplication.entities.JobListing
+import com.example.myapplication.models.JobListing
 import com.example.myapplication.network.NetworkModule
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
