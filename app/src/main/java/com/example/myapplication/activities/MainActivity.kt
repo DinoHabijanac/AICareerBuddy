@@ -39,10 +39,13 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(modifier = Modifier.padding(innerPadding),
                         onResumeClick = {
-                            startActivity(Intent(this, com.example.myapplication.activities.UploadResumeActivity::class.java))
+                            startActivity(Intent(this, UploadResumeActivity::class.java))
                         },
-                        onJobsClick = {
-                            startActivity(Intent(this, com.example.myapplication.activities.JobActivity::class.java))
+                        onViewJobsClick = {
+                            startActivity(Intent(this, JobActivity::class.java))
+                        },
+                        onCreateJobsClick = {
+                            startActivity(Intent(this, CreateJobActivity::class.java))
                         }
                     )
                 }
@@ -52,7 +55,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onJobsClick: () -> Unit = {}) {
+fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -90,8 +93,12 @@ fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, on
                 Text(text = "Životopis")
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onJobsClick, modifier = Modifier.width(220.dp)) {
+            Button(onClick = onViewJobsClick, modifier = Modifier.width(220.dp)) {
                 Text(text = "Pregled poslova")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
+                Text(text = "Kreiranje poslova")
             }
         }
     }
