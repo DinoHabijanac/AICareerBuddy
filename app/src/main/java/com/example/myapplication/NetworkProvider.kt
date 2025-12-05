@@ -16,7 +16,7 @@ object NetworkModule {
     // promjeniti postavke - ovo je nesigurno
     // promjeniti na false
     private const val DEBUG = true
-    private const val BASE_URL = "https://192.168.100.6:7058/"
+    private const val BASE_URL = "https://10.0.2.2:7058/"
     private val simpleLoggingInterceptor = Interceptor { chain ->
         val request = chain.request()
         try {

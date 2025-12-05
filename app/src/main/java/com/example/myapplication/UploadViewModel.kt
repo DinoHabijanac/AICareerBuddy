@@ -29,7 +29,7 @@ class UploadViewModel : ViewModel() {
 
     private fun getAuthToken(): String {
         // This needs to be replaced with your actual token retrieval logic
-        return "Bearer your_jwt_token_goes_here"
+        return "Bearer faketoken123"
     }
 
     fun uploadResume(context: Context, uri: Uri) {

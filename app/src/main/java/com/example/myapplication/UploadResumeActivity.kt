@@ -56,17 +56,6 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
     val showEditConfirmation = remember { mutableStateOf(false) }
     val showDeleteConfirmation = remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        val uriString = prefs.getString("resume_uri", null)
-        if (uriString != null) {
-            try {
-                setCurrentUri(Uri.parse(uriString))
-            } catch (e: Exception) {
-                prefs.edit { remove("resume_uri") }
-            }
-        }
-    }
-    
     // This LaunchedEffect reacts to the result from the ViewModel
     LaunchedEffect(uploadState) {
         val state = uploadState
