@@ -65,7 +65,6 @@ object NetworkModule {
             val category = if (obj.has("category") && !obj.get("category").isJsonNull) obj.get("category").asString else ""
             val location = if (obj.has("location") && !obj.get("location").isJsonNull) obj.get("location").asString else ""
 
-            // listingExpires may be a string (ISO instant) or an object; handle both
             var listingExpiresLdt = LocalDateTime.now()
             if (obj.has("listingExpires") && !obj.get("listingExpires").isJsonNull) {
                 val le = obj.get("listingExpires")
@@ -94,6 +93,7 @@ object NetworkModule {
 
             JobListing(
                 id = id,
+                employerId = 1, // ispravi nakon što se implementira prijava
                 name = name,
                 description = description,
                 category = category,
