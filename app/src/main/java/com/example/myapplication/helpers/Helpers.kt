@@ -50,7 +50,7 @@ fun queryFileName(contentResolver: ContentResolver, uri: Uri): String? {
     return displayName
 }
 
-val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
+public val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     val str = try { json.asString } catch (_: Exception) { "" }
     if (str.isBlank()) return@JsonDeserializer LocalDateTime.now()
     try {
@@ -64,7 +64,7 @@ val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: JsonElem
         }
     }
 }
-val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
+public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     try {
         val obj = json.asJsonObject
         val id = if (obj.has("id") && !obj.get("id").isJsonNull) obj.get("id").asInt else 0
@@ -72,7 +72,7 @@ val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _
         val description = if (obj.has("description") && !obj.get("description").isJsonNull) obj.get("description").asString else ""
         val category = if (obj.has("category") && !obj.get("category").isJsonNull) obj.get("category").asString else ""
         val location = if (obj.has("location") && !obj.get("location").isJsonNull) obj.get("location").asString else ""
-        val terms = if (obj.has("tems") && !obj.get("terms").isJsonNull) obj.get("terms").asString else ""
+        val terms = if (obj.has("terms") && !obj.get("terms").isJsonNull) obj.get("terms").asString else ""
 
         var listingExpiresLdt = LocalDate.now()
         if (obj.has("listingExpires") && !obj.get("listingExpires").isJsonNull) {

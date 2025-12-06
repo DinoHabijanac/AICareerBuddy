@@ -14,7 +14,9 @@ class JobsViewModel : ViewModel() {
 
     private val _jobs = MutableLiveData<List<JobListing>>()
     val jobs: LiveData<List<JobListing>> = _jobs
-    var uploadState : String = ""
+
+    private val _uploadState = MutableLiveData<String>()
+    var uploadState : LiveData<String> = _uploadState
     fun uploadJob(job: JobListing) {
         Log.d("pregled joba",job.toString())
         viewModelScope.launch {
@@ -22,13 +24,13 @@ class JobsViewModel : ViewModel() {
                 val response = NetworkModule.apiService.postJob(job)
                 Log.d("odgovor", response.raw().toString())
                 if(response.isSuccessful){
-                    uploadState = "Uspješno dodan oglas"
+                    _uploadState.postValue("Uspješno dodan oglas")
                 }
                 else{
-                    uploadState = "Greška pri dodavanju oglasa - ${response.code()}"
+                    _uploadState.postValue("Greška pri dodavanju oglasa - ${response.code()}")
                 }
             }catch (e: Exception){
-                uploadState = "Greška pri dodavanju oglasa - ${e.message}"
+                _uploadState.postValue("Greška pri dodavanju oglasa - ${e.message}")
             }
         }
     }

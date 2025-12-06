@@ -6,6 +6,8 @@ import com.example.myapplication.helpers.localDateTimeDeserializer
 import com.example.myapplication.models.JobListing
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializer
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,7 +15,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -40,8 +44,14 @@ object NetworkModule {
 
 
     private fun provideGson(): Gson {
+
+        val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
+            if (src == null) null else JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
+        }
+
         return GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, localDateTimeDeserializer)
+            .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
             .registerTypeAdapter(JobListing::class.java, jobListingDeserializer)
             .create()
     }

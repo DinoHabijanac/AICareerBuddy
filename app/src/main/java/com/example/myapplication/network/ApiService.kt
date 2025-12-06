@@ -23,7 +23,7 @@ interface ApiService {
     @Multipart
     @Headers("Accept: application/json")
     @POST("api/Resume")
-    fun uploadResume(
+    suspend fun uploadResume(
         @Part file: MultipartBody.Part,
         @Part("userId") userId: RequestBody
     ): Response<UploadResponse>
@@ -34,7 +34,6 @@ interface ApiService {
     suspend fun getJobs(): List<JobListing>
 
     @POST(value = "api/Job")
-    suspend fun postJob(@Body job : JobListing) : Response<UploadResponse>
+    suspend fun postJob(@Body job: JobListing) : Response<UploadResponse>
 
 }
-

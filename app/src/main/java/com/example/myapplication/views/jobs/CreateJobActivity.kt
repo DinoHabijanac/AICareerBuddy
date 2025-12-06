@@ -177,11 +177,20 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
                             employerId = 2 // ISPRAVI NAKON PRIJAVE
                         )
                         jobsViewModel.uploadJob(job)
-                        Toast.makeText(context, jobsViewModel.uploadState, Toast.LENGTH_SHORT).show()
-                        Log.d("Debugiranje!",jobsViewModel.uploadState)
-
+                        if(jobsViewModel.uploadState.value == "Uspješno dodan oglas"){
+                            name = ""
+                            description = ""
+                            category = ""
+                            location = ""
+                            listingExpires = ""
+                            terms = ""
+                            payPerHour = ""
+                        }
+                        Toast.makeText(context, jobsViewModel.uploadState.value, Toast.LENGTH_SHORT).show()
+                        Log.d("Debugiranje!",jobsViewModel.uploadState.value.toString())
                     }catch (e: Exception){
                         Toast.makeText(context, "Greška pri dodavanju oglasa - ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.d("Debugiranje!",e.message.toString())
                     }
                 },
             ) {
