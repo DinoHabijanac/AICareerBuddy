@@ -1,4 +1,4 @@
-package com.example.myapplication.views
+package com.example.myapplication.views.resume
 
 import android.content.Intent
 import android.net.Uri
