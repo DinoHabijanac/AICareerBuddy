@@ -40,7 +40,10 @@ namespace AI_CareerBuddy_Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<JobListing>> Post([FromBody] JobListing job)
         {
-            if (job == null) return BadRequest();
+            var result = DateOnly.TryParse(job.ListingExpires.ToString(), out var dt);
+            if(result) job.ListingExpires = dt;
+            else job.ListingExpires = DateOnly.FromDateTime(DateTime.Now);
+
             var isCreated = await JobService.PostJob(job);
             if (isCreated) return Created();
             else return BadRequest();

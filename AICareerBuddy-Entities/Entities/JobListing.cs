@@ -22,4 +22,6 @@ public partial class JobListing
     public string Terms { get; set; }
 
     public int? PayPerHour { get; set; }
+
+    public int EmployerId { get; set; }
 }

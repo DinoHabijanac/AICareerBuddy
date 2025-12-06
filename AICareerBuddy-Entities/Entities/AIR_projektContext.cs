@@ -31,7 +31,6 @@ public partial class AIR_projektContext : DbContext
         {
             entity.ToTable("JobListing");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Category)
                 .HasMaxLength(50)
                 .IsUnicode(false);
