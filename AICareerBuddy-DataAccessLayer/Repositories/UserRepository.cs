@@ -1,25 +1,32 @@
-﻿using System;
+﻿// AICareerBuddy-DataAccessLayer/Repositories/UserRepo.cs
+using AICareerBuddy_Entities.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AICareerBuddy_Entities.Entities;
 
 namespace AICareerBuddy_DataAccessLayer.Repositories
 {
-    // Demo in-memory repo; kasnije EF Core
-    public class UserRepository
+    public static class UserRepository
     {
-        private readonly List<User> _users = new()
-        {
-            new User { Id = 1, Username = "test",  Password = "1234", Email = "test@mail.com"  },
-            new User { Id = 2, Username = "admin", Password = "admin", Email = "admin@mail.com" }
-        };
+        // In-memory "baza" korisnika
+        private static List<User> _users = new List<User>();
 
-        public User? GetByCredentials(string username, string password)
-            => _users.FirstOrDefault(u =>
-                u.Username.Equals(username, StringComparison.OrdinalIgnoreCase) &&
-                u.Password == password);
+        public static User? GetUserByEmail(string email)
+        {
+            return _users.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+        }
+
+        // **NOVO**: Dohvat korisnika po korisničkom imenu
+        public static User? GetUserByUsername(string username)
+        {
+            return _users.FirstOrDefault(u => u.Username.ToLower() == username.ToLower());
+        }
+
+        public static User Add(User user)
+        {
+            // Dodijeli ID (npr. auto-increment simulacija)
+            user.Id = _users.Count + 1;
+            _users.Add(user);
+            return user;
+        }
     }
 }
-

@@ -1,39 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AICareerBuddy_BusinessLogicLayer.Services;
-using AI_CareerBuddy_Backend.DTOs;
+﻿// Backend/AI CareerBuddy Backend/Controllers/AuthController.cs
+using AICareerBuddy_BussinesLogic.Services;
+using AICareerBuddy_Entities.Entities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace AICareerBuddy_APILayer.Controllers
+namespace AI_CareerBuddy_Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _auth;
-
-        public AuthController()
+        private readonly AuthService _authService;
+        public AuthController(AuthService authService)
         {
-            _auth = new AuthService();
+            _authService = authService;
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] RegistrationRequestDto request)
+        {
+            try
+            {
+                var responseDto = _authService.RegisterUser(request);
+                return Ok(responseDto);
+            } catch (ArgumentException ex)
+            {
+                // Validation or duplicate error (email already exists, etc.)
+                return BadRequest(ex.Message);
+            } catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] LoginRequestDto request)
         {
-            var (success, message, user) = _auth.Login(request.Username, request.Password);
-
-            if (!success)
-                return Unauthorized(new LoginResponse { Success = false, Message = message });
-
-            // placeholder token; za JWT, zamijeniti
-            var token = Guid.NewGuid().ToString();
-
-            return Ok(new LoginResponse
+            try
             {
-                Success = true,
-                Message = message,
-                Token = token,
-                User = new { user!.Id, user.Username, user.Email }
-            });
+                var responseDto = _authService.LoginUser(request);
+                return Ok(responseDto);
+            } catch (ArgumentException ex)
+            {
+                // Invalid credentials or validation error
+                return BadRequest(ex.Message);
+            } catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
-
