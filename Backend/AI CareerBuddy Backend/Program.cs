@@ -1,6 +1,12 @@
 using AICareerBuddy_BussinesLogic.Services;
+using Microsoft.EntityFrameworkCore;
+using AICareerBuddy_DataAccessLayer.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AIR_projektContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Configuration.AddUserSecrets<Program>();
 
 // Add the RegistrationService for DI
