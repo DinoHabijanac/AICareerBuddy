@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using AICareerBuddy_DataAccessLayer.Models;
+using AICareerBuddy_Entities.Entities;
 
 namespace AICareerBuddy_BussinesLogicLayer.Interfaces
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AICareerBuddy_DataAccessLayer.Models;
+using AICareerBuddy_Entities.Entities;
 
 namespace AI_CareerBuddy_APILayer.Controllers
 {

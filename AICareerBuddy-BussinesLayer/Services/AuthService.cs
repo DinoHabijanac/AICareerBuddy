@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;     //
-using AICareerBuddy_DataAccessLayer.Models;
+using AICareerBuddy_Entities.Entities;
 using AICareerBuddy_BussinesLogicLayer.Interfaces;
 
 namespace AICareerBuddy_BussinesLogic.Services
