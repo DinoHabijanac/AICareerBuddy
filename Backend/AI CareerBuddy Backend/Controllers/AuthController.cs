@@ -1,8 +1,7 @@
-﻿// Backend/AI CareerBuddy Backend/Controllers/AuthController.cs
-using AICareerBuddy_BussinesLogic.Services;
-using AICareerBuddy_Entities.Entities;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using AICareerBuddy_BussinesLogicLayer.Interfaces;
+using AI_CareerBuddy_Backend.DTOs;   // ovdje su LoginRequest i LoginResponse
 
 namespace AI_CareerBuddy_Backend.Controllers
 {
@@ -10,44 +9,48 @@ namespace AI_CareerBuddy_Backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
-        public AuthController(AuthService authService)
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] RegistrationRequestDto request)
-        {
-            try
-            {
-                var responseDto = _authService.RegisterUser(request);
-                return Ok(responseDto);
-            } catch (ArgumentException ex)
-            {
-                // Validation or duplicate error (email already exists, etc.)
-                return BadRequest(ex.Message);
-            } catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequestDto request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var responseDto = _authService.LoginUser(request);
-                return Ok(responseDto);
-            } catch (ArgumentException ex)
-            {
-                // Invalid credentials or validation error
-                return BadRequest(ex.Message);
-            } catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
+                return BadRequest(new LoginResponse
+                {
+                    Success = false,
+                    Message = "Neispravan format zahtjeva."
+                });
             }
+
+            var user = await _authService.AuthenticateAsync(request.Username, request.Password);
+
+            if (user == null)
+            {
+                return Unauthorized(new LoginResponse
+                {
+                    Success = false,
+                    Message = "Pogrešno korisničko ime ili lozinka."
+                });
+            }
+
+            // Za sada bez tokena – samo osnovni podaci
+            return Ok(new LoginResponse
+            {
+                Success = true,
+                Message = "Prijava uspješna.",
+                Token = null,
+                User = new
+                {
+                    user.Id,
+                    user.Username
+                }
+            });
         }
     }
 }

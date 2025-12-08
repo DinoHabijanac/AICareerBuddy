@@ -1,11 +1,16 @@
 using AICareerBuddy_BussinesLogic.Services;
 using Microsoft.EntityFrameworkCore;
 using AICareerBuddy_DataAccessLayer.Models;
+using AICareerBuddy_BussinesLogicLayer.Interfaces;
+using AICareerBuddy_BussinesLogic.Services;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AIR_projektContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Configuration.AddUserSecrets<Program>();
 
