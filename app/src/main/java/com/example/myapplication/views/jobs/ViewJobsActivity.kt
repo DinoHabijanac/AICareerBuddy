@@ -1,5 +1,6 @@
 package com.example.myapplication.views.jobs
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,8 +51,9 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-//ova aktivnost omogućuje pregled oglasa studentima, uz dohvat i prikaz iz baze
 class JobActivity : ComponentActivity() {
+    private var refreshTrigger by mutableStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -56,28 +61,35 @@ class JobActivity : ComponentActivity() {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     JobListNetworkScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
-
+                        modifier = Modifier.padding(innerPadding),
+                        refreshTrigger = refreshTrigger
                     )
                 }
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Increment to trigger refresh when returning from EditJobActivity
+        refreshTrigger++
+    }
 }
 
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier) {
+fun JobListNetworkScreen(modifier: Modifier = Modifier, refreshTrigger: Int = 0) {
     var jobs by remember { mutableStateOf<List<JobListing>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(refreshTrigger) {
         loading = true
         error = null
         try {
-            val result = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
+            val result = withContext(Dispatchers.IO) {
+                NetworkModule.apiService.getJobs()
+            }
             jobs = result
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
@@ -156,19 +168,44 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun JobListScreen(jobs: List<JobListing>) {
+    val context = LocalContext.current
+
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(12.dp)
-
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            start = 12.dp,
+            end = 12.dp,
+            top = 12.dp,
+            bottom = 80.dp  // Extra padding at bottom
+        ),
+        modifier = Modifier.fillMaxSize()
     ) {
         items(jobs) { job ->
-            JobCard(job)
+            JobCard(
+                job = job,
+                onEditClick = {
+                    // Navigate to EditJobActivity
+                    val intent = Intent(context, EditJobActivity::class.java).apply {
+                        putExtra("JOB_ID", job.id)
+                        putExtra("JOB_NAME", job.name)
+                        putExtra("JOB_DESCRIPTION", job.description)
+                        putExtra("JOB_CATEGORY", job.category)
+                        putExtra("JOB_LOCATION", job.location)
+                        putExtra("JOB_LISTING_EXPIRES", job.listingExpires.toString())
+                        putExtra("JOB_TERMS", job.terms)
+                        putExtra("JOB_PAY_PER_HOUR", job.payPerHour)
+                        putExtra("JOB_EMPLOYER_ID", job.employerId)
+                    }
+                    Log.d("ViewJobsActivity", "Editing job with ID: ${job.id}")
+                    context.startActivity(intent)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun JobCard(job: JobListing) {
+fun JobCard(job: JobListing, onEditClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()
@@ -201,7 +238,21 @@ fun JobCard(job: JobListing) {
 
             Spacer(modifier = Modifier.size(6.dp))
 
-            Text(text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}", style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(modifier = Modifier.size(12.dp))
+
+            // NEW: Edit button
+            Button(
+                onClick = onEditClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Uredi")
+            }
         }
     }
 }

@@ -9,7 +9,9 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 data class UploadResponse(
     val success: Boolean = false,
@@ -29,11 +31,16 @@ interface ApiService {
     ): Response<UploadResponse>
 
     //JOBS
-
     @GET("api/Job")
     suspend fun getJobs(): List<JobListing>
 
     @POST(value = "api/Job")
-    suspend fun postJob(@Body job: JobListing) : Response<UploadResponse>
+    suspend fun postJob(@Body job: JobListing): Response<UploadResponse>
 
+    // NEW: Update existing job
+    @PUT("api/Job/{id}")
+    suspend fun updateJob(
+        @Path("id") id: Int,
+        @Body job: JobListing
+    ): Response<Boolean>
 }

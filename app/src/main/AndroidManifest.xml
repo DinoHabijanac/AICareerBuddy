@@ -32,6 +32,9 @@
             android:label="Učitaj životopis"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name=".views.jobs.EditJobActivity"
+            android:exported="false" />
+        <activity
             android:name=".views.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
