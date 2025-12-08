@@ -1,7 +1,9 @@
+using System;
+using System.Threading.Tasks;
 using AICareerBuddy_BussinesLogic.Services;
-using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 // Backend/AI CareerBuddy Backend/Controllers/AuthController.cs
 
 namespace AI_CareerBuddy_Backend.Controllers
@@ -11,26 +13,31 @@ namespace AI_CareerBuddy_Backend.Controllers
     public class AuthController : ControllerBase
     {
         private readonly RegistrationService _registrationService;
-        public AuthController(RegistrationService registrationService)
+        private readonly ILogger<AuthController> _logger;
+
+        public AuthController(RegistrationService registrationService, ILogger<AuthController> logger)
         {
             _registrationService = registrationService;
+            _logger = logger;
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegistrationRequestDto request)
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto request)
         {
             try
             {
-                var responseDto = _registrationService.RegisterUser(request);
+                var responseDto = await _registrationService.RegisterUserAsync(request);
                 return Ok(responseDto);
             }
             catch (ArgumentException ex)
             {
-                // Validation or duplicate error
+                // Validacijska greška ili duplicirani email
+                _logger.LogWarning(ex, "Registration validation error.");
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error during registration.");
                 return StatusCode(500, "Internal server error");
             }
         }
