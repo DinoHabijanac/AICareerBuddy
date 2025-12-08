@@ -29,6 +29,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.views.jobs.CreateJobActivity
+import com.example.myapplication.views.jobs.JobActivity
+import com.example.myapplication.views.resume.UploadResumeActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,6 +1,7 @@
-package com.example.myapplication.views
+package com.example.myapplication.views.jobs
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,7 +44,8 @@ import com.example.myapplication.network.NetworkModule
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 //ova aktivnost omogućuje pregled oglasa studentima, uz dohvat i prikaz iz baze
 class JobActivity : ComponentActivity() {
@@ -79,6 +81,7 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
             jobs = result
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
+            Log.d("Debug", e.message.toString())
             jobs = null
         } finally {
             loading = false
@@ -133,14 +136,13 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
                     val q = query.trim().lowercase()
                     if (q.isEmpty()) jobs ?: emptyList()
                     else (jobs ?: emptyList()).filter { job ->
-                        val termsJoined = job.terms.joinToString(" ")
                         val listingExpiresStr = try { job.listingExpires.toString() } catch (_: Exception) { "" }
                         listOf(
                             job.name,
                             job.description,
                             job.category,
                             job.location,
-                            termsJoined,
+                            job.terms,
                             job.payPerHour.toString(),
                             listingExpiresStr
                         ).joinToString(" ").lowercase().contains(q)
@@ -195,7 +197,7 @@ fun JobCard(job: JobListing) {
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            Text(text = "Terms: ${job.terms.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Terms: ${job.terms}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.size(6.dp))
 
@@ -204,10 +206,10 @@ fun JobCard(job: JobListing) {
     }
 }
 
-private fun formatLocalDateTime(ldt: LocalDateTime): String {
+private fun formatLocalDateTime(ldt: LocalDate?): String {
     return try {
-        val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        ldt.format(formatter)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        ldt?.format(formatter) ?: LocalDate.now().toString()
     } catch (_: Exception) {
         ldt.toString()
     }

@@ -17,17 +17,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".views.CreateJobActivity"
+            android:name=".views.jobs.CreateJobActivity"
             android:exported="false"
             android:label="@string/title_activity_create_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".views.JobActivity"
+            android:name=".views.jobs.JobActivity"
             android:exported="false"
             android:label="@string/title_activity_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".views.UploadResumeActivity"
+            android:name=".views.resume.UploadResumeActivity"
             android:exported="false"
             android:label="Učitaj životopis"
             android:theme="@style/Theme.MyApplication" />
