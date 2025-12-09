@@ -70,6 +70,7 @@ class ViewCVActivity : ComponentActivity() {
 
 @Composable
 fun ViewCVScreen(
+    modifier: Modifier = Modifier,
     viewModel: ViewCVViewModel = viewModel(),
     activity: ComponentActivity,
     onRefresh: () -> Unit = { viewModel.refreshCv(activity)}

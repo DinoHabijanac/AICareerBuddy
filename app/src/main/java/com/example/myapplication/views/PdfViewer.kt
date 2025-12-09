@@ -48,7 +48,6 @@ fun PdfViewer(pdfUri: Uri){
             }
         }catch (e: Exception){
             e.printStackTrace()
-            null
         }
     }
     when{
