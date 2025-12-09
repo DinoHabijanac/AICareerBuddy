@@ -46,6 +46,9 @@ class MainActivity : ComponentActivity() {
                         },
                         onCreateJobsClick = {
                             startActivity(Intent(this, CreateJobActivity::class.java))
+                        },
+                        onViewCVClick = {
+                            startActivity(Intent(this, ViewCVActivity::class.java))
                         }
                     )
                 }
@@ -55,7 +58,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}) {
+fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}, onViewCVClick: ()-> Unit = {}) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -99,6 +102,10 @@ fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, on
             Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
                 Text(text = "Kreiranje poslova")
+            }
+            Spacer(modifier = Modifier.height(height = 12.dp))
+            Button(onClick = onViewCVClick, modifier = Modifier.width(220.dp)) {
+                Text("Vidi životopis")
             }
         }
     }
