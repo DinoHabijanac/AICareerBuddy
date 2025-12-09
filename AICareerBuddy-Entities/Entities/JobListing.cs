@@ -24,6 +24,4 @@ public partial class JobListing
     public int? PayPerHour { get; set; }
 
     public int EmployerId { get; set; }
-
-    public virtual User Employer { get; set; }
 }

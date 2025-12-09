@@ -25,6 +25,10 @@
       {
          "Name": "[dbo].[ResumeFileInfo]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[User]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,
