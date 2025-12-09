@@ -5,6 +5,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
@@ -43,4 +44,10 @@ interface ApiService {
         @Path("id") id: Int,
         @Body job: JobListing
     ): Response<Boolean>
+
+    // NEW: Delete existing job
+    @DELETE("api/Job/{id}")
+    suspend fun deleteJob(
+        @Path("id") id: Int
+    ): Response<Unit>
 }

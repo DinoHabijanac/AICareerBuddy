@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class JobsViewModel : ViewModel() {
 
-    private val _jobs = MutableLiveData<List<JobListing>>()
+    private val _jobs = MutableLiveData<List<JobListing>>(emptyList())
     val jobs: LiveData<List<JobListing>> = _jobs
 
     private val _uploadState = MutableLiveData<String>()
@@ -20,6 +20,10 @@ class JobsViewModel : ViewModel() {
     // NEW: State for update operations
     private val _updateState = MutableLiveData<String>()
     val updateState: LiveData<String> = _updateState
+
+    // NEW: State for delete operations
+    private val _deleteState = MutableLiveData<String>()
+    val deleteState: LiveData<String> = _deleteState
 
     // NEW: Track selected job for editing
     private val _selectedJob = MutableLiveData<JobListing?>()
@@ -95,6 +99,29 @@ class JobsViewModel : ViewModel() {
                 _jobs.postValue(result)
             } catch (e: Exception) {
                 Log.e("JobsViewModel", "Error fetching jobs", e)
+            }
+        }
+    }
+
+    // NEW: Delete job
+    fun deleteJob(jobId: Int) {
+        Log.d("delete joba", "Deleting job with ID: $jobId")
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.deleteJob(jobId)
+                Log.d("delete odgovor", response.raw().toString())
+                if (response.isSuccessful) {
+                    _deleteState.postValue("Oglas uspješno obrisan")
+                    // Remove job from local list immediately
+                    val currentJobs = _jobs.value?.toMutableList() ?: mutableListOf()
+                    currentJobs.removeAll { it.id == jobId }
+                    _jobs.postValue(currentJobs)
+                } else {
+                    _deleteState.postValue("Greška pri brisanju oglasa - ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _deleteState.postValue("Greška pri brisanju oglasa - ${e.message}")
+                Log.e("JobsViewModel", "Delete error", e)
             }
         }
     }
