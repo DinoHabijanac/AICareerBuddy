@@ -37,8 +37,6 @@ public partial class AIR_projektContext : DbContext
 
             entity.ToTable("JobApplication");
 
-            entity.HasIndex(e => e.StudentId, "IX_Application").IsUnique();
-
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
