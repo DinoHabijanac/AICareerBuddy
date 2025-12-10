@@ -1,4 +1,4 @@
-Ôªøusing System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AICareerBuddy_BussinesLogicLayer.Interfaces;
 using AI_CareerBuddy_Backend.DTOs;   // ovdje su LoginRequest i LoginResponse
@@ -35,15 +35,15 @@ namespace AI_CareerBuddy_Backend.Controllers
                 return Unauthorized(new LoginResponse
                 {
                     Success = false,
-                    Message = "Pogre≈°no korisniƒçko ime ili lozinka."
+                    Message = "Pogreöno korisniËko ime ili lozinka."
                 });
             }
 
-            // Za sada bez tokena ‚Äì samo osnovni podaci
+            // Za sada bez tokena ñ samo osnovni podaci
             return Ok(new LoginResponse
             {
                 Success = true,
-                Message = "Prijava uspje≈°na.",
+                Message = "Prijava uspjeöna.",
                 Token = null,
                 User = new
                 {

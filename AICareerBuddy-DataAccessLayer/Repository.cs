@@ -1,4 +1,9 @@
-﻿using AICareerBuddy_Entities.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AICareerBuddy_Entities.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 

@@ -3,38 +3,21 @@
    "ContextClassName": "AIR_projektContext",
    "ContextNamespace": null,
    "FilterSchemas": false,
-   "IncludeConnectionString": true,
+   "IncludeConnectionString": false,
    "IrregularWords": null,
    "MinimumProductVersion": "2.6.1248",
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "Entities",
+   "OutputPath": "Models",
    "PluralRules": null,
    "PreserveCasingWithRegex": true,
-   "ProjectRootNamespace": "AICareerBuddy_Entities",
+   "ProjectRootNamespace": "AI_CareerBuddy_Backend",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
    "SingularRules": null,
    "T4TemplatePath": null,
-   "Tables": [
-      {
-         "Name": "[dbo].[JobApplication]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[JobListing]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[ResumeFileInfo]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[User]",
-         "ObjectType": 0
-      }
-   ],
+   "Tables": [ ],
    "UiHint": null,
    "UncountableWords": null,
    "UseAsyncStoredProcedureCalls": true,

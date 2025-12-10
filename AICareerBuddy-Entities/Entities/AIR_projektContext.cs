@@ -17,6 +17,8 @@ public partial class AIR_projektContext : DbContext
     {
     }
 
+    public virtual DbSet<JobApplication> JobApplications { get; set; }
+
     public virtual DbSet<JobListing> JobListings { get; set; }
 
     public virtual DbSet<ResumeFileInfo> ResumeFileInfos { get; set; }
@@ -29,6 +31,24 @@ public partial class AIR_projektContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<JobApplication>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Application");
+
+            entity.ToTable("JobApplication");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.WorkExperience).HasColumnType("text");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.JobApplications)
+                .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Application_JobListing");
+        });
+
         modelBuilder.Entity<JobListing>(entity =>
         {
             entity.ToTable("JobListing");

@@ -24,4 +24,6 @@ public partial class JobListing
     public int? PayPerHour { get; set; }
 
     public int EmployerId { get; set; }
+
+    public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
 }

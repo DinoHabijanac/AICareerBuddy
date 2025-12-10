@@ -37,6 +37,9 @@ builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
+// Registracija repozitorija i servisa
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<RegistrationService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
