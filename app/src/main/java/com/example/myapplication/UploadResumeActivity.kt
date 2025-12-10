@@ -45,42 +45,53 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadViewModel = viewModel()) {
+fun ResumeUploadScreen(
+    modifier: Modifier = Modifier,
+    uploadViewModel: UploadViewModel = viewModel()
+) {
     val context = LocalContext.current
 
-    // Initialize ViewModel with SharedPreferences on first composition
+    // Initialize ViewModel with SharedPreferences
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
-        uploadViewModel.initialize(prefs)
+        uploadViewModel.initialize(context, prefs)
     }
 
-    // Observe state directly from the ViewModel
-    val fileGuid by uploadViewModel.fileGuid.collectAsState()
+    // Observe state from ViewModel
+    val fileId by uploadViewModel.fileId.collectAsState()
     val fileName by uploadViewModel.fileName.collectAsState()
     val uploadState by uploadViewModel.uploadState.collectAsState()
 
-    // Debug: Log every time state changes
-    LaunchedEffect(fileGuid, fileName, uploadState) {
+    // Determine if user has a resume
+    val hasResume = fileId != null
+
+    // Debug logging
+    LaunchedEffect(fileId, fileName, uploadState) {
         Log.d("ResumeUploadScreen", "=== STATE CHANGED ===")
-        Log.d("ResumeUploadScreen", "fileGuid: $fileGuid")
+        Log.d("ResumeUploadScreen", "fileId: $fileId")
         Log.d("ResumeUploadScreen", "fileName: $fileName")
         Log.d("ResumeUploadScreen", "uploadState: $uploadState")
-        Log.d("ResumeUploadScreen", "hasFile: ${fileGuid != null}")
+        Log.d("ResumeUploadScreen", "hasResume: $hasResume")
     }
 
-    // Local state for confirmation dialogs
+    // Dialog states
     var showEditConfirmation by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     // File picker launcher
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { newUri: Uri? ->
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { newUri: Uri? ->
         newUri?.let {
             try {
-                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
             } catch (e: SecurityException) {
                 Log.e("ResumeUploadScreen", "Failed to take persistable URI permission", e)
             }
-            Log.d("ResumeUploadScreen", "File selected, starting upload")
+            Log.d("ResumeUploadScreen", "File selected, starting upload/update")
             uploadViewModel.uploadOrUpdateResume(context, it)
         }
     }
@@ -150,16 +161,15 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
                 },
             contentAlignment = Alignment.Center
         ) {
-            // Key point: Use the fileGuid directly to determine what to show
             when {
-                fileGuid.isNullOrBlank() -> {
-                    Log.d("ResumeUploadScreen", "Rendering: Upload icon (no file)")
+                !hasResume -> {
+                    // Show upload icon
                     Text("📤", fontSize = 90.sp)
                 }
                 else -> {
-                    Log.d("ResumeUploadScreen", "Rendering: File name = $fileName")
+                    // Show file name
                     Text(
-                        text = fileName ?: "CV.pdf",
+                        text = fileName ?: "Životopis.pdf",
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(12.dp)
@@ -180,12 +190,12 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
             when (val state = uploadState) {
                 is UploadState.Idle -> { /* No message */ }
                 is UploadState.Uploading -> {
-                    Text("Učitavanje...", color = Color.Gray)
+                    CircularProgressIndicator(modifier = Modifier.size(32.dp))
                 }
                 is UploadState.Success -> {
                     Text(
                         state.message,
-                        color = if (state.message.contains("deleted")) Color.Red else Color.Green,
+                        color = if (state.message.contains("izbrisan")) Color.Red else Color.Green,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -201,35 +211,60 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Action buttons - Key point: Use fileGuid directly
+        // Action buttons
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = 32.dp)
         ) {
             when {
-                fileGuid.isNullOrBlank() -> {
-                    Log.d("ResumeUploadScreen", "Rendering: Upload button")
-                    Button(onClick = {
-                        Log.d("ResumeUploadScreen", "Upload button clicked")
-                        launcher.launch(arrayOf("application/pdf"))
-                    }) {
-                        Text("Prenesi životopis")
+                !hasResume -> {
+                    // Upload button
+                    Button(
+                        onClick = {
+                            Log.d("ResumeUploadScreen", "Upload button clicked")
+                            launcher.launch(arrayOf("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .height(56.dp)
+                    ) {
+                        Text("Prenesi životopis", fontSize = 16.sp)
                     }
                 }
                 else -> {
-                    Log.d("ResumeUploadScreen", "Rendering: Edit and Delete buttons")
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Button(onClick = {
-                            Log.d("ResumeUploadScreen", "Edit button clicked")
-                            showEditConfirmation = true
-                        }) {
-                            Text("Uredi životopis")
+                    // Edit and Delete buttons
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        Button(
+                            onClick = {
+                                Log.d("ResumeUploadScreen", "Edit button clicked")
+                                showEditConfirmation = true
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text("Uredi", fontSize = 16.sp)
                         }
-                        Button(onClick = {
-                            Log.d("ResumeUploadScreen", "Delete button clicked")
-                            showDeleteConfirmation = true
-                        }) {
-                            Text("Obriši životopis")
+
+                        Button(
+                            onClick = {
+                                Log.d("ResumeUploadScreen", "Delete button clicked")
+                                showDeleteConfirmation = true
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Obriši", fontSize = 16.sp)
                         }
                     }
                 }
@@ -242,17 +277,19 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
         AlertDialog(
             onDismissRequest = { showEditConfirmation = false },
             title = { Text("Potvrda") },
-            text = { Text("Jeste li sigurni da želite zamjeniti dokument?") },
+            text = { Text("Jeste li sigurni da želite zamijeniti dokument?") },
             confirmButton = {
-                Button(onClick = {
-                    showEditConfirmation = false
-                    launcher.launch(arrayOf("application/pdf"))
-                }) {
+                Button(
+                    onClick = {
+                        showEditConfirmation = false
+                        launcher.launch(arrayOf("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+                    }
+                ) {
                     Text("Da")
                 }
             },
             dismissButton = {
-                Button(onClick = { showEditConfirmation = false }) {
+                OutlinedButton(onClick = { showEditConfirmation = false }) {
                     Text("Ne")
                 }
             }
@@ -266,15 +303,20 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
             title = { Text("Potvrda") },
             text = { Text("Jeste li sigurni da želite obrisati životopis?") },
             confirmButton = {
-                Button(onClick = {
-                    showDeleteConfirmation = false
-                    uploadViewModel.deleteResume()
-                }) {
+                Button(
+                    onClick = {
+                        showDeleteConfirmation = false
+                        uploadViewModel.deleteResume()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
                     Text("Da")
                 }
             },
             dismissButton = {
-                Button(onClick = { showDeleteConfirmation = false }) {
+                OutlinedButton(onClick = { showDeleteConfirmation = false }) {
                     Text("Ne")
                 }
             }

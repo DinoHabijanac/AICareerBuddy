@@ -3,13 +3,7 @@ package com.example.myapplication
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiService {
     /**
@@ -25,34 +19,50 @@ interface ApiService {
     ): Response<CvInfo2>
 
     /**
-     * Updates an existing CV.
-     * POST /api/Resume/cv/update
+     * Updates an existing CV by its database ID.
+     * PUT /api/Resume/{id}
+     *
+     * Backend expects:
+     * - file: the new document file
+     * - userId: as form data to verify ownership
      */
     @Multipart
-    @POST("api/Resume/cv/update")
+    @PUT("api/Resume/{id}")
     suspend fun updateCv(
         @Header("Authorization") token: String,
-        @Part file: MultipartBody.Part
+        @Path("id") id: Int,
+        @Part file: MultipartBody.Part,
+        @Part("userId") userId: RequestBody
     ): Response<CvInfo2>
 
     /**
      * Deletes a CV by its database ID.
-     * DELETE /api/Resume/{id}
+     * DELETE /api/Resume/{id}?userId={userId}
      *
-     * TEMPORARY ENDPOINT FOR TESTING - This will be replaced with authenticated
-     * endpoint once login/register is implemented by your colleagues.
+     * Backend verifies that the userId matches the resume owner.
      */
     @DELETE("api/Resume/{id}")
     suspend fun deleteCv(
         @Header("Authorization") token: String,
-        @Path("id") id: Int
+        @Path("id") id: Int,
+        @Query("userId") userId: Int
     ): Response<Unit>
 
     /**
-     * Gets a specific resume by ID (for verification purposes).
-     * GET /api/Resume/GetResume/{id}
+     * Gets a resume by user ID.
+     * GET /api/Resume/user/{userId}
      */
-    @GET("api/Resume/GetResume/{id}")
+    @GET("api/Resume/user/{userId}")
+    suspend fun getResumeByUserId(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: Int
+    ): Response<CvInfo2>
+
+    /**
+     * Gets a specific resume by ID.
+     * GET /api/Resume/{id}
+     */
+    @GET("api/Resume/{id}")
     suspend fun getResume(
         @Header("Authorization") token: String,
         @Path("id") id: Int
