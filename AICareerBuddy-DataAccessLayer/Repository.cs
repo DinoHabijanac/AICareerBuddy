@@ -5,59 +5,65 @@ using System.Text;
 using System.Threading.Tasks;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace AICareerBuddy_DataAccessLayer
 {
-    /// <summary>
-    /// Generički repozitorij za rad s EF Core DbContextom.
-    /// Ovo je analogan patternu iz dev-backend projekta, ali prilagođen DI pristupu.
-    /// </summary>
     public abstract class Repository<T> : IDisposable where T : class
     {
-        protected readonly AIR_projektContext Context;
-        protected readonly DbSet<T> Entities;
-
+        public AIR_projektContext Context { get; set; } 
+        public DbSet<T> Entities { get; set; }
         protected Repository(AIR_projektContext context)
         {
             Context = context;
             Entities = Context.Set<T>();
         }
 
-        /// <summary>
-        /// Bazni IQueryable upit nad entitetom.
-        /// </summary>
-        public virtual IQueryable<T> Query()
+        public virtual IQueryable<T> GetAll()
         {
-            return Entities.AsQueryable();
+            var query = from s in Entities
+                        select s;
+            return query;
         }
 
-        public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+        public virtual async Task<int> Add(T entity, bool saveChanges = true)
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-            await Entities.AddAsync(entity, cancellationToken);
+            Entities.Add(entity);
+            if (saveChanges)
+            {
+                return await SaveChangesAsync();
+            }
+            else
+            {
+                return 0;
+            }
         }
 
-        public virtual void Update(T entity)
-        {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
-            Entities.Update(entity);
-        }
+        public abstract Task<int> Update(T entity, bool saveChanges = true);
 
-        public virtual void Remove(T entity)
+        public virtual async Task<int> Remove(T entity, bool saveChanges = true)
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            Entities.Attach(entity);
             Entities.Remove(entity);
+            if (saveChanges)
+            {
+                return await Context.SaveChangesAsync();
+            }
+            else
+            {
+                return 0;
+            }
         }
 
-        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public async virtual void Dispose()
         {
-            return Context.SaveChangesAsync(cancellationToken);
-        }
-
-        public void Dispose()
-        {
-            Context.Dispose();
+            await Context.DisposeAsync();
             GC.SuppressFinalize(this);
+        }
+
+        public async virtual Task<int> SaveChangesAsync()
+        {
+            return await Context.SaveChangesAsync();
         }
     }
 }

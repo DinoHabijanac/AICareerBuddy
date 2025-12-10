@@ -97,7 +97,7 @@ namespace AICareerBuddy_BussinesLogic.Services
             };
 
             // Hashiranje lozinke
-            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+            user.Password = _passwordHasher.HashPassword(user, dto.Password);
 
             // Spremanje u bazu preko repozitorija
             user = await _userRepository.CreateUserAsync(user);

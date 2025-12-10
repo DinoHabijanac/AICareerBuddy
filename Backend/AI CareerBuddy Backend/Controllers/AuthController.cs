@@ -1,10 +1,7 @@
-using System;
 using System.Threading.Tasks;
-using AICareerBuddy_BussinesLogic.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-// Backend/AI CareerBuddy Backend/Controllers/AuthController.cs
+using AICareerBuddy_BussinesLogicLayer.Interfaces;
+using AI_CareerBuddy_Backend.DTOs;   // ovdje su LoginRequest i LoginResponse
 
 namespace AI_CareerBuddy_Backend.Controllers
 {
@@ -12,34 +9,48 @@ namespace AI_CareerBuddy_Backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly RegistrationService _registrationService;
-        private readonly ILogger<AuthController> _logger;
+        private readonly IAuthService _authService;
 
-        public AuthController(RegistrationService registrationService, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService)
         {
-            _registrationService = registrationService;
-            _logger = logger;
+            _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto request)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var responseDto = await _registrationService.RegisterUserAsync(request);
-                return Ok(responseDto);
+                return BadRequest(new LoginResponse
+                {
+                    Success = false,
+                    Message = "Neispravan format zahtjeva."
+                });
             }
-            catch (ArgumentException ex)
+
+            var user = await _authService.AuthenticateAsync(request.Username, request.Password);
+
+            if (user == null)
             {
-                // Validacijska greška ili duplicirani email
-                _logger.LogWarning(ex, "Registration validation error.");
-                return BadRequest(ex.Message);
+                return Unauthorized(new LoginResponse
+                {
+                    Success = false,
+                    Message = "Pogrešno korisnièko ime ili lozinka."
+                });
             }
-            catch (Exception ex)
+
+            // Za sada bez tokena – samo osnovni podaci
+            return Ok(new LoginResponse
             {
-                _logger.LogError(ex, "Unexpected error during registration.");
-                return StatusCode(500, "Internal server error");
-            }
+                Success = true,
+                Message = "Prijava uspješna.",
+                Token = null,
+                User = new
+                {
+                    user.Id,
+                    user.Username
+                }
+            });
         }
     }
 }

@@ -50,5 +50,19 @@ namespace AICareerBuddy_DataAccessLayer.Repositories
             await Context.SaveChangesAsync();
             return user;
         }
+        public override async Task<int> Update(User entity, bool saveChanges = true)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            Entities.Update(entity);
+
+            if (saveChanges)
+            {
+                return await Context.SaveChangesAsync();
+            }
+
+            return 0;
+        }
     }
 }
