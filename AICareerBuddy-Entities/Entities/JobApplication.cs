@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AICareerBuddy_Entities.Entities;
 
-public partial class Application
+public partial class JobApplication
 {
     public int Id { get; set; }
 

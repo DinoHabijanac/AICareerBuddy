@@ -1,6 +1,7 @@
 ﻿using AI_CareerBuddy_Backend.Controllers;
 using AICareerBuddy_DataAccessLayer.Repositories;
 using AICareerBuddy_Entities.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,39 +14,49 @@ namespace AICareerBuddy_BussinesLayer.Services
     {
         private readonly ApplicationRepository Repository;
 
-        public Task<bool> DeleteApplication(int id)
+        public ApplicationService()
         {
-            throw new NotImplementedException();
+            Repository = new ApplicationRepository();
         }
 
-        public Task<bool> DeleteApplication(string applicationName)
+        public async Task<JobApplication> GetApplicationById(int id)
         {
-            throw new NotImplementedException();
+            return await Repository.GetApplicationById(id).FirstOrDefaultAsync();
         }
 
-        public Task<Application> GetApplicationById(int id)
+        public async Task<List<JobApplication>> GetApplicationsByStudentId(int studentId)
         {
-            throw new NotImplementedException();
+            return await Repository.GetApplicationsByStudentId(studentId).ToListAsync();
         }
 
-        public Task<Application> GetApplicationByStudentId(int studentId)
+        public async Task<List<JobApplication>> GetApplications()
         {
-            throw new NotImplementedException();
+            return await Repository.GetAll().ToListAsync();
         }
 
-        public Task<List<Application>> GetApplications()
+        public async Task<bool> PostApplication(JobApplication jobApplication)
         {
-            throw new NotImplementedException();
+            var result = await Repository.Add(jobApplication);
+            if (result == 1) return true;
+            else return false;
         }
 
-        public Task<bool> PostApplication(Application jobApplication)
+        public async Task<bool> PutApplication(JobApplication jobApplication)
         {
-            throw new NotImplementedException();
+            var result = await Repository.Update(jobApplication);
+            if (result == 1) return true;
+            else return false;
         }
-
-        public Task<bool> PutApplication(Application jobApplication)
+        public async Task<bool> DeleteApplication(int id)
         {
-            throw new NotImplementedException();
+            var job = Repository.GetApplicationById(id).FirstOrDefault();
+            int result;
+            if (job != null) result = await Repository.Remove(job);
+            else result = 0;
+
+
+            if (result == 1) return true;
+            else return false;
         }
     }
 }

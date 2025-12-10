@@ -25,5 +25,5 @@ public partial class JobListing
 
     public int EmployerId { get; set; }
 
-    public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
+    public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
 }
