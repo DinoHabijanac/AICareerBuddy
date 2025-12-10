@@ -41,8 +41,6 @@ object NetworkModule {
         }
     }
 
-
-
     private fun provideGson(): Gson {
 
         val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
