@@ -64,6 +64,7 @@ public val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: J
         }
     }
 }
+
 public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     try {
         val obj = json.asJsonObject
@@ -91,15 +92,17 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
         }
 
         val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
+        val employerId = if (obj.has("employerId") && !obj.get("employerId").isJsonNull) obj.get("employerId").asInt else 1
 
         JobListing(
-            employerId = 1, // ispravi nakon što se implementira prijava
+            id = id,  // FIXED: Now passing the id
+            employerId = employerId,  // FIXED: Now using actual employerId from JSON
             name = name,
             description = description,
             category = category,
             location = location,
             listingExpires = listingExpiresLdt,
-            terms =  terms,
+            terms = terms,
             payPerHour = payPerHour
         )
     } catch (e: Exception) {

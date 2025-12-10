@@ -22,7 +22,7 @@
             android:label="@string/title_activity_create_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".views.jobs.JobActivity"
+            android:name=".views.jobs.ViewJobsActivity"
             android:exported="false"
             android:label="@string/title_activity_job"
             android:theme="@style/Theme.MyApplication" />
@@ -31,6 +31,9 @@
             android:exported="false"
             android:label="Učitaj životopis"
             android:theme="@style/Theme.MyApplication" />
+        <activity
+            android:name=".views.jobs.EditJobActivity"
+            android:exported="false" />
         <activity
             android:name=".views.MainActivity"
             android:exported="true"
