@@ -1,3 +1,11 @@
+using AICareerBuddy_BussinesLogic.Services;
+using Microsoft.EntityFrameworkCore;
+using AICareerBuddy_DataAccessLayer.Models;
+using AICareerBuddy_BussinesLogicLayer.Interfaces;
+using AICareerBuddy_BussinesLogic.Services;
+
+
+
 using AICareerBuddy_BussinesLayer.Interfaces;
 using AICareerBuddy_BussinesLayer.Services;
 using AICareerBuddy_BussinesLogic.Services;
@@ -7,8 +15,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AIR_projektContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add services to the container.
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Configuration.AddUserSecrets<Program>();
+
+// Add the RegistrationService for DI
+builder.Services.AddScoped<AuthService>();
+
 
 builder.Configuration.AddUserSecrets<Program>();
 

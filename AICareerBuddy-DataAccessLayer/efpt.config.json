@@ -1,9 +1,9 @@
 ﻿{
    "CodeGenerationMode": 4,
-   "ContextClassName": "AIR_DBContext",
+   "ContextClassName": "AIR_projektContext",
    "ContextNamespace": null,
    "FilterSchemas": false,
-   "IncludeConnectionString": true,
+   "IncludeConnectionString": false,
    "IrregularWords": null,
    "MinimumProductVersion": "2.6.1248",
    "ModelNamespace": null,
@@ -20,6 +20,14 @@
    "Tables": [
       {
          "Name": "[dbo].[JobListing]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ResumeFileInfo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[User]",
          "ObjectType": 0
       }
    ],
