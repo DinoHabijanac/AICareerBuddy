@@ -28,14 +28,9 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Configuration.AddUserSecrets<Program>();
 
-
-//builder.Services.AddDbContext<AIR_projektContext>(options =>
- //   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-//builder.Services.AddScoped<JobRepository>();
-
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();   
 
 // Registracija repozitorija i servisa
 builder.Services.AddScoped<IUserRepository, UserRepository>();
