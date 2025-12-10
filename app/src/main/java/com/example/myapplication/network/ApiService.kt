@@ -20,7 +20,7 @@ interface ApiService {
    // @Multipart
     @Headers("Accept: application/json")
 
-    @POST("api/Auth/register")  // TODO: provjeriti ispravan endpoint
+    @POST("api/Registration/register")  // TODO: provjeriti ispravan endpoint
     suspend fun registerUser(@Body request: RegistrationRequest): Response<RegistrationResponse>
 }
 
