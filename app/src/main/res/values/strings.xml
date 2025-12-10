@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="title_activity_job">JobActivity</string>
+    <string name="title_activity_create_job">CreateJobActivity</string>
+</resources>
