@@ -1,19 +1,25 @@
 package com.example.myapplication.viewmodels
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
+import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.CvInfo
 import com.example.myapplication.network.NetworkModule
-import com.example.myapplication.helpers.uriToMultipart
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.math.abs
 
 sealed class UploadState {
     object Idle : UploadState()
@@ -23,37 +29,278 @@ sealed class UploadState {
 }
 
 class UploadViewModel : ViewModel() {
+
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
-    val uploadState: StateFlow<UploadState> = _uploadState
+    val uploadState: StateFlow<UploadState> = _uploadState.asStateFlow()
 
-    fun uploadResume(context: Context, uri: Uri, userId : Int) {
+    private val _fileId = MutableStateFlow<Int?>(null)
+    val fileId: StateFlow<Int?> = _fileId.asStateFlow()
+
+    private val _fileName = MutableStateFlow<String?>(null)
+    val fileName: StateFlow<String?> = _fileName.asStateFlow()
+
+    private val _filePath = MutableStateFlow<String?>(null)
+    val filePath: StateFlow<String?> = _filePath.asStateFlow()
+
+    private lateinit var prefs: SharedPreferences
+    private val apiService = NetworkModule.apiService
+    private var deviceUserId: Int = 0
+
+    fun initialize(context: Context, preferences: SharedPreferences) {
+        prefs = preferences
+        deviceUserId = getDeviceUserId(context)
+        Log.d("UploadViewModel", "Device User ID: $deviceUserId")
+
+        val savedId = prefs.getInt("resume_id", -1).takeIf { it != -1 }
+        val savedFileName = prefs.getString("resume_filename", null)
+        val savedFilePath = prefs.getString("resume_path", null)
+
+        Log.d("UploadViewModel", "Local storage - ID: $savedId, FileName: $savedFileName")
+
+        _fileId.value = savedId
+        _fileName.value = savedFileName
+        _filePath.value = savedFilePath
+
+        fetchResumeFromServer()
+    }
+
+    private fun getDeviceUserId(context: Context): Int {
+        val storedUserId = prefs.getInt("device_user_id", -1)
+        if (storedUserId != -1) {
+            return storedUserId
+        }
+
+        val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        val userId = abs(androidId.hashCode())
+
+        prefs.edit {
+            putInt("device_user_id", userId)
+            apply()
+        }
+
+        Log.d("UploadViewModel", "Generated new device user ID: $userId from Android ID: $androidId")
+        return userId
+    }
+
+    private fun fetchResumeFromServer() {
         viewModelScope.launch {
-            _uploadState.value = UploadState.Uploading
             try {
-                val part = withContext(Dispatchers.IO) {
-                    uriToMultipart(context, uri, "file")
+                Log.d("UploadViewModel", "Fetching resume from server for user: $deviceUserId")
+                val response = apiService.getResumeByUserId(getAuthToken(), deviceUserId)
 
-                }
-                val userIdReqBody = userId.toString().toRequestBody(MultipartBody.FORM)
-                Log.d("UploadViewModel", "userIdReqBody: $userIdReqBody")
+                if (response.isSuccessful && response.body() != null) {
+                    val cvInfo = response.body()!!
+                    Log.d("UploadViewModel", "Server has resume - ID: ${cvInfo.id}, Name: ${cvInfo.name}")
 
-                val response = NetworkModule.apiService.uploadResume(part, userIdReqBody)
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        _uploadState.value = UploadState.Success(body.message ?: "Uspješno učitano")
+                    _fileId.value = cvInfo.id
+                    _fileName.value = cvInfo.name ?: "Životopis${cvInfo.extension}"
+                    _filePath.value = cvInfo.path
+
+                    prefs.edit {
+                        putInt("resume_id", cvInfo.id)
+                        putString("resume_filename", cvInfo.name ?: "Životopis${cvInfo.extension}")
+                        putString("resume_path", cvInfo.path)
+                        apply()
+                    }
+
+                    Log.d("UploadViewModel", "State synced with server")
+                } else if (response.code() == 404) {
+                    Log.d("UploadViewModel", "No resume found on server (404)")
+                    if (_fileId.value != null) {
+                        Log.d("UploadViewModel", "Clearing stale local state")
+                        clearLocalState()
                     }
                 } else {
-                    val err = response.errorBody()?.string() ?: "HTTP ${response.code()}"
-                    _uploadState.value = UploadState.Error(err)
+                    Log.w("UploadViewModel", "Failed to fetch resume: ${response.code()}")
                 }
             } catch (e: Exception) {
-                _uploadState.value = UploadState.Error(e.message ?: "Neuspjeh pri uploadu")
+                Log.e("UploadViewModel", "Error fetching resume from server", e)
             }
         }
     }
 
-    fun reset() {
-        _uploadState.value = UploadState.Idle
+    fun clearLocalState() {
+        _fileId.value = null
+        _fileName.value = null
+        _filePath.value = null
+        prefs.edit {
+            remove("resume_id")
+            remove("resume_filename")
+            remove("resume_path")
+            apply()
+        }
+        Log.d("UploadViewModel", "Local state cleared")
+    }
+
+    private fun getAuthToken(): String {
+        return "Bearer faketoken123"
+    }
+
+    private fun getUserIdRequestBody(): okhttp3.RequestBody {
+        val userId = deviceUserId.toString()
+        return userId.toRequestBody("text/plain".toMediaTypeOrNull())
+    }
+
+    private fun setTemporaryState(state: UploadState, duration: Long = 3000) {
+        viewModelScope.launch {
+            _uploadState.value = state
+            delay(duration)
+            if (_uploadState.value == state) {
+                _uploadState.value = UploadState.Idle
+            }
+        }
+    }
+
+    fun uploadOrUpdateResume(context: Context, uri: Uri) {
+        val currentFileId = _fileId.value
+        val isUpdate = currentFileId != null
+
+        viewModelScope.launch {
+            _uploadState.value = UploadState.Uploading
+            Log.d("UploadViewModel", "Starting ${if (isUpdate) "update" else "upload"} - ID: $currentFileId, UserID: $deviceUserId")
+
+            val originalFileName = getFileNameFromUri(context, uri)
+            Log.d("UploadViewModel", "Original filename: $originalFileName")
+
+            val filePart = uriToMultipart(context, uri, "file")
+            if (filePart == null) {
+                setTemporaryState(UploadState.Error("Nije moguće pročitati odabranu datoteku."))
+                return@launch
+            }
+
+            try {
+                val response = if (isUpdate) {
+                    Log.d("UploadViewModel", "Calling updateCv with ID: $currentFileId")
+                    val userIdBody = getUserIdRequestBody()
+                    apiService.updateCv(getAuthToken(), currentFileId, filePart, userIdBody)
+                } else {
+                    Log.d("UploadViewModel", "Calling uploadCv")
+                    val userIdBody = getUserIdRequestBody()
+                    apiService.uploadCv(getAuthToken(), filePart, userIdBody)
+                }
+
+                Log.d("UploadViewModel", "Response - Success: ${response.isSuccessful}, Code: ${response.code()}")
+
+                if (response.isSuccessful && response.body() != null) {
+                    val cvInfo = response.body()!!
+                    Log.d("UploadViewModel", "RAW Response: $cvInfo")
+                    Log.d("UploadViewModel", "Server returned - id: ${cvInfo.id}, name: ${cvInfo.name}")
+
+                    if (cvInfo.id == 0 || cvInfo.name.isNullOrBlank()) {
+                        Log.e("UploadViewModel", "Invalid response data")
+                        setTemporaryState(UploadState.Error("Greška: poslužitelj vratio neispravne podatke"))
+                        return@launch
+                    }
+
+                    val displayName = originalFileName ?: cvInfo.name
+
+                    _fileId.value = cvInfo.id
+                    _fileName.value = displayName
+                    _filePath.value = cvInfo.path
+
+                    Log.d("UploadViewModel", "StateFlow updated - ID: ${_fileId.value}, FileName: ${_fileName.value}")
+
+                    prefs.edit {
+                        putInt("resume_id", cvInfo.id)
+                        putString("resume_filename", displayName)
+                        putString("resume_path", cvInfo.path)
+                        apply()
+                    }
+
+                    Log.d("UploadViewModel", "Saved to SharedPreferences")
+
+                    val message = if (isUpdate) "Životopis je ažuriran" else "Životopis je uspješno učitan"
+                    setTemporaryState(UploadState.Success(message))
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    val errorMsg = when (response.code()) {
+                        400 -> "Neispravna datoteka. Provjerite format i veličinu."
+                        409 -> {
+                            Log.w("UploadViewModel", "Got 409 - fetching existing resume")
+                            fetchResumeFromServer()
+                            "Već imate učitan životopis. Koristite 'Uredi' za zamjenu."
+                        }
+                        404 -> "Životopis nije pronađen."
+                        else -> "Greška: ${response.code()}"
+                    }
+                    Log.e("UploadViewModel", "Upload/Update failed: $errorMsg - $errorBody")
+                    setTemporaryState(UploadState.Error(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Upload/Update exception", e)
+                setTemporaryState(UploadState.Error("Greška mreže: ${e.message}"))
+            }
+        }
+    }
+
+    fun deleteResume() {
+        val id = _fileId.value
+        if (id == null) {
+            Log.w("UploadViewModel", "Delete called but no file ID found")
+            return
+        }
+
+        viewModelScope.launch {
+            _uploadState.value = UploadState.Uploading
+            Log.d("UploadViewModel", "Deleting CV - ID: $id, UserID: $deviceUserId")
+
+            try {
+                val response = apiService.deleteCv(getAuthToken(), id, deviceUserId)
+                Log.d("UploadViewModel", "Delete response - Success: ${response.isSuccessful}, Code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    clearLocalState()
+                    setTemporaryState(UploadState.Success("Životopis je izbrisan"))
+                    Log.d("UploadViewModel", "CV deleted successfully")
+                } else if (response.code() == 404) {
+                    Log.w("UploadViewModel", "File not found on server (404), clearing local state")
+                    clearLocalState()
+                    setTemporaryState(UploadState.Success("Životopis je već bio izbrisan"))
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMsg = when (response.code()) {
+                        403 -> "Nemate dozvolu za brisanje ovog životopisa"
+                        else -> "Greška pri brisanju: ${response.code()}"
+                    }
+                    Log.e("UploadViewModel", "$errorMsg - $errorBody")
+                    setTemporaryState(UploadState.Error(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e("UploadViewModel", "Delete exception", e)
+                setTemporaryState(UploadState.Error("Greška mreže: ${e.message}"))
+            }
+        }
+    }
+
+    private fun getFileNameFromUri(context: Context, uri: Uri): String? {
+        var fileName: String? = null
+        try {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex != -1) fileName = cursor.getString(nameIndex)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("UploadViewModel", "Error getting filename from URI", e)
+        }
+        return fileName
+    }
+
+    private fun uriToMultipart(context: Context, uri: Uri, partName: String): MultipartBody.Part? {
+        val contentResolver = context.contentResolver
+        val fileName = getFileNameFromUri(context, uri)
+
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val bytes = inputStream.readBytes()
+            inputStream.close()
+
+            val requestBody = bytes.toRequestBody(contentResolver.getType(uri)?.toMediaTypeOrNull())
+            return MultipartBody.Part.createFormData(partName, fileName ?: "unknown_file", requestBody)
+        } catch (e: Exception) {
+            Log.e("UploadViewModel", "Failed to convert URI to MultipartBody.Part", e)
+            return null
+        }
     }
 }

@@ -33,6 +33,7 @@ import com.example.myapplication.views.jobs.CreateJobActivity
 import com.example.myapplication.views.jobs.ViewJobsActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
