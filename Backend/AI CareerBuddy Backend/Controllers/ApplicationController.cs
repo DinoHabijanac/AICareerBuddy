@@ -26,11 +26,18 @@ namespace AI_CareerBuddy_Backend.Controllers
             else return NotFound();
         }
 
-        [HttpGet]
-        [Route("GetApplicationsByStudentId")]
-        public async Task<ActionResult<IEnumerable<JobApplication>>> GetApplicationsByStudentId(int studentId)
+        [HttpGet("student")]
+        public async Task<ActionResult<IEnumerable<JobApplication>>> GetByStudentId([FromQuery] int studentId)
         {
             var applications = await ApplicationService.GetApplicationsByStudentId(studentId);
+            if (applications != null) return Ok(applications);
+            else return NotFound();
+        }
+
+        [HttpGet("employer")]
+        public async Task<ActionResult<IEnumerable<JobApplication>>> GetByJobId([FromQuery] int jobId)
+        {
+            var applications = await ApplicationService.GetApplicationsByJobId(jobId);
             if (applications != null) return Ok(applications);
             else return NotFound();
         }

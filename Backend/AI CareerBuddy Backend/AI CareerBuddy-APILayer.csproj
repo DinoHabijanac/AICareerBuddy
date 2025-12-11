@@ -8,11 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="efpt.config.json" />
+    <Compile Remove="Models\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="efpt.config.json.user" />
+    <_ContentIncludedByDefault Remove="efpt.config.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,10 +29,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\AICareerBuddy-BussinesLayer\AICareerBuddy-BussinesLogicLayer.csproj" />
     <ProjectReference Include="..\..\AICareerBuddy-Entities\AICareerBuddy-Entities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
