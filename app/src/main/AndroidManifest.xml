@@ -27,6 +27,11 @@
             android:label="Registracija"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name=".activities.HomeActivity"
+            android:exported="false"
+            android:label="Home"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name=".activities.PostRegistrationActivity"
             android:exported="false"
             android:label="PostRegistracija"

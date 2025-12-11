@@ -26,11 +26,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // PROČITAJ PODATKE O PRIJAVLJENOM KORISNIKU
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val userId = prefs.getInt("userId", -1)
+        val username = prefs.getString("username", null)
+        val isLoggedIn = userId != -1
+
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
+                        isLoggedIn = isLoggedIn,
+                        loggedInUsername = username,
                         onRegisterClick = {
                             // Otvori ekran za registraciju
                             startActivity(Intent(this, RegistrationActivity::class.java))
@@ -49,6 +58,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    isLoggedIn: Boolean = false,
+    loggedInUsername: String? = null,
     onRegisterClick: () -> Unit = {},
     onLoginClick: () -> Unit = {}
 ) {
@@ -84,6 +95,15 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Ako je korisnik prijavljen, prikaži informaciju
+        if (isLoggedIn && !loggedInUsername.isNullOrBlank()) {
+            Text(
+                text = "Prijavljeni korisnik: $loggedInUsername",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
         // Gumbi za odabir opcije
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
@@ -93,7 +113,7 @@ fun MainScreen(
                 Text(text = "Registracija")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            // **NOVO**: Gumb za prijavu
+            // Gumb za prijavu
             Button(onClick = onLoginClick, modifier = Modifier.width(220.dp)) {
                 Text(text = "Prijava")
             }

@@ -1,4 +1,4 @@
-// app/src/main/java/com/example/myapplication/activities/LoginActivity.kt
+// LoginActivity.kt
 package com.example.myapplication.activities
 
 import android.content.Intent
@@ -12,16 +12,18 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
-                // Prikaz LoginScreen Composable
                 LoginScreen(onSuccessfulLogin = { userId, username ->
-                    // Spremi userId u SharedPreferences (označavanje da je korisnik prijavljen)
-                    val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-                    prefs.edit().putInt("userId", userId).apply()
-                    // (Opcionalno: možemo spremiti i username ako je potrebno)
-                    // prefs.edit().putString("username", username).apply()
 
-                    // Povratak na glavni ekran
-                    finish()  // zatvori LoginActivity i vrati se na MainActivity
+                    val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                    prefs.edit()
+                        .putInt("userId", userId)
+                        .putString("username", username)
+                        .apply()
+
+                    // Preusmjeri na HomeActivity
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 })
             }
         }
