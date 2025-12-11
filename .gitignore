@@ -14,3 +14,9 @@
 .cxx
 local.properties
 /.idea/AndroidProjectSystem.xml
+/.idea
+/.vs
+/AICareerBuddy-BussinesLayer
+/AICareerBuddy-DataAccessLayer
+/AICareerBuddy-Entities
+/Backend/AI CareerBuddy Backend

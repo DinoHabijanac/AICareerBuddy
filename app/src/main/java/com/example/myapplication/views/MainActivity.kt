@@ -32,7 +32,9 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.views.jobs.CreateJobActivity
 import com.example.myapplication.views.jobs.JobActivity
 import com.example.myapplication.views.jobs.MyJobApplicationsActivity
+import com.example.myapplication.views.jobs.ViewJobsActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +48,7 @@ class MainActivity : ComponentActivity() {
                             startActivity(Intent(this, UploadResumeActivity::class.java))
                         },
                         onViewJobsClick = {
-                            startActivity(Intent(this, JobActivity::class.java))
+                            startActivity(Intent(this, ViewJobsActivity::class.java))
                         },
                         onCreateJobsClick = {
                             startActivity(Intent(this, CreateJobActivity::class.java))
