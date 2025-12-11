@@ -91,11 +91,13 @@ fun ResumeUploadScreen(
                     it,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-            } catch (e: SecurityException) {
-                Log.e("ResumeUploadScreen", "Failed to take persistable URI permission", e)
-            }
-            Log.d("ResumeUploadScreen", "File selected, starting upload/update")
-            uploadViewModel.uploadOrUpdateResume(context, it)
+            } catch (_: Exception) { }
+            val prefs = context.getSharedPreferences("resume_prefs", 0)
+            prefs.edit { putString("resume_uri", it.toString()) }
+            currentUri.value = it
+            val userId = 2
+            uploadViewModel.uploadResume(context, it, userId)
+            //TODO("IMPLEMENRIRATI pravi userID KAD SE RIJEŠI PRIJAVA")
         }
     }
 
