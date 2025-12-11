@@ -3,7 +3,9 @@ package com.example.myapplication.helpers
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
+import androidx.annotation.RequiresApi
 import com.example.myapplication.models.JobListing
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -64,7 +66,7 @@ public val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: J
         }
     }
 }
-
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     try {
         val obj = json.asJsonObject
@@ -92,19 +94,18 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
         }
 
         val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
-        val employerId = if (obj.has("employerId") && !obj.get("employerId").isJsonNull) obj.get("employerId").asInt else 1
 
         JobListing(
-            id = id,  // FIXED: Now passing the id
-            employerId = employerId,  // FIXED: Now using actual employerId from JSON
+            employerId = 1,
             name = name,
             description = description,
             category = category,
             location = location,
             listingExpires = listingExpiresLdt,
-            terms = terms,
+            terms =  terms,
             payPerHour = payPerHour
         )
+        //TODO("ispravi na prijavljenog korisnika nakon što se implementira prijava")
     } catch (e: Exception) {
         throw e
     }

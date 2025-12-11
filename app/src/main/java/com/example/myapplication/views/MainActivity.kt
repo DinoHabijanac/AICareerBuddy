@@ -30,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.views.jobs.CreateJobActivity
-import com.example.myapplication.views.jobs.ViewJobsActivity
+import com.example.myapplication.views.jobs.JobActivity
+import com.example.myapplication.views.jobs.MyJobApplicationsActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
 
 class MainActivity : ComponentActivity() {
@@ -45,10 +46,13 @@ class MainActivity : ComponentActivity() {
                             startActivity(Intent(this, UploadResumeActivity::class.java))
                         },
                         onViewJobsClick = {
-                            startActivity(Intent(this, ViewJobsActivity::class.java))
+                            startActivity(Intent(this, JobActivity::class.java))
                         },
                         onCreateJobsClick = {
                             startActivity(Intent(this, CreateJobActivity::class.java))
+                        },
+                        onViewMyJobApplications = {
+                            startActivity(Intent(this, MyJobApplicationsActivity::class.java))
                         }
                     )
                 }
@@ -58,7 +62,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}) {
+fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}, onViewMyJobApplications: ()->Unit = {}) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -102,6 +106,10 @@ fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, on
             Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
                 Text(text = "Kreiranje poslova")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
+                Text(text = "Moje prijave na poslove")
             }
         }
     }
