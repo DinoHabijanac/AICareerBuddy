@@ -13,7 +13,7 @@ import retrofit2.http.Body
 
 interface ApiService {
     @Headers("Accept: application/json")
-    @POST("api/Auth/register")
+    @POST("api/Registration/register")
     suspend fun registerUser(@Body request: RegistrationRequest): Response<RegistrationResponse>
 
     // **NOVO**: Login korisnika
