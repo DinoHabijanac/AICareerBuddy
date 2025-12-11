@@ -5,13 +5,13 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI CareerBuddy-APILayer", "Backend\AI CareerBuddy Backend\AI CareerBuddy-APILayer.csproj", "{11222290-1E7B-44FE-81A4-996F83994FD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI CareerBuddy-APILayer", "Backend\AI CareerBuddy Backend\AI CareerBuddy-APILayer.csproj", "{11222290-1E7B-44FE-81A4-996F83994FD1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICareerBuddy-BussinesLogicLayer", "AICareerBuddy-BussinesLayer\AICareerBuddy-BussinesLogicLayer.csproj", "{58AFE250-C71B-4E19-97B1-2A1C2FB38257}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AICareerBuddy-BussinesLogicLayer", "AICareerBuddy-BussinesLayer\AICareerBuddy-BussinesLogicLayer.csproj", "{58AFE250-C71B-4E19-97B1-2A1C2FB38257}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICareerBuddy-DataAccessLayer", "AICareerBuddy-DataAccessLayer\AICareerBuddy-DataAccessLayer.csproj", "{96C218ED-7D45-404A-996A-BE683024A265}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AICareerBuddy-DataAccessLayer", "AICareerBuddy-DataAccessLayer\AICareerBuddy-DataAccessLayer.csproj", "{96C218ED-7D45-404A-996A-BE683024A265}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICareerBuddy-Entities", "AICareerBuddy-Entities\AICareerBuddy-Entities.csproj", "{B9032570-69F2-4776-9A35-D94D595CE36C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AICareerBuddy-Entities", "AICareerBuddy-Entities\AICareerBuddy-Entities.csproj", "{B9032570-69F2-4776-9A35-D94D595CE36C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

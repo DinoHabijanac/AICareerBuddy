@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AICareerBuddy_Entities.Entities;
+namespace AICareerBuddy_DataAccessLayer.Models;
 
 public partial class JobListing
 {
@@ -25,5 +25,5 @@ public partial class JobListing
 
     public int EmployerId { get; set; }
 
-    public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
+    public virtual User Employer { get; set; }
 }
