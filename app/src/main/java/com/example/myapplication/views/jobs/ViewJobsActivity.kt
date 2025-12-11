@@ -1,9 +1,7 @@
 package com.example.myapplication.views.jobs
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,16 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,16 +42,13 @@ import com.example.myapplication.R
 import com.example.myapplication.models.JobListing
 import com.example.myapplication.network.NetworkModule
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class ViewJobsActivity : ComponentActivity() {
-    private var refreshTrigger by mutableStateOf(0)
-
+//ova aktivnost omogućuje pregled oglasa studentima, uz dohvat i prikaz iz baze
+class JobActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,33 +56,24 @@ class ViewJobsActivity : ComponentActivity() {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     JobListNetworkScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        refreshTrigger = refreshTrigger
+                        modifier = Modifier
+                            .padding(innerPadding)
+
                     )
                 }
             }
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        // Increment to trigger refresh when returning from EditJobActivity
-        refreshTrigger++
-    }
 }
 
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier, refreshTrigger: Int = 0) {
+fun JobListNetworkScreen(modifier: Modifier = Modifier) {
     var jobs by remember { mutableStateOf<List<JobListing>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
-    var jobToDelete by remember { mutableStateOf<JobListing?>(null) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
-    LaunchedEffect(refreshTrigger) {
+    LaunchedEffect(Unit) {
         loading = true
         error = null
         try {
@@ -107,76 +87,11 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, refreshTrigger: Int = 0)
         }
     }
 
-    if (showDeleteDialog && jobToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(text = "Potvrda brisanja") },
-            text = { Text(text = "Jeste li sigurni da želite obrisati oglas \"${jobToDelete?.name}\"?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        jobToDelete?.let { job ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                try {
-                                    val response = NetworkModule.apiService.deleteJob(job.id)
-                                    withContext(Dispatchers.Main) {
-                                        if (response.isSuccessful) {
-                                            jobs = jobs?.filter { it.id != job.id }
-                                            Toast.makeText(context, "Oglas uspješno obrisan", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Toast.makeText(context, "Greška pri brisanju oglasa - ${response.code()}", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(context, "Greška pri brisanju oglasa - ${e.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                        }
-                        showDeleteDialog = false
-                        jobToDelete = null
-                    }
-                ) {
-                    Text(text = "Da")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        jobToDelete = null
-                    }
-                ) {
-                    Text(text = "Ne")
-                }
-            }
-        )
-    }
-
-    val filtered = remember(jobs, query) {
-        val q = query.trim().lowercase()
-        if (q.isEmpty()) jobs ?: emptyList()
-        else (jobs ?: emptyList()).filter { job ->
-            val listingExpiresStr = try { job.listingExpires.toString() } catch (_: Exception) { "" }
-            listOf(
-                job.name,
-                job.description,
-                job.category,
-                job.location,
-                job.terms,
-                job.payPerHour.toString(),
-                listingExpiresStr
-            ).joinToString(" ").lowercase().contains(q)
-        }
-    }
-
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
@@ -215,45 +130,44 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, refreshTrigger: Int = 0)
         when {
             loading -> Text(text = "Učitavanje...", modifier = Modifier.padding(12.dp))
             !error.isNullOrEmpty() -> Text(text = "Greška: $error", modifier = Modifier.padding(12.dp))
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(12.dp)
-        ) {
-            items(filtered) { job ->
-                JobCard(
-                    job = job,
-                    onEditClick = {
-                        val intent = Intent(context, EditJobActivity::class.java).apply {
-                            putExtra("JOB_ID", job.id)
-                            putExtra("JOB_NAME", job.name)
-                            putExtra("JOB_DESCRIPTION", job.description)
-                            putExtra("JOB_CATEGORY", job.category)
-                            putExtra("JOB_LOCATION", job.location)
-                            putExtra("JOB_LISTING_EXPIRES", job.listingExpires.toString())
-                            putExtra("JOB_TERMS", job.terms)
-                            putExtra("JOB_PAY_PER_HOUR", job.payPerHour)
-                            putExtra("JOB_EMPLOYER_ID", job.employerId)
-                        }
-                        Log.d("ViewJobsActivity", "Editing job with ID: ${job.id}")
-                        context.startActivity(intent)
-                    },
-                    onDeleteClick = {
-                        jobToDelete = job
-                        showDeleteDialog = true
+            else -> {
+                val filtered = remember(jobs, query) {
+                    val q = query.trim().lowercase()
+                    if (q.isEmpty()) jobs ?: emptyList()
+                    else (jobs ?: emptyList()).filter { job ->
+                        val listingExpiresStr = try { job.listingExpires.toString() } catch (_: Exception) { "" }
+                        listOf(
+                            job.name,
+                            job.description,
+                            job.category,
+                            job.location,
+                            job.terms,
+                            job.payPerHour.toString(),
+                            listingExpiresStr
+                        ).joinToString(" ").lowercase().contains(q)
                     }
-                )
+                }
+                JobListScreen(jobs = filtered)
             }
         }
     }
 }
 
 @Composable
-fun JobCard(job: JobListing, onEditClick: () -> Unit = {}, onDeleteClick: () -> Unit = {}) {
+fun JobListScreen(jobs: List<JobListing>) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.padding(12.dp)
+
+    ) {
+        items(jobs) { job ->
+            JobCard(job)
+        }
+    }
+}
+
+@Composable
+fun JobCard(job: JobListing) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()
@@ -286,33 +200,7 @@ fun JobCard(job: JobListing, onEditClick: () -> Unit = {}, onDeleteClick: () -> 
 
             Spacer(modifier = Modifier.size(6.dp))
 
-            Text(
-                text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Spacer(modifier = Modifier.size(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onEditClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = "Uredi")
-                }
-
-                Button(
-                    onClick = onDeleteClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = "Obriši")
-                }
-            }
+            Text(text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

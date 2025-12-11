@@ -67,7 +67,6 @@ public val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: J
     }
 }
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-
 public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     try {
         val obj = json.asJsonObject
@@ -95,7 +94,6 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
         }
 
         val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
-        val employerId = if (obj.has("employerId") && !obj.get("employerId").isJsonNull) obj.get("employerId").asInt else 1
 
         JobListing(
             employerId = 1,
@@ -104,7 +102,7 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
             category = category,
             location = location,
             listingExpires = listingExpiresLdt,
-            terms = terms,
+            terms =  terms,
             payPerHour = payPerHour
         )
         //TODO("ispravi na prijavljenog korisnika nakon što se implementira prijava")
