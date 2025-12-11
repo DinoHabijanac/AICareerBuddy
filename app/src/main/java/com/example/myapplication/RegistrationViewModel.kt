@@ -16,23 +16,15 @@ class RegistrationViewModel : ViewModel() {
     val email:     MutableLiveData<String> = MutableLiveData("")
     val password:  MutableLiveData<String> = MutableLiveData("")
     val confirmPassword: MutableLiveData<String> = MutableLiveData("")
-    val role:      MutableLiveData<String> = MutableLiveData("korisnik") // zadani izbor
+    val role:      MutableLiveData<String> = MutableLiveData("student")
 
-    // Moguće uloge
-    val possibleRoles = listOf("admin", "korisnik")
+    val possibleRoles = listOf("poslodavac", "student")
 
-    // Poruka pogreške
     private val _errorMessage = MutableLiveData<String>("")
     val errorMessage = _errorMessage
 
-    // Status registracije (npr. za loading)
     val isLoading = MutableLiveData(false)
 
-    /**
-     * Pokreće registraciju korisnika.
-     * @param onSuccess: callback s (userId, username) ako je uspješno
-     * @param onFail: callback bez parametara u slučaju greške
-     */
     fun registerUser(onSuccess: (Int, String) -> Unit, onFail: () -> Unit) {
         // Validacija (primjer: provjera lozinke i confirm lozinke)
         if (password.value != confirmPassword.value) {
@@ -40,14 +32,12 @@ class RegistrationViewModel : ViewModel() {
             onFail()
             return
         }
-        // Ostale validacije polja mogu se dodati ovdje...
-        // (npr. prazna polja, format emaila itd. Po potrebi)
 
         isLoading.value = true
         _errorMessage.value = ""
         val req = RegistrationRequest(
             firstName.value ?: "", lastName.value ?: "", username.value ?: "",
-            email.value ?: "", password.value ?: "", role.value ?: "korisnik"
+            email.value ?: "", password.value ?: "", role.value ?: "student"
         )
 
         viewModelScope.launch {
@@ -60,7 +50,6 @@ class RegistrationViewModel : ViewModel() {
                     if (uid != null) {
                         onSuccess(uid, req.username)  // predaj userId i korisničko ime
                     } else {
-                        // Ako backend ne vraća userId, možemo i tako javiti uspjeh:
                         onSuccess(-1, req.username)
                     }
                 } else {
