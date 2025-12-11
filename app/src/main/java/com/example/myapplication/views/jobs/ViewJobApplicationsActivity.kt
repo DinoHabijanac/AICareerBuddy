@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -24,10 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,10 +61,15 @@ class MyJobApplicationsActivity : ComponentActivity() {
 @Composable
 fun MyJobApplicationsScreen(modifier: Modifier = Modifier, jobApplicationsViewModel: JobApplicationViewModel = viewModel()) {
 
-    var applications by remember { mutableStateOf<List<JobApplication>>(emptyList())}
+    val applications by jobApplicationsViewModel.applications.observeAsState(emptyList())
+
+    val userId = 2 // TODO("promjeniti na prijavljeni user id")
+    LaunchedEffect(userId) {
+       jobApplicationsViewModel.getApplications(userId)
+    }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().statusBarsPadding(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -90,11 +95,12 @@ fun MyJobApplicationsScreen(modifier: Modifier = Modifier, jobApplicationsViewMo
                     .padding(end = 12.dp)
             )
         }
-    }
-    Spacer(modifier = Modifier.height(12.dp))
 
-    applications =
-    ListApplications(applications)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ListApplications(applications)
+        //TODO("promjeniti na prijavljeni user id")
+    }
 }
 
 @Composable
@@ -148,7 +154,7 @@ fun ApplicationCard(application: JobApplication) {
 
             Text(
                 text = "Submitted: ${
-                    application.dateOfSubmission?.toString() ?: "Unknown"
+                    application.dateOfSubmission //?.toString() ?: "Unknown"
                 }",
                 style = MaterialTheme.typography.bodySmall
             )

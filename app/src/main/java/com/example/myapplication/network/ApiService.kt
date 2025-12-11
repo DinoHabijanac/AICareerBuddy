@@ -1,5 +1,6 @@
 package com.example.myapplication.network
 
+import com.example.myapplication.models.JobApplication
 import com.example.myapplication.models.JobListing
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -10,6 +11,7 @@ import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Query
 
 data class UploadResponse(
     val success: Boolean = false,
@@ -35,5 +37,9 @@ interface ApiService {
 
     @POST(value = "api/Job")
     suspend fun postJob(@Body job: JobListing) : Response<UploadResponse>
+
+    //JOB APPLICATIONS
+    @GET(value = "/api/Application/student")
+    suspend fun getJobApplications(@Query("studentId") userId: Int) : List<JobApplication>
 
 }

@@ -96,8 +96,9 @@ fun ResumeUploadScreen(modifier: Modifier = Modifier, uploadViewModel: UploadVie
             val prefs = context.getSharedPreferences("resume_prefs", 0)
             prefs.edit { putString("resume_uri", it.toString()) }
             currentUri.value = it
-            val userId = 2 // IMPLEMENRIRATI KAD SE RIJEŠI PRIJAVA
+            val userId = 2
             uploadViewModel.uploadResume(context, it, userId)
+            //TODO("IMPLEMENRIRATI pravi userID KAD SE RIJEŠI PRIJAVA")
         }
     }
 

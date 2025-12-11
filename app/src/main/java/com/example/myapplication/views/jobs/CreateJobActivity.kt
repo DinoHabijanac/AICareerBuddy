@@ -215,7 +215,7 @@ fun DateOnlyPicker(
                     .atStartOfDay(ZoneId.systemDefault())
                     .toInstant()
                     .toEpochMilli()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

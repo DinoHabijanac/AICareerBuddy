@@ -77,8 +77,7 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
         loading = true
         error = null
         try {
-            val result = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
-            jobs = result
+            jobs = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
             Log.d("Debug", e.message.toString())
