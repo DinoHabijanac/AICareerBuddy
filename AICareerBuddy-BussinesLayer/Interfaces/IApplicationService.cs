@@ -1,6 +1,6 @@
 ﻿using AICareerBuddy_Entities.Entities;
 
-namespace AI_CareerBuddy_Backend.Controllers
+namespace AICareerBuddy_BussinesLayer.Interfaces
 {
     public interface IApplicationService
     {

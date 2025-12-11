@@ -1,5 +1,4 @@
 ﻿using AICareerBuddy_BussinesLayer.Interfaces;
-using AICareerBuddy_BussinesLayer.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
 
