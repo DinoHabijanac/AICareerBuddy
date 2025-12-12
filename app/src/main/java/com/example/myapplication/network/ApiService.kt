@@ -40,6 +40,13 @@ interface ApiService {
 
     //JOB APPLICATIONS
     @GET(value = "/api/Application/student")
-    suspend fun getJobApplications(@Query("studentId") userId: Int) : List<JobApplication>
+    suspend fun getJobApplicationsForStudent(@Query("studentId") userId: Int) : List<JobApplication>
+
+    @GET(value = "/api/Application/employer")
+    suspend fun getJobApplicationsForEmployer(@Query("employerId") userId: Int) : List<JobApplication>
+
+    //trebat ce kasnije kada budemo radili klik na oglas pa da vidimo koji su sve studenti prijavili tocno taj oglas
+    @GET(value = "/api/Application/job")
+    suspend fun getJobApplicationsForJob(@Query("jobId") jobId: Int) : List<JobApplication>
 
 }
