@@ -20,4 +20,5 @@ interface ApiService {
     @Headers("Accept: application/json")
     @POST("api/Auth/login")
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
+
 }
