@@ -12,7 +12,7 @@ namespace AICareerBuddy_BussinesLogic.Services
     {
         private ResumeFileRepository Repository;
 
-        public ResumeService() 
+        public ResumeService()
         {
             Repository = new ResumeFileRepository();
         }
@@ -32,6 +32,7 @@ namespace AICareerBuddy_BussinesLogic.Services
         //PROMJENITI NA studentski račun
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
         private static string shareName = "infoguardians";
+
         public async Task<ResumeFileInfo> PostResume(IFormFile file, int userId)
         {
             var allowedExtensions = new List<string>
@@ -67,9 +68,11 @@ namespace AICareerBuddy_BussinesLogic.Services
                     var rootDir = shareClient.GetRootDirectoryClient();
 
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
                     var fileClient = rootDir.GetFileClient(fileName);
 
                     await fileClient.CreateAsync(file.Length);
+
                     using (var stream = file.OpenReadStream())
                     {
                         if (stream.CanSeek)
@@ -86,7 +89,9 @@ namespace AICareerBuddy_BussinesLogic.Services
                         CreateDate = DateOnly.FromDateTime(DateTime.Now),
                         UserId = userId
                     };
+
                     var result = await Repository.Add(fileInfo);
+
                     if (result == 1) return fileInfo;
                     else return null;
                 }
@@ -94,6 +99,37 @@ namespace AICareerBuddy_BussinesLogic.Services
                 {
                     throw new InvalidOperationException(ex.Message);
                 }
+            }
+        }
+
+        public async Task<bool> DeleteResume(int userId)
+        {
+            try
+            {
+                // 1. Dohvati zapis iz baze za tog korisnika
+                var resume = await Repository.GetResume(userId).FirstOrDefaultAsync();
+
+                if (resume == null)
+                {
+                    return false; // Nema resume-a za tog korisnika
+                }
+
+                // 2. Obriši datoteku sa Azure File Share-a
+                var shareClient = new ShareClient(connectionString, shareName);
+                var rootDir = shareClient.GetRootDirectoryClient();
+                var fileClient = rootDir.GetFileClient(resume.Name);
+
+                // Pokušaj obrisati datoteku (ignoriraj ako ne postoji)
+                await fileClient.DeleteIfExistsAsync();
+
+                // 3. Obriši zapis iz baze
+                var result = await Repository.Remove(resume);
+
+                return result == 1;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error deleting resume: {ex.Message}");
             }
         }
     }
