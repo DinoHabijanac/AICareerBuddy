@@ -59,7 +59,7 @@ class HomeActivity : ComponentActivity() {
         Log.d("HOME_PREFS", "userId=$userId username=$username isLoggedIn=$isLoggedIn")
 
         if (isLoggedIn) {
-            val intent = Intent(this, MainActivity::class.java).apply {
+            val intent = Intent(this, com.example.myapplication.views.MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
             startActivity(intent)

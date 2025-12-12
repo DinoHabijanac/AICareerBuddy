@@ -14,12 +14,16 @@ import androidx.compose.ui.Modifier
 class PostRegistrationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Dohvati username iz Intenta
         val newUser = intent.getStringExtra("username") ?: ""
+
         setContent {
             MyApplicationTheme {
                 PostRegistrationScreen(newUser = newUser, onNoticeUnderstood = {
-                    finish() // vraća korisnika natrag (npr. login screen ili početni ekran)
+                    val intent = android.content.Intent(this, HomeActivity::class.java).apply {
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                    startActivity(intent)
+                    finish()
                 })
             }
         }
@@ -35,8 +39,7 @@ fun PostRegistrationScreen(newUser: String, onNoticeUnderstood: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Uspješno ste se registrirali kao '$newUser'. " +
-                        "Vaš račun je poslan na odobrenje. Hvala na čekanju!",
+                text = "Uspješno ste se registrirali.",
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(24.dp))

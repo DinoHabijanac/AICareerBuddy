@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,30 +29,35 @@ import com.example.myapplication.views.jobs.JobActivity
 import com.example.myapplication.views.jobs.MyJobApplicationsActivity
 import com.example.myapplication.views.jobs.ViewJobApplicationsForEmployerActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
+import com.example.myapplication.activities.HomeActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val username = prefs.getString("username", null) ?: "Nepoznati korisnik"
+
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
-                        onResumeClick = {
-                            startActivity(Intent(this, UploadResumeActivity::class.java))
-                        },
-                        onViewJobsClick = {
-                            startActivity(Intent(this, JobActivity::class.java))
-                        },
-                        onCreateJobsClick = {
-                            startActivity(Intent(this, CreateJobActivity::class.java))
-                        },
-                        onViewMyJobApplications = {
-                            startActivity(Intent(this, MyJobApplicationsActivity::class.java))
-                        },
-                        onViewJobApplicationsForEmployer = {
-                            startActivity(Intent(this, ViewJobApplicationsForEmployerActivity::class.java))
+                        username = username,
+                        onResumeClick = { startActivity(Intent(this, UploadResumeActivity::class.java)) },
+                        onViewJobsClick = { startActivity(Intent(this, JobActivity::class.java)) },
+                        onCreateJobsClick = { startActivity(Intent(this, CreateJobActivity::class.java)) },
+                        onViewMyJobApplications = { startActivity(Intent(this, MyJobApplicationsActivity::class.java)) },
+                        onViewJobApplicationsForEmployer = { startActivity(Intent(this, ViewJobApplicationsForEmployerActivity::class.java)) },
+                        onLogout = {
+                            prefs.edit().clear().apply()
+                            startActivity(
+                                Intent(this, HomeActivity::class.java).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                }
+                            )
+                            finish()
                         }
                     )
                 }
@@ -63,41 +69,84 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    username: String,
     onResumeClick: () -> Unit = {},
     onViewJobsClick: () -> Unit = {},
     onCreateJobsClick: () -> Unit = {},
     onViewMyJobApplications: () -> Unit = {},
-    onViewJobApplicationsForEmployer: () -> Unit = {}
+    onViewJobApplicationsForEmployer: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     Column(
-        modifier = modifier.fillMaxSize().statusBarsPadding(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        HeaderUI()
+        // Gornji dio
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize().weight(1f, fill = true)
+        ) {
+            HeaderUI()
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onResumeClick, modifier = Modifier.width(220.dp)) {
-                Text(text = "Životopis")
+            // username gore desno
+            Column(modifier = Modifier.fillMaxSize()) {
+                Text(
+                    text = "Korisnik: $username",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(bottom = 8.dp)
+                )
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = onResumeClick, modifier = Modifier.width(220.dp)) {
+                        Text(text = "Životopis")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(onClick = onViewJobsClick, modifier = Modifier.width(220.dp)) {
+                        Text(text = "Pregled poslova")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
+                        Text(text = "Kreiranje poslova")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
+                        Text(text = "Moje prijave na poslove (student)")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
+                        Text(text = "Moji postavljeni poslovi (employer)")
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onViewJobsClick, modifier = Modifier.width(220.dp)) {
-                Text(text = "Pregled poslova")
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
-                Text(text = "Kreiranje poslova")
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
-                Text(text = "Moje prijave na poslove (student)")
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
-                Text(text = "Moji postavljeni poslovi (employer)")
-            }
+        }
+
+        // Donji dio (logout dolje)
+        Button(
+            onClick = onLogout,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .width(220.dp)
+                .padding(bottom = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            )
+        ) {
+            Text("Logout")
         }
     }
 }
