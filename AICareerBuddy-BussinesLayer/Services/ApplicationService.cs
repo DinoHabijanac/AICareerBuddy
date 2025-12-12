@@ -32,6 +32,10 @@ namespace AICareerBuddy_BussinesLayer.Services
         {
             return await Repository.GetApplicationsByJobId(jobId).ToListAsync();
         }
+        public async Task<List<JobApplication>> GetApplicationsByEmployerId(int employerId)
+        {
+            return await Repository.GetApplicationsByEmployerId(employerId).ToListAsync();
+        }
         public async Task<List<JobApplication>> GetApplications()
         {
             return await Repository.GetAll().ToListAsync();

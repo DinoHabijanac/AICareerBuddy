@@ -35,6 +35,14 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         [HttpGet("employer")]
+        public async Task<ActionResult<IEnumerable<JobApplication>>> GetByEmployerId([FromQuery] int employerId)
+        {
+            var applications = await ApplicationService.GetApplicationsByEmployerId(employerId);
+            if (applications != null) return Ok(applications);
+            else return NotFound();
+        }
+
+        [HttpGet("job")]
         public async Task<ActionResult<IEnumerable<JobApplication>>> GetByJobId([FromQuery] int jobId)
         {
             var applications = await ApplicationService.GetApplicationsByJobId(jobId);

@@ -21,5 +21,7 @@ public partial class JobApplication
 
     public string WorkExperience { get; set; }
 
-    public virtual JobListing Job { get; set; }
+    public int? EmployerId { get; set; }
+
+    public virtual Employer Employer { get; set; }
 }

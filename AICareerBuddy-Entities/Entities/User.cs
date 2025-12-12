@@ -22,4 +22,6 @@ public partial class User
     public string Role { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public virtual ICollection<Employer> Employers { get; set; } = new List<Employer>();
 }
