@@ -53,7 +53,6 @@ import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
 
-// ova aktivnost omogućuje upload zivotopisa studentima i spremanje na azure i u bazu referencu
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +76,25 @@ fun ResumeUploadScreen(
     val currentUri = remember { mutableStateOf<Uri?>(null) }
     val uploadState by uploadViewModel.uploadState.collectAsState()
     val deleteState by uploadViewModel.deleteState.collectAsState()
+
+    // Get the logged-in user's ID from SharedPreferences
+    val userId = remember {
+        val prefs = context.getSharedPreferences("user_prefs", 0)
+        prefs.getInt("userId", -1)
+    }
+
+    // Redirect to login if not logged in
+    LaunchedEffect(userId) {
+        if (userId == -1) {
+            Toast.makeText(
+                context,
+                "Morate biti prijavljeni za pristup ovoj stranici",
+                Toast.LENGTH_LONG
+            ).show()
+            // Optional: Navigate back to HomeActivity/LoginActivity
+            // (context as? ComponentActivity)?.finish()
+        }
+    }
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
@@ -129,14 +147,21 @@ fun ResumeUploadScreen(
                 prefs.edit { putString("resume_uri", it.toString()) }
                 currentUri.value = it
 
-                val userId = 2 //TODO("IMPLEMENRIRATI pravi userID")
-
-                // Ako već postoji resume, koristi UPDATE, inače POST
-                val existingResume = currentUri.value
-                if (existingResume != null && existingResume != it) {
-                    uploadViewModel.updateResume(context, it, userId)
+                // Use the real logged-in user's ID
+                if (userId != -1) {
+                    // Ako već postoji resume, koristi UPDATE, inače POST
+                    val existingResume = currentUri.value
+                    if (existingResume != null && existingResume != it) {
+                        uploadViewModel.updateResume(context, it, userId)
+                    } else {
+                        uploadViewModel.uploadResume(context, it, userId)
+                    }
                 } else {
-                    uploadViewModel.uploadResume(context, it, userId)
+                    Toast.makeText(
+                        context,
+                        "Greška: Niste prijavljeni",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -252,13 +277,20 @@ fun ResumeUploadScreen(
 
                 Button(
                     onClick = {
-                        val userId = 2 //TODO("IMPLEMENRIRATI pravi userID")
-                        uploadViewModel.deleteResume(userId)
+                        if (userId != -1) {
+                            uploadViewModel.deleteResume(userId)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Greška: Niste prijavljeni",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red
                     ),
-                    enabled = deleteState !is DeleteState.Deleting
+                    enabled = deleteState !is DeleteState.Deleting && userId != -1
                 ) {
                     Text("Obriši sa servera")
                 }
@@ -278,7 +310,8 @@ fun ResumeUploadScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2196F3) // Blue
-                    )
+                    ),
+                    enabled = userId != -1
                 ) {
                     Text("Zamijeni životopis")
                 }
@@ -297,16 +330,19 @@ fun ResumeUploadScreen(
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                launcher.launch(
-                    arrayOf(
-                        "application/pdf",
-                        "application/msword",
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        "*/*"
+            Button(
+                onClick = {
+                    launcher.launch(
+                        arrayOf(
+                            "application/pdf",
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            "*/*"
+                        )
                     )
-                )
-            }, enabled = currentUri.value == null) {
+                },
+                enabled = currentUri.value == null && userId != -1
+            ) {
                 Text("Prenesi životopis")
             }
         }
