@@ -17,6 +17,8 @@ public partial class AIR_projektContext : DbContext
     {
     }
 
+    public virtual DbSet<Employer> Employers { get; set; }
+
     public virtual DbSet<JobApplication> JobApplications { get; set; }
 
     public virtual DbSet<JobListing> JobListings { get; set; }
@@ -31,6 +33,26 @@ public partial class AIR_projektContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Employer>(entity =>
+        {
+            entity.ToTable("Employer");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Adress)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Occupation)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.Employers)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Employer_User");
+        });
+
         modelBuilder.Entity<JobApplication>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Application");
@@ -43,9 +65,8 @@ public partial class AIR_projektContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.WorkExperience).HasColumnType("text");
 
-            entity.HasOne(d => d.Job).WithMany(p => p.JobApplications)
-                .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+            entity.HasOne(d => d.Employer).WithMany(p => p.JobApplications)
+                .HasForeignKey(d => d.EmployerId)
                 .HasConstraintName("FK_Application_JobListing");
         });
 

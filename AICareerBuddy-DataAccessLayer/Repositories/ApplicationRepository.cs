@@ -27,6 +27,11 @@ namespace AICareerBuddy_DataAccessLayer.Repositories
             var query = from j in Entities where j.JobId == jobId select j;
             return query;
         }
+        public IQueryable<JobApplication> GetApplicationsByEmployerId(int employerId)
+        {
+            var query = from j in Entities where j.EmployerId == employerId select j;
+            return query;
+        }
         public override async Task<int> Update(JobApplication entity, bool saveChanges = true)
         {
             var application = GetApplicationById(entity.Id).FirstOrDefault();
