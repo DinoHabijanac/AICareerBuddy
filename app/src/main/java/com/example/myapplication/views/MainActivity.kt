@@ -5,17 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -24,14 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.R
+import com.example.myapplication.helpers.HeaderUI
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.views.jobs.CreateJobActivity
 import com.example.myapplication.views.jobs.JobActivity
 import com.example.myapplication.views.jobs.MyJobApplicationsActivity
+import com.example.myapplication.views.jobs.ViewJobApplicationsForEmployerActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +36,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding),
+                    MainScreen(
+                        modifier = Modifier.padding(innerPadding),
                         onResumeClick = {
                             startActivity(Intent(this, UploadResumeActivity::class.java))
                         },
@@ -53,6 +49,9 @@ class MainActivity : ComponentActivity() {
                         },
                         onViewMyJobApplications = {
                             startActivity(Intent(this, MyJobApplicationsActivity::class.java))
+                        },
+                        onViewJobApplicationsForEmployer = {
+                            startActivity(Intent(this, ViewJobApplicationsForEmployerActivity::class.java))
                         }
                     )
                 }
@@ -62,36 +61,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, onViewJobsClick: () -> Unit = {}, onCreateJobsClick: ()->Unit = {}, onViewMyJobApplications: ()->Unit = {}) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onResumeClick: () -> Unit = {},
+    onViewJobsClick: () -> Unit = {},
+    onCreateJobsClick: () -> Unit = {},
+    onViewMyJobApplications: () -> Unit = {},
+    onViewJobApplicationsForEmployer: () -> Unit = {}
+) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().statusBarsPadding(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Blue)
-                .height(80.dp)
-        ) {
-            Text(
-                text = "AI Career Buddy",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(end = 12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
+        HeaderUI()
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
@@ -109,7 +92,11 @@ fun MainScreen(modifier: Modifier = Modifier, onResumeClick: () -> Unit = {}, on
             }
             Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
-                Text(text = "Moje prijave na poslove")
+                Text(text = "Moje prijave na poslove (student)")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
+                Text(text = "Moji postavljeni poslovi (employer)")
             }
         }
     }
