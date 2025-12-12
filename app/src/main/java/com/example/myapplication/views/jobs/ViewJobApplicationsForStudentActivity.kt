@@ -30,7 +30,7 @@ class MyJobApplicationsActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ViewJobApplicationsForEmployerScreen(
+                    MyJobApplicationsScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -55,7 +55,7 @@ fun MyJobApplicationsScreen(modifier: Modifier = Modifier, jobApplicationsViewMo
     ) {
         HeaderUI()
 
-        ListApplications(applications)
+        ListApplications(applications, modifier = Modifier.weight(1f))
         //TODO("promjeniti na prijavljeni user id")
     }
 }

@@ -31,11 +31,10 @@ import com.example.myapplication.R
 import com.example.myapplication.models.JobApplication
 
 @Composable
-fun ListApplications(applications: List<JobApplication>) {
+fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Modifier) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(12.dp)
-
+        modifier = modifier.padding(12.dp)
     ) {
         items(applications) { application ->
             ApplicationCard(application)
