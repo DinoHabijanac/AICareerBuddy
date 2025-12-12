@@ -6,12 +6,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -73,118 +75,125 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
     var terms by remember { mutableStateOf("") }
     var payPerHour by remember { mutableStateOf("") }
 
-    HeaderUI()
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderUI()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            "Unesi novi oglas za posao",
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text(text = "Naziv oglasa") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text(text = "Opis oglasa") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        OutlinedTextField(
-            value = category,
-            onValueChange = { category = it },
-            label = { Text(text = "Kategorija oglasa") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        OutlinedTextField(
-            value = location,
-            onValueChange = { location = it },
-            label = { Text(text = "Lokacija oglasa") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        DateOnlyPicker(
-            label = "Datum isteka oglasa",
-            initialIsoDate = listingExpires.ifBlank { null },
-            onDateSelected = { iso -> listingExpires = iso }
-        )
-        OutlinedTextField(
-            value = terms,
-            onValueChange = { terms = it },
-            label = { Text(text = "Uvjeti oglasa (komunikativnost, spremnost ...)") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        OutlinedTextField(
-            value = payPerHour,
-            onValueChange = { payPerHour = it },
-            label = { Text(text = "Plaća po satu") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            modifier = Modifier.width(220.dp),
-            onClick = {
-                try {
-                    if (name.isBlank() || description.isBlank() || category.isBlank() || location.isBlank() || listingExpires.isBlank() || terms.isBlank() || payPerHour.isBlank()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                "Unesi novi oglas za posao",
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(text = "Naziv oglasa") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text(text = "Opis oglasa") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            OutlinedTextField(
+                value = category,
+                onValueChange = { category = it },
+                label = { Text(text = "Kategorija oglasa") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            OutlinedTextField(
+                value = location,
+                onValueChange = { location = it },
+                label = { Text(text = "Lokacija oglasa") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            DateOnlyPicker(
+                label = "Datum isteka oglasa",
+                initialIsoDate = listingExpires.ifBlank { null },
+                onDateSelected = { iso -> listingExpires = iso }
+            )
+            OutlinedTextField(
+                value = terms,
+                onValueChange = { terms = it },
+                label = { Text(text = "Uvjeti oglasa (komunikativnost, spremnost ...)") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            OutlinedTextField(
+                value = payPerHour,
+                onValueChange = { payPerHour = it },
+                label = { Text(text = "Plaća po satu") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                modifier = Modifier.width(220.dp),
+                onClick = {
+                    try {
+                        if (name.isBlank() || description.isBlank() || category.isBlank() || location.isBlank() || listingExpires.isBlank() || terms.isBlank() || payPerHour.isBlank()) {
+                            Toast.makeText(
+                                context,
+                                "Sva polja moraju biti popunjena",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
+
+                        val job = JobListing(
+                            name = name,
+                            description = description,
+                            category = category,
+                            location = location,
+                            listingExpires = LocalDate.parse(listingExpires),
+                            terms = terms,
+                            payPerHour = payPerHour.toInt(),
+                            employerId = 2 // ISPRAVI NAKON PRIJAVE
+                        )
+                        jobsViewModel.uploadJob(job)
+                        if (jobsViewModel.uploadState.value == "Uspješno dodan oglas") {
+                            name = ""
+                            description = ""
+                            category = ""
+                            location = ""
+                            listingExpires = ""
+                            terms = ""
+                            payPerHour = ""
+                        }
+                        Toast.makeText(context, jobsViewModel.uploadState.value, Toast.LENGTH_SHORT)
+                            .show()
+                        Log.d("Debugiranje!", jobsViewModel.uploadState.value.toString())
+                    } catch (e: Exception) {
                         Toast.makeText(
                             context,
-                            "Sva polja moraju biti popunjena",
+                            "Greška pri dodavanju oglasa - ${e.message}",
                             Toast.LENGTH_SHORT
                         ).show()
-                        return@Button
+                        Log.d("Debugiranje!", e.message.toString())
                     }
-
-                    val job = JobListing(
-                        name = name,
-                        description = description,
-                        category = category,
-                        location = location,
-                        listingExpires = LocalDate.parse(listingExpires),
-                        terms = terms,
-                        payPerHour = payPerHour.toInt(),
-                        employerId = 2 // ISPRAVI NAKON PRIJAVE
-                    )
-                    jobsViewModel.uploadJob(job)
-                    if (jobsViewModel.uploadState.value == "Uspješno dodan oglas") {
-                        name = ""
-                        description = ""
-                        category = ""
-                        location = ""
-                        listingExpires = ""
-                        terms = ""
-                        payPerHour = ""
-                    }
-                    Toast.makeText(context, jobsViewModel.uploadState.value, Toast.LENGTH_SHORT)
-                        .show()
-                    Log.d("Debugiranje!", jobsViewModel.uploadState.value.toString())
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        context,
-                        "Greška pri dodavanju oglasa - ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.d("Debugiranje!", e.message.toString())
-                }
-            },
-        ) {
-            Text("Kreiraj oglas")
+                },
+            ) {
+                Text("Kreiraj oglas")
+            }
         }
     }
 }
-
 
 @Composable
 fun DateOnlyPicker(

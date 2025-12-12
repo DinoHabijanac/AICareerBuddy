@@ -5,11 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -67,31 +69,35 @@ fun MainScreen(
     onViewMyJobApplications: () -> Unit = {},
     onViewJobApplicationsForEmployer: () -> Unit = {}
 ) {
+    Column(
+        modifier = modifier.fillMaxSize().statusBarsPadding(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderUI()
 
-    HeaderUI()
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onResumeClick, modifier = Modifier.width(220.dp)) {
-            Text(text = "Životopis")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick = onViewJobsClick, modifier = Modifier.width(220.dp)) {
-            Text(text = "Pregled poslova")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
-            Text(text = "Kreiranje poslova")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
-            Text(text = "Moje prijave na poslove (student)")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
-            Text(text = "Moji postavljeni poslovi (employer)")
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Odaberi opciju", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onResumeClick, modifier = Modifier.width(220.dp)) {
+                Text(text = "Životopis")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onViewJobsClick, modifier = Modifier.width(220.dp)) {
+                Text(text = "Pregled poslova")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onCreateJobsClick, modifier = Modifier.width(220.dp)) {
+                Text(text = "Kreiranje poslova")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onViewMyJobApplications, modifier = Modifier.width(220.dp)) {
+                Text(text = "Moje prijave na poslove (student)")
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
+                Text(text = "Moji postavljeni poslovi (employer)")
+            }
         }
     }
 }
-

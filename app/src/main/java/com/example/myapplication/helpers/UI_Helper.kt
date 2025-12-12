@@ -94,13 +94,8 @@ fun ApplicationCard(application: JobApplication) {
 }
 
 @Composable
-fun HeaderUI() {
-    Column(
-        modifier = modifier.fillMaxSize().statusBarsPadding(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
+fun HeaderUI(modifier : Modifier = Modifier) {
+    Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -122,7 +117,5 @@ fun HeaderUI() {
                     .padding(end = 12.dp)
             )
         }
-
         Spacer(modifier = Modifier.height(12.dp))
     }
-}

@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -103,129 +105,136 @@ fun ResumeUploadScreen(
             }
         }
 
-    HeaderUI()
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderUI()
 
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Učitaj svoj životopis", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            "Učitaj svoj životopis za prijavu na oglas za posao ili za AI analizu sadržaja",
-            textAlign = TextAlign.Center
-        )
-    }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Učitaj svoj životopis", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Učitaj svoj životopis za prijavu na oglas za posao ili za AI analizu sadržaja",
+                textAlign = TextAlign.Center
+            )
+        }
 
-    val boxSize = 220.dp
-    Box(
-        modifier = Modifier
-            .size(boxSize)
-            .drawBehind {
-                val strokePx = with(density) { 2.dp.toPx() }
-                drawRoundRect(
-                    color = Color.Transparent,
-                    cornerRadius = CornerRadius(
-                        12.dp.toPx(),
-                        12.dp.toPx()
-                    ),
-                    style = Stroke(
-                        width = strokePx,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 12f), 0f)
+        val boxSize = 220.dp
+        Box(
+            modifier = Modifier
+                .size(boxSize)
+                .drawBehind {
+                    val strokePx = with(density) { 2.dp.toPx() }
+                    drawRoundRect(
+                        color = Color.Transparent,
+                        cornerRadius = CornerRadius(
+                            12.dp.toPx(),
+                            12.dp.toPx()
+                        ),
+                        style = Stroke(
+                            width = strokePx,
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(18f, 12f), 0f)
+                        )
+                    )
+                }
+                .background(Color(0xFFF5F7FB), shape = RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            val uri = currentUri.value
+            if (uri == null) {
+                Text("📤", fontSize = 90.sp)
+            } else {
+                val name = remember(uri) {
+                    var display = uri.lastPathSegment ?: uri.toString()
+                    try {
+                        val cursor = context.contentResolver.query(uri, null, null, null, null)
+                        cursor?.use {
+                            if (it.moveToFirst()) {
+                                val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                                if (idx >= 0) display = it.getString(idx)
+                            }
+                        }
+                    } catch (_: Exception) {
+                    }
+                    display
+                }
+                Text(
+                    text = name,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            when (uploadState) {
+                is UploadState.Idle -> {}
+                is UploadState.Uploading -> Text("Učitavanje...", color = Color.Gray)
+                is UploadState.Success -> Text(
+                    (uploadState as UploadState.Success).message,
+                    color = Color.Green
+                )
+
+                is UploadState.Error -> Text(
+                    (uploadState as UploadState.Error).message,
+                    color = Color.Red
+                )
+            }
+
+            currentUri.value?.let { uri ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setData(uri)
+                            flags =
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            context,
+                            "Ne mogu otvoriti dokument: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }) {
+                    Text("Otvori")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = {
+                    val prefs = context.getSharedPreferences("resume_prefs", 0)
+                    prefs.edit { remove("resume_uri") }
+                    currentUri.value = null
+                    uploadViewModel.reset()
+                }) {
+                    Text("Ukloni")
+                }
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = {
+                launcher.launch(
+                    arrayOf(
+                        "application/pdf",
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "*/*"
                     )
                 )
+            }, enabled = currentUri.value == null) {
+                Text("Prenesi životopis")
             }
-            .background(Color(0xFFF5F7FB), shape = RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        val uri = currentUri.value
-        if (uri == null) {
-            Text("📤", fontSize = 90.sp)
-        } else {
-            val name = remember(uri) {
-                var display = uri.lastPathSegment ?: uri.toString()
-                try {
-                    val cursor = context.contentResolver.query(uri, null, null, null, null)
-                    cursor?.use {
-                        if (it.moveToFirst()) {
-                            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            if (idx >= 0) display = it.getString(idx)
-                        }
-                    }
-                } catch (_: Exception) {
-                }
-                display
-            }
-            Text(
-                text = name,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-    }
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        when (uploadState) {
-            is UploadState.Idle -> {}
-            is UploadState.Uploading -> Text("Učitavanje...", color = Color.Gray)
-            is UploadState.Success -> Text(
-                (uploadState as UploadState.Success).message,
-                color = Color.Green
-            )
-
-            is UploadState.Error -> Text(
-                (uploadState as UploadState.Error).message,
-                color = Color.Red
-            )
-        }
-
-        currentUri.value?.let { uri ->
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setData(uri)
-                        flags =
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        context,
-                        "Ne mogu otvoriti dokument: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }) {
-                Text("Otvori")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = {
-                val prefs = context.getSharedPreferences("resume_prefs", 0)
-                prefs.edit { remove("resume_uri") }
-                currentUri.value = null
-                uploadViewModel.reset()
-            }) {
-                Text("Ukloni")
-            }
-        }
-    }
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(onClick = {
-            launcher.launch(
-                arrayOf(
-                    "application/pdf",
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "*/*"
-                )
-            )
-        }, enabled = currentUri.value == null) {
-            Text("Prenesi životopis")
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

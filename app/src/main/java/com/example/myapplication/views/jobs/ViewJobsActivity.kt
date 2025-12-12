@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -81,50 +82,58 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
             loading = false
         }
     }
+    Column(
+        modifier = modifier.fillMaxSize().statusBarsPadding(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderUI()
 
-    HeaderUI()
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text(text = "Pretraži oglase") },
+            placeholder = { Text(text = "Upiši tekst za pretraživanje po svim poljima") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        )
 
-    OutlinedTextField(
-        value = query,
-        onValueChange = { query = it },
-        label = { Text(text = "Pretraži oglase") },
-        placeholder = { Text(text = "Upiši tekst za pretraživanje po svim poljima") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp)
-    )
+        Spacer(modifier = Modifier.height(12.dp))
 
-    Spacer(modifier = Modifier.height(12.dp))
+        when {
+            loading -> Text(text = "Učitavanje...", modifier = Modifier.padding(12.dp))
+            !error.isNullOrEmpty() -> Text(
+                text = "Greška: $error",
+                modifier = Modifier.padding(12.dp)
+            )
 
-    when {
-        loading -> Text(text = "Učitavanje...", modifier = Modifier.padding(12.dp))
-        !error.isNullOrEmpty() -> Text(text = "Greška: $error", modifier = Modifier.padding(12.dp))
-        else -> {
-            val filtered = remember(jobs, query) {
-                val q = query.trim().lowercase()
-                if (q.isEmpty()) jobs ?: emptyList()
-                else (jobs ?: emptyList()).filter { job ->
-                    val listingExpiresStr = try {
-                        job.listingExpires.toString()
-                    } catch (_: Exception) {
-                        ""
+            else -> {
+                val filtered = remember(jobs, query) {
+                    val q = query.trim().lowercase()
+                    if (q.isEmpty()) jobs ?: emptyList()
+                    else (jobs ?: emptyList()).filter { job ->
+                        val listingExpiresStr = try {
+                            job.listingExpires.toString()
+                        } catch (_: Exception) {
+                            ""
+                        }
+                        listOf(
+                            job.name,
+                            job.description,
+                            job.category,
+                            job.location,
+                            job.terms,
+                            job.payPerHour.toString(),
+                            listingExpiresStr
+                        ).joinToString(" ").lowercase().contains(q)
                     }
-                    listOf(
-                        job.name,
-                        job.description,
-                        job.category,
-                        job.location,
-                        job.terms,
-                        job.payPerHour.toString(),
-                        listingExpiresStr
-                    ).joinToString(" ").lowercase().contains(q)
                 }
+                JobListScreen(jobs = filtered)
             }
-            JobListScreen(jobs = filtered)
         }
     }
 }
-
 
 @Composable
 fun JobListScreen(jobs: List<JobListing>) {
