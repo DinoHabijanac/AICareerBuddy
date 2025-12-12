@@ -27,7 +27,7 @@ public partial class AIR_projektContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=infoguardians.database.windows.net;Initial Catalog=AIR_projekt;Persist Security Info=True;User ID=admin123;Password=Infoguardians123;Encrypt=True");
+        => optionsBuilder.UseSqlServer("Data Source=tcp:portalgrupa.database.windows.net;Initial Catalog=AIR_projekt;Persist Security Info=True;User ID=portal_admin;Password=eutUu3i94XD!P$G");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -85,7 +85,7 @@ public partial class AIR_projektContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__User__3214EC077278587D");
+            entity.HasKey(e => e.Id).HasName("PK__User__3214EC07A2BB9832");
 
             entity.ToTable("User");
 

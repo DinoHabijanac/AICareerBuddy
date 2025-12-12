@@ -30,9 +30,8 @@ namespace AICareerBuddy_BussinesLogic.Services
         }
 
         //PROMJENITI NA studentski račun
-        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=infoguardians;AccountKey=nvu6Lea2QGu1IoVTaBKLgTWyTZM68vFsKp+bR5FItKOtJmJeurRJgWi1+J41OVxJIzs66nMvIBdS+AStEUv6MA==;EndpointSuffix=core.windows.net";
+        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
         private static string shareName = "infoguardians";
-
         public async Task<ResumeFileInfo> PostResume(IFormFile file, int userId)
         {
             var allowedExtensions = new List<string>
