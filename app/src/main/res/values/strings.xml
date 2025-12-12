@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="title_activity_job">JobActivity</string>
+    <string name="title_activity_create_job">CreateJobActivity</string>
+    <string name="title_activity_my_job_applications">MyJobApplicationsActivity</string>
+    <string name="title_activity_view_job_applications_for_employer">
+        ViewJobApplicationsForEmployerActivity
+    </string>
 </resources>

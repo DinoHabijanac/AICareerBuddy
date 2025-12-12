@@ -1,16 +1,14 @@
+// app/src/main/java/com/example/myapplication/network/NetworkModule.kt
 package com.example.myapplication.network
 
 import android.util.Log
+import com.example.myapplication.helpers.jobListingDeserializer
+import com.example.myapplication.helpers.localDateTimeDeserializer
+import com.example.myapplication.models.JobListing
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import java.lang.reflect.Type
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.Instant
-import java.time.ZoneId
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializer
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,16 +16,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-import java.util.concurrent.TimeUnit
 
 object NetworkModule {
-    // promjeniti postavke - ovo je nesigurno
-    // promjeniti na false
+
+    // TODO: u produkciji obavezno false + normalan cert chain
     private const val DEBUG = true
     private const val BASE_URL = "https://10.0.2.2:7058/"
+
     private val simpleLoggingInterceptor = Interceptor { chain ->
         val request = chain.request()
         try {
@@ -41,24 +43,15 @@ object NetworkModule {
         }
     }
 
-    private val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
-        val str = try { json.asString } catch (_: Exception) { "" }
-        if (str.isBlank()) return@JsonDeserializer LocalDateTime.now()
-        try {
-            val instant = Instant.parse(str)
-            LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        } catch (_: Exception) {
-            try {
-                LocalDateTime.parse(str, DateTimeFormatter.ISO_DATE_TIME)
-            } catch (_: Exception) {
-                LocalDateTime.now()
-            }
-        }
-    }
-
     private fun provideGson(): Gson {
+        val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
+            if (src == null) null else JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
+        }
+
         return GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, localDateTimeDeserializer)
+            .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
+            .registerTypeAdapter(JobListing::class.java, jobListingDeserializer)
             .create()
     }
 
@@ -73,7 +66,6 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
 
-        //promjeniti da ne vjeruje svim certovima
         if (DEBUG) {
             try {
                 val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
@@ -103,6 +95,7 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create(provideGson()))
             .build()
     }
+
     val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }
