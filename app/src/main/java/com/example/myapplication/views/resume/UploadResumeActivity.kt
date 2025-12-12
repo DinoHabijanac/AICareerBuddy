@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,6 +49,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.helpers.HeaderUI
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
 
@@ -74,6 +76,7 @@ fun ResumeUploadScreen(
     val context = LocalContext.current
     val currentUri = remember { mutableStateOf<Uri?>(null) }
     val uploadState by uploadViewModel.uploadState.collectAsState()
+    val deleteState by uploadViewModel.deleteState.collectAsState()
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
@@ -83,6 +86,31 @@ fun ResumeUploadScreen(
                 currentUri.value = it.toUri()
             } catch (_: Exception) {
             }
+        }
+    }
+
+    // Handle delete state
+    LaunchedEffect(deleteState) {
+        when (deleteState) {
+            is DeleteState.Success -> {
+                Toast.makeText(
+                    context,
+                    (deleteState as DeleteState.Success).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Clear local storage
+                val prefs = context.getSharedPreferences("resume_prefs", 0)
+                prefs.edit { remove("resume_uri") }
+                currentUri.value = null
+            }
+            is DeleteState.Error -> {
+                Toast.makeText(
+                    context,
+                    (deleteState as DeleteState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            else -> {}
         }
     }
 
@@ -96,12 +124,20 @@ fun ResumeUploadScreen(
                     )
                 } catch (_: Exception) {
                 }
+
                 val prefs = context.getSharedPreferences("resume_prefs", 0)
                 prefs.edit { putString("resume_uri", it.toString()) }
                 currentUri.value = it
-                val userId = 2
-                uploadViewModel.uploadResume(context, it, userId)
-                //TODO("IMPLEMENRIRATI pravi userID KAD SE RIJEŠI PRIJAVA")
+
+                val userId = 2 //TODO("IMPLEMENRIRATI pravi userID")
+
+                // Ako već postoji resume, koristi UPDATE, inače POST
+                val existingResume = currentUri.value
+                if (existingResume != null && existingResume != it) {
+                    uploadViewModel.updateResume(context, it, userId)
+                } else {
+                    uploadViewModel.uploadResume(context, it, userId)
+                }
             }
         }
 
@@ -113,7 +149,6 @@ fun ResumeUploadScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderUI()
-
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Učitaj svoj životopis", style = MaterialTheme.typography.headlineSmall)
@@ -180,15 +215,20 @@ fun ResumeUploadScreen(
                     (uploadState as UploadState.Success).message,
                     color = Color.Green
                 )
-
                 is UploadState.Error -> Text(
                     (uploadState as UploadState.Error).message,
                     color = Color.Red
                 )
             }
 
+            when (deleteState) {
+                is DeleteState.Deleting -> Text("Brisanje...", color = Color.Gray)
+                else -> {}
+            }
+
             currentUri.value?.let { uri ->
                 Spacer(modifier = Modifier.height(12.dp))
+
                 Button(onClick = {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -207,14 +247,51 @@ fun ResumeUploadScreen(
                 }) {
                     Text("Otvori")
                 }
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        val userId = 2 //TODO("IMPLEMENRIRATI pravi userID")
+                        uploadViewModel.deleteResume(userId)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    ),
+                    enabled = deleteState !is DeleteState.Deleting
+                ) {
+                    Text("Obriši sa servera")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        launcher.launch(
+                            arrayOf(
+                                "application/pdf",
+                                "application/msword",
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                "*/*"
+                            )
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2196F3) // Blue
+                    )
+                ) {
+                    Text("Zamijeni životopis")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Button(onClick = {
                     val prefs = context.getSharedPreferences("resume_prefs", 0)
                     prefs.edit { remove("resume_uri") }
                     currentUri.value = null
                     uploadViewModel.reset()
                 }) {
-                    Text("Ukloni")
+                    Text("Ukloni lokalno")
                 }
             }
         }
