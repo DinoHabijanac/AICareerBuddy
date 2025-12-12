@@ -75,5 +75,29 @@ namespace AI_CareerBuddy_Backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Update(int id, IFormFile file)
+        {
+            try
+            {
+                var fileInfo = await ResumeService.UpdateResume(file, id);
+
+                if (fileInfo != null)
+                {
+                    return Ok(fileInfo);
+                }
+                else
+                {
+                    return BadRequest("Failed to update resume");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating resume for user {id}");
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

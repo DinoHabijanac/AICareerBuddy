@@ -14,5 +14,6 @@ namespace AICareerBuddy_BussinesLayer.Interfaces
         Task<ResumeFileInfo> GetResume(int id);
         Task<ResumeFileInfo> PostResume(IFormFile file, int userId);
         Task<bool> DeleteResume(int userId);
+        Task<ResumeFileInfo> UpdateResume(IFormFile file, int userId);
     }
 }
