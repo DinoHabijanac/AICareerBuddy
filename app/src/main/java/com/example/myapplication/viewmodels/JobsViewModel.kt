@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.models.JobListing
-import com.example.myapplication.network.NetworkModule
+import com.example.core.models.JobListing
+import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
 
 

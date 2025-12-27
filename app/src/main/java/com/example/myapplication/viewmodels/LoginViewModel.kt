@@ -3,9 +3,9 @@ package com.example.myapplication.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.network.LoginRequest
-import com.example.myapplication.network.LoginResponse
-import com.example.myapplication.network.NetworkModule
+import com.example.core.models.LoginRequest
+import com.example.core.models.LoginResponse
+import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {

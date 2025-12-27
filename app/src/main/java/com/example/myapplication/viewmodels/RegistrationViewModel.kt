@@ -3,9 +3,9 @@ package com.example.myapplication.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.network.NetworkModule
-import com.example.myapplication.network.RegistrationRequest
-import com.example.myapplication.network.RegistrationResponse
+import com.example.core.network.NetworkModule
+import com.example.core.models.RegistrationRequest
+import com.example.core.models.RegistrationResponse
 import kotlinx.coroutines.launch
 
 class RegistrationViewModel : ViewModel() {

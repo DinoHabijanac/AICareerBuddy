@@ -1,10 +1,12 @@
 // app/src/main/java/com/example/myapplication/network/NetworkModule.kt
-package com.example.myapplication.network
+package com.example.core.network
 
+import android.os.Build
 import android.util.Log
-import com.example.myapplication.helpers.jobListingDeserializer
-import com.example.myapplication.helpers.localDateTimeDeserializer
-import com.example.myapplication.models.JobListing
+import androidx.annotation.RequiresApi
+import com.example.core.helpers.jobListingDeserializer
+import com.example.core.helpers.localDateTimeDeserializer
+import com.example.core.models.JobListing
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonPrimitive
@@ -43,6 +45,7 @@ object NetworkModule {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun provideGson(): Gson {
         val localDateSerializer = JsonSerializer<LocalDate> { src, _, _ ->
             if (src == null) null else JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))

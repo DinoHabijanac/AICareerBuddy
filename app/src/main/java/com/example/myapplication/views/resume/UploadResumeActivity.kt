@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.helpers.HeaderUI
+import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState

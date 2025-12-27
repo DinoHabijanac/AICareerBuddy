@@ -1,4 +1,4 @@
-package com.example.myapplication.helpers
+package com.example.myapplication.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -27,8 +25,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.core.models.JobApplication
 import com.example.myapplication.R
-import com.example.myapplication.models.JobApplication
+
 
 @Composable
 fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Modifier) {
@@ -41,8 +40,6 @@ fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Mo
         }
     }
 }
-
-
 @Composable
 fun ApplicationCard(application: JobApplication) {
     Card(
@@ -55,7 +52,7 @@ fun ApplicationCard(application: JobApplication) {
                 Text(
                     text = "Status: ${application.status}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.Companion.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -107,7 +104,7 @@ fun HeaderUI(modifier : Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(start = 16.dp)
             )
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.Companion.weight(1f))
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",

@@ -35,8 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.helpers.HeaderUI
-import com.example.myapplication.models.JobListing
+import com.example.myapplication.views.HeaderUI
+import com.example.core.models.JobListing
 import com.example.myapplication.viewmodels.JobsViewModel
 import com.example.myapplication.views.ui.theme.MyApplicationTheme
 import java.time.Instant

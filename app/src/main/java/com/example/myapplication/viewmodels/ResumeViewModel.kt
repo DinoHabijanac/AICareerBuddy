@@ -5,8 +5,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.network.NetworkModule
-import com.example.myapplication.helpers.uriToMultipart
+import com.example.core.network.NetworkModule
+import com.example.core.helpers.uriToMultipart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

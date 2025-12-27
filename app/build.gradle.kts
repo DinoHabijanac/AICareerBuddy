@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.firebase.appdistribution.gradle)
     implementation(libs.androidx.foundation.layout)
+    implementation(project(":core"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

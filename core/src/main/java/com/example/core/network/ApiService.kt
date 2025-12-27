@@ -1,8 +1,12 @@
 // app/src/main/java/com/example/myapplication/network/ApiService.kt
-package com.example.myapplication.network
+package com.example.core.network
 
-import com.example.myapplication.models.JobApplication
-import com.example.myapplication.models.JobListing
+import com.example.core.models.JobApplication
+import com.example.core.models.JobListing
+import com.example.core.models.LoginRequest
+import com.example.core.models.LoginResponse
+import com.example.core.models.RegistrationRequest
+import com.example.core.models.RegistrationResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

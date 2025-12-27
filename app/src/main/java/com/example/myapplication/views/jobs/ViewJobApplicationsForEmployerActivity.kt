@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.helpers.HeaderUI
-import com.example.myapplication.helpers.ListApplications
+import com.example.myapplication.views.HeaderUI
+import com.example.myapplication.views.ListApplications
 import com.example.myapplication.viewmodels.JobApplicationViewModel
 import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
 

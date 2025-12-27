@@ -34,9 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.helpers.HeaderUI
-import com.example.myapplication.models.JobListing
-import com.example.myapplication.network.NetworkModule
+import com.example.myapplication.views.HeaderUI
+import com.example.core.models.JobListing
+import com.example.core.network.NetworkModule
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

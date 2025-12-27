@@ -1,4 +1,4 @@
-package com.example.myapplication.helpers
+package com.example.core.helpers
 
 import android.content.ContentResolver
 import android.content.Context
@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.RequiresApi
-import com.example.myapplication.models.JobListing
+import com.example.core.models.JobListing
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement

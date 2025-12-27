@@ -1,5 +1,5 @@
 // app/src/main/java/com/example/myapplication/network/LoginRequest.kt
-package com.example.myapplication.network
+package com.example.core.models
 
 import com.google.gson.annotations.SerializedName
 
