@@ -15,7 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.LoginViewModel
+import com.example.myapplication.viewmodels.LoginViewModel
 import com.example.myapplication.R
 
 @Composable

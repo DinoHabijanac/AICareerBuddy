@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,12 +11,12 @@ import kotlinx.coroutines.launch
 class RegistrationViewModel : ViewModel() {
     // Stanja forme
     val firstName: MutableLiveData<String> = MutableLiveData("")
-    val lastName:  MutableLiveData<String> = MutableLiveData("")
-    val username:  MutableLiveData<String> = MutableLiveData("")
-    val email:     MutableLiveData<String> = MutableLiveData("")
-    val password:  MutableLiveData<String> = MutableLiveData("")
+    val lastName: MutableLiveData<String> = MutableLiveData("")
+    val username: MutableLiveData<String> = MutableLiveData("")
+    val email: MutableLiveData<String> = MutableLiveData("")
+    val password: MutableLiveData<String> = MutableLiveData("")
     val confirmPassword: MutableLiveData<String> = MutableLiveData("")
-    val role:      MutableLiveData<String> = MutableLiveData("student")
+    val role: MutableLiveData<String> = MutableLiveData("student")
 
     val possibleRoles = listOf("poslodavac", "student")
 
