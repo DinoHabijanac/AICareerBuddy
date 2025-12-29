@@ -3,6 +3,7 @@ package com.example.core.network
 
 import com.example.core.models.JobApplication
 import com.example.core.models.JobListing
+import com.example.core.models.JobListingWithId
 import com.example.core.models.LoginRequest
 import com.example.core.models.LoginResponse
 import com.example.core.models.RegistrationRequest
@@ -65,7 +66,7 @@ interface ApiService {
     // ---------- JOBS ----------
 
     @GET("api/Job")
-    suspend fun getJobs(): List<JobListing>
+    suspend fun getJobs(): List<JobListingWithId>?
 
     @Headers("Accept: application/json")
     @POST("api/Job")
@@ -82,4 +83,8 @@ interface ApiService {
 
     @GET("api/Application/job")
     suspend fun getJobApplicationsForJob(@Query("jobId") jobId: Int): List<JobApplication>
+
+    @Headers("Accept: application/json")
+    @POST("api/Application")
+    suspend fun postApplication(@Body application: JobApplication) : Response<UploadResponse>
 }

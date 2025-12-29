@@ -1,5 +1,8 @@
+
 package com.example.myapplication.views.jobs
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,24 +30,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.views.HeaderUI
-import com.example.core.models.JobListing
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.core.models.JobApplication
+import com.example.core.models.JobListingWithId
 import com.example.core.network.NetworkModule
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.viewmodels.JobApplicationViewModel
+import com.example.myapplication.views.HeaderUI
+import com.example.myapplication.views.getLoggedUserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-//ova aktivnost omogućuje pregled oglasa studentima, uz dohvat i prikaz iz baze
 class JobActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,9 +62,13 @@ class JobActivity : ComponentActivity() {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     JobListNetworkScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onApplyClick = { job ->
+                            val prefs = getSharedPreferences("job_prefs", MODE_PRIVATE)
+                            prefs.edit().putInt("jobId", job.id).apply()
 
+                            startActivity(Intent(this, ApplyForJobActivity::class.java))
+                        }
                     )
                 }
             }
@@ -62,18 +76,25 @@ class JobActivity : ComponentActivity() {
     }
 }
 
+@Preview
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier) {
-    var jobs by remember { mutableStateOf<List<JobListing>?>(null) }
+fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListingWithId) -> Unit = {}, applicationsViewModel : JobApplicationViewModel = viewModel()) {
+    var jobs by remember { mutableStateOf<List<JobListingWithId>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
+    val applied by applicationsViewModel.applications.observeAsState(emptyList())
+
+
+    val userId = getLoggedUserId()
 
     LaunchedEffect(Unit) {
         loading = true
         error = null
         try {
             jobs = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
+            applicationsViewModel.getApplicationsForStudent(userId = userId)
+            Log.d("logovi", applied.toString())
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
             Log.d("Debug", e.message.toString())
@@ -119,6 +140,7 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
                             ""
                         }
                         listOf(
+                            job.id,
                             job.name,
                             job.description,
                             job.category,
@@ -129,27 +151,32 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
                         ).joinToString(" ").lowercase().contains(q)
                     }
                 }
-                JobListScreen(jobs = filtered)
+                JobListScreen(jobs = filtered, applied = applied, onApplyClick = onApplyClick)
             }
         }
     }
 }
 
 @Composable
-fun JobListScreen(jobs: List<JobListing>) {
+fun JobListScreen(jobs: List<JobListingWithId>, applied : List<JobApplication>?, onApplyClick: (JobListingWithId) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(12.dp)
-
     ) {
         items(jobs) { job ->
-            JobCard(job)
+            val application = applied?.find { application -> application.jobId == job.id }
+            var appliedForJob = false
+            Log.d("logoviii", application.toString())
+            if(application != null){
+               appliedForJob = true
+            }
+            JobCard(job, appliedForJob, onApplyClick)
         }
     }
 }
 
 @Composable
-fun JobCard(job: JobListing) {
+fun JobCard(job: JobListingWithId, applied: Boolean, onApplyClick: (JobListingWithId) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()
@@ -178,14 +205,23 @@ fun JobCard(job: JobListing) {
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            Text(text = "Terms: ${job.terms}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Uvjeti: ${job.terms}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.size(6.dp))
 
             Text(
-                text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}",
+                text = "Oglas ističe: ${formatLocalDateTime(job.listingExpires)}",
                 style = MaterialTheme.typography.bodySmall
             )
+            Button(
+                onClick = { onApplyClick(job) },
+                enabled = !applied
+            ) {
+                if(applied)
+                    Text("Već poslana prijava")
+                else
+                    Text("Prijavi se na ovaj oglas", )
+            }
         }
     }
 }

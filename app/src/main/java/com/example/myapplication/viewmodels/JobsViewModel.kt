@@ -18,7 +18,6 @@ class JobsViewModel : ViewModel() {
     private val _uploadState = MutableLiveData<String>()
     var uploadState : LiveData<String> = _uploadState
     fun uploadJob(job: JobListing) {
-        Log.d("pregled joba",job.toString())
         viewModelScope.launch {
             try {
                 val response = NetworkModule.apiService.postJob(job)

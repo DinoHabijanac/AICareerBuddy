@@ -1,12 +1,17 @@
 package com.example.core.helpers
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.example.core.models.JobListing
+import com.example.core.models.JobListingWithId
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -66,16 +71,22 @@ public val localDateTimeDeserializer = JsonDeserializer<LocalDateTime> { json: J
         }
     }
 }
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
+@SuppressLint("NewApi")
 public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
     try {
         val obj = json.asJsonObject
         val id = if (obj.has("id") && !obj.get("id").isJsonNull) obj.get("id").asInt else 0
-        val name = if (obj.has("name") && !obj.get("name").isJsonNull) obj.get("name").asString else ""
-        val description = if (obj.has("description") && !obj.get("description").isJsonNull) obj.get("description").asString else ""
-        val category = if (obj.has("category") && !obj.get("category").isJsonNull) obj.get("category").asString else ""
-        val location = if (obj.has("location") && !obj.get("location").isJsonNull) obj.get("location").asString else ""
-        val terms = if (obj.has("terms") && !obj.get("terms").isJsonNull) obj.get("terms").asString else ""
+        val name =
+            if (obj.has("name") && !obj.get("name").isJsonNull) obj.get("name").asString else ""
+        val description =
+            if (obj.has("description") && !obj.get("description").isJsonNull) obj.get("description").asString else ""
+        val category =
+            if (obj.has("category") && !obj.get("category").isJsonNull) obj.get("category").asString else ""
+        val location =
+            if (obj.has("location") && !obj.get("location").isJsonNull) obj.get("location").asString else ""
+        val terms =
+            if (obj.has("terms") && !obj.get("terms").isJsonNull) obj.get("terms").asString else ""
 
         var listingExpiresLdt = LocalDate.now()
         if (obj.has("listingExpires") && !obj.get("listingExpires").isJsonNull) {
@@ -86,14 +97,16 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
                 listingExpiresLdt = LocalDate.ofInstant(instant, ZoneId.systemDefault())
             } catch (_: Exception) {
                 try {
-                    listingExpiresLdt = LocalDate.parse(le.asString, DateTimeFormatter.ISO_DATE_TIME)
+                    listingExpiresLdt =
+                        LocalDate.parse(le.asString, DateTimeFormatter.ISO_DATE_TIME)
                 } catch (_: Exception) {
                     listingExpiresLdt = LocalDate.now()
                 }
             }
         }
 
-        val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
+        val payPerHour =
+            if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
 
         JobListing(
             employerId = 1,
@@ -102,7 +115,7 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
             category = category,
             location = location,
             listingExpires = listingExpiresLdt,
-            terms =  terms,
+            terms = terms,
             payPerHour = payPerHour
         )
         //TODO("ispravi na prijavljenog korisnika nakon što se implementira prijava")
@@ -110,3 +123,49 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
         throw e
     }
 }
+
+    @SuppressLint("NewApi")
+    public val jobListingWithIdDeserializer = JsonDeserializer<JobListingWithId> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
+        try {
+            val obj = json.asJsonObject
+            val id = if (obj.has("id") && !obj.get("id").isJsonNull) obj.get("id").asInt else 0
+            val name = if (obj.has("name") && !obj.get("name").isJsonNull) obj.get("name").asString else ""
+            val description = if (obj.has("description") && !obj.get("description").isJsonNull) obj.get("description").asString else ""
+            val category = if (obj.has("category") && !obj.get("category").isJsonNull) obj.get("category").asString else ""
+            val location = if (obj.has("location") && !obj.get("location").isJsonNull) obj.get("location").asString else ""
+            val terms = if (obj.has("terms") && !obj.get("terms").isJsonNull) obj.get("terms").asString else ""
+
+            var listingExpiresLdt = LocalDate.now()
+            if (obj.has("listingExpires") && !obj.get("listingExpires").isJsonNull) {
+                val le = obj.get("listingExpires")
+                try {
+                    val str = if (le.isJsonPrimitive) le.asString else le.toString()
+                    val instant = Instant.parse(str)
+                    listingExpiresLdt = LocalDate.ofInstant(instant, ZoneId.systemDefault())
+                } catch (_: Exception) {
+                    try {
+                        listingExpiresLdt = LocalDate.parse(le.asString, DateTimeFormatter.ISO_DATE_TIME)
+                    } catch (_: Exception) {
+                        listingExpiresLdt = LocalDate.now()
+                    }
+                }
+            }
+
+            val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
+
+            JobListingWithId(
+                id = id,
+                employerId = 1,
+                name = name,
+                description = description,
+                category = category,
+                location = location,
+                listingExpires = listingExpiresLdt,
+                terms =  terms,
+                payPerHour = payPerHour
+            )
+            //TODO("ispravi na prijavljenog korisnika nakon što se implementira prijava")
+        } catch (e: Exception) {
+            throw e
+        }
+    }

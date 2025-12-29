@@ -52,6 +52,7 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
+import com.example.myapplication.views.getLoggedUserId
 
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,10 +79,7 @@ fun ResumeUploadScreen(
     val deleteState by uploadViewModel.deleteState.collectAsState()
 
     // Get the logged-in user's ID from SharedPreferences
-    val userId = remember {
-        val prefs = context.getSharedPreferences("user_prefs", 0)
-        prefs.getInt("userId", -1)
-    }
+    val userId = getLoggedUserId()
 
     // Redirect to login if not logged in
     LaunchedEffect(userId) {

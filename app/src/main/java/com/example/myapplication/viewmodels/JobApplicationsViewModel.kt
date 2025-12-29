@@ -14,6 +14,9 @@ class JobApplicationViewModel : ViewModel() {
     private val _applications = MutableLiveData<List<JobApplication>>()
     val applications: LiveData<List<JobApplication>> = _applications
 
+    private val _uploadState = MutableLiveData<String>()
+    var uploadState : LiveData<String> = _uploadState
+
     fun getApplicationsForStudent(userId: Int) : LiveData<List<JobApplication>> {
         viewModelScope.launch {
             try {
@@ -52,5 +55,21 @@ class JobApplicationViewModel : ViewModel() {
             }
         }
         return applications
+    }
+
+    fun uploadApplication(application: JobApplication) {
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.postApplication(application)
+                Log.d("odgovor", response.raw().toString())
+                if (response.isSuccessful) {
+                    _uploadState.postValue("Uspješno dodana prijava")
+                } else {
+                    _uploadState.postValue("Greška pri dodavanju prijave - ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _uploadState.postValue("Greška pri dodavanju prijave - ${e.message}")
+            }
+        }
     }
 }

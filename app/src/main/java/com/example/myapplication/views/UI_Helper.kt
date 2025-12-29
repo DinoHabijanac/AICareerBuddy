@@ -76,13 +76,19 @@ fun ApplicationCard(application: JobApplication) {
             Spacer(modifier = Modifier.size(8.dp))
 
             Text(
-                text = "Submitted: ${application.dateOfSubmission}",
+                text = "Prijava poslana: ${application.dateOfSubmission}",
                 style = MaterialTheme.typography.bodySmall
             )
             Spacer(modifier = Modifier.size(6.dp))
 
             Text(
-                text = "Job ID: ${application.jobId} | Student ID: ${application.studentId}",
+                text = "ID posla: ${application.jobId} | Student ID: ${application.studentId}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.size(6.dp))
+
+            Text(
+                text = "Edukacija: ${application.education}",
                 style = MaterialTheme.typography.bodySmall
             )
         }

@@ -1,7 +1,9 @@
 package com.example.core.models
+
 import java.time.LocalDate
 
-data class JobListing(
+data class JobListingWithId(
+    val id : Int,
     val name: String,
     val description: String,
     val category: String,

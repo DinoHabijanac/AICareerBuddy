@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.ListApplications
 import com.example.myapplication.viewmodels.JobApplicationViewModel
@@ -47,7 +48,7 @@ fun ViewJobApplicationsForEmployerScreen(
 
     val applications by jobApplicationsViewModel.applications.observeAsState(emptyList())
 
-    val employerId = 2 // TODO("promjeniti na prijavljeni user id")
+    val employerId = getLoggedUserId()
     LaunchedEffect(employerId) {
         jobApplicationsViewModel.getApplicationsForEmployer(employerId)
     }

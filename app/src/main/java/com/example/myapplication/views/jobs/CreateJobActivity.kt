@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.core.models.JobListing
 import com.example.myapplication.viewmodels.JobsViewModel
+import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.ui.theme.MyApplicationTheme
 import java.time.Instant
 import java.time.LocalDate
@@ -67,13 +68,14 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
     val context = LocalContext.current
 
     var name by remember { mutableStateOf("") }
-    var employerId by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var listingExpires by remember { mutableStateOf("") }
     var terms by remember { mutableStateOf("") }
     var payPerHour by remember { mutableStateOf("") }
+
+    val userId = getLoggedUserId()
 
     Column(
         modifier = modifier
@@ -164,7 +166,7 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
                             listingExpires = LocalDate.parse(listingExpires),
                             terms = terms,
                             payPerHour = payPerHour.toInt(),
-                            employerId = 2 // ISPRAVI NAKON PRIJAVE
+                            employerId = userId
                         )
                         jobsViewModel.uploadJob(job)
                         if (jobsViewModel.uploadState.value == "Uspješno dodan oglas") {
