@@ -23,5 +23,7 @@ public partial class JobApplication
 
     public int? EmployerId { get; set; }
 
+    public string Education { get; set; }
+
     public virtual Employer Employer { get; set; }
 }

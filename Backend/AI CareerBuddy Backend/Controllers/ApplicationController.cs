@@ -51,8 +51,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         }
 
         // GET api/<ApplicationController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<JobApplication>> Get(int id)
+        [HttpGet("id")]
+        public async Task<ActionResult<JobApplication>> Get([FromQuery] int id)
         {
             var application = await ApplicationService.GetApplicationById(id);
             if (application != null) return Ok(application);
@@ -75,7 +75,7 @@ namespace AI_CareerBuddy_Backend.Controllers
             if (application == null) return BadRequest("PReLoše");
             if (application.Id != id) return BadRequest("Loše");
             var updated = await ApplicationService.PutApplication(application);
-            if (updated) return Ok(updated);
+            if (updated) return Ok(new APIResponse { success = true, message = "Uspješna promjena" });
             else return NotFound();
         }
 
