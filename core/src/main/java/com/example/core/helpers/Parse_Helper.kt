@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.example.core.models.JobListing
-import com.example.core.models.JobListingWithId
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -109,6 +108,7 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
             if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
 
         JobListing(
+            id = id,
             employerId = 1,
             name = name,
             description = description,
@@ -125,7 +125,7 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
 }
 
     @SuppressLint("NewApi")
-    public val jobListingWithIdDeserializer = JsonDeserializer<JobListingWithId> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
+    public val jobListingWithIdDeserializer = JsonDeserializer<JobListing> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->
         try {
             val obj = json.asJsonObject
             val id = if (obj.has("id") && !obj.get("id").isJsonNull) obj.get("id").asInt else 0
@@ -153,7 +153,7 @@ public val jobListingDeserializer = JsonDeserializer<JobListing> { json: JsonEle
 
             val payPerHour = if (obj.has("payPerHour") && !obj.get("payPerHour").isJsonNull) obj.get("payPerHour").asInt else 0
 
-            JobListingWithId(
+            JobListing(
                 id = id,
                 employerId = 1,
                 name = name,

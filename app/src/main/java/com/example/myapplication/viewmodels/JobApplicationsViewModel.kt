@@ -40,8 +40,7 @@ class JobApplicationViewModel : ViewModel() {
     fun getApplicationsForEmployer(employerId: Int): LiveData<List<JobApplication>> {
         viewModelScope.launch {
             try {
-                val applications =
-                    NetworkModule.apiService.getJobApplicationsForEmployer(employerId)
+                val applications = NetworkModule.apiService.getJobApplicationsForEmployer(employerId)
                 _applications.postValue(applications)
             } catch (e: Exception) {
                 _applications.postValue(emptyList())

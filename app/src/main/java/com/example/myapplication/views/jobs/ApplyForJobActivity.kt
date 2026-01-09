@@ -33,20 +33,36 @@ import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
 import java.time.LocalDate
 import android.app.Activity
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.views.getLoggedUserId
-import com.google.firebase.appdistribution.gradle.ThreadSleeper
+import kotlin.getValue
 
 class ApplyForJobActivity : ComponentActivity() {
+
+    private val applicationsViewModel: JobApplicationViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        applicationsViewModel.uploadState.observe(this) { state ->
+            if (state == "Uspješno dodana prijava") {
+                Toast.makeText(this, state, Toast.LENGTH_SHORT).show()
+                setResult(Activity.RESULT_OK)
+                finish()
+            } else if (!state.isNullOrEmpty()) {
+                Toast.makeText(this, state, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     JobApplicationForm(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        applicationsViewModel
                     )
                 }
             }
@@ -55,7 +71,7 @@ class ApplyForJobActivity : ComponentActivity() {
 }
 
 @Composable
-fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplicationViewModel = viewModel()) {
+fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplicationViewModel) {
     var expectedPayText by remember { mutableStateOf<String>(value = "") }
     var workExperience by remember { mutableStateOf<String>(value = "") }
     var education by remember { mutableStateOf<String>(value = "") }
@@ -136,11 +152,7 @@ fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplication
                             )
 
                             applicationsViewModel.uploadApplication(application)
-                            Toast.makeText(
-                                context,
-                                applicationsViewModel.uploadState.value,
-                                Toast.LENGTH_SHORT
-                            ).show()
+
                             if (applicationsViewModel.uploadState.value == "Uspješno dodana prijava") {
                                 expectedPayText = ""
                                 workExperience = ""
@@ -152,8 +164,9 @@ fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplication
                                 applicationsViewModel.uploadState.value.toString()
                             )
 
-                            Thread.sleep(3000)
-                            (context as? Activity)?.finish()
+                            //Thread.sleep(3000)
+                            //delay(3000)
+                            //(context as? Activity)?.finish()
                         } catch (e: Exception) {
                             Toast.makeText(
                                 context,

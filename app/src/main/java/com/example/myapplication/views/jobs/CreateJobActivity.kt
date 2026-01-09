@@ -159,6 +159,7 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
                         }
 
                         val job = JobListing(
+                            id = null,
                             name = name,
                             description = description,
                             category = category,

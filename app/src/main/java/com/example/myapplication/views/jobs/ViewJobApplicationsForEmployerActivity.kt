@@ -29,14 +29,12 @@ import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
 
 class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
 
-    // activity-scoped ViewModel so Activity lambdas can call it
     private val applicationsViewModel: JobApplicationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // get employerId from shared prefs (non-composable) so we can use it in lambdas
         val employerId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
 
         setContent {
@@ -44,6 +42,7 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ViewJobApplicationsForEmployerScreen(
                         modifier = Modifier.padding(innerPadding),
+                        applicationsViewModel,
                         onEditClick = { application ->
                             val prefs = getSharedPreferences("application_prefs", MODE_PRIVATE)
                             prefs.edit().putInt("applicationId", application.id ?: 0).apply()
@@ -66,7 +65,7 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
 @Composable
 fun ViewJobApplicationsForEmployerScreen(
     modifier: Modifier = Modifier,
-    jobApplicationsViewModel: JobApplicationViewModel = viewModel(),
+    jobApplicationsViewModel: JobApplicationViewModel,
     onEditClick: (JobApplication) -> Unit,
     onDeleteClick: (JobApplication) -> Unit
 ) {
@@ -75,7 +74,7 @@ fun ViewJobApplicationsForEmployerScreen(
 
     val employerId = getLoggedUserId()
     LaunchedEffect(employerId) {
-        jobApplicationsViewModel.getApplicationsForEmployer(employerId)
+        jobApplicationsViewModel.getApplicationsForEmployer(3)
     }
     Column(
         modifier = modifier

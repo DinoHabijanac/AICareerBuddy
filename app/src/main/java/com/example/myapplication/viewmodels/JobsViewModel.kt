@@ -33,4 +33,23 @@ class JobsViewModel : ViewModel() {
             }
         }
     }
+    fun getJobs2(): LiveData<List<JobListing>> {
+        viewModelScope.launch {
+            try {
+                val jobs = NetworkModule.apiService.getJobs()
+                if(jobs != null) {
+                    _jobs.postValue(jobs)
+                }
+                else
+                {
+                    _jobs.postValue(emptyList())
+                    Log.d("Debugiranje!", "Dohvaćeni poslovi su null")
+                }
+            } catch (e: Exception) {
+                _jobs.postValue(emptyList())
+                Log.d("Debugiranje!", e.message.toString())
+            }
+        }
+        return jobs
+    }
 }

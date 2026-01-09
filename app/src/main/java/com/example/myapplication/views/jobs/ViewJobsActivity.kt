@@ -1,13 +1,15 @@
 
 package com.example.myapplication.views.jobs
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,25 +38,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.core.models.JobApplication
-import com.example.core.models.JobListingWithId
-import com.example.core.network.NetworkModule
+import com.example.core.models.JobListing
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.JobApplicationViewModel
+import com.example.myapplication.viewmodels.JobsViewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.getLoggedUserId
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class JobActivity : ComponentActivity() {
+
+    private val jobsViewModel: JobsViewModel by viewModels()
+    private val applicationsViewModel: JobApplicationViewModel by viewModels()
+
+    private val applyForJobLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                jobsViewModel.getJobs2()
+                val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
+                applicationsViewModel.getApplicationsForStudent(userId)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -65,26 +75,31 @@ class JobActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         onApplyClick = { job ->
                             val prefs = getSharedPreferences("job_prefs", MODE_PRIVATE)
-                            prefs.edit().putInt("jobId", job.id).apply()
+                            prefs.edit().putInt("jobId", job.id ?: 0).apply()
 
-                            startActivity(Intent(this, ApplyForJobActivity::class.java))
-                        }
+                            val intent = Intent(this, ApplyForJobActivity::class.java)
+                            applyForJobLauncher.launch(intent)
+                        },
+                        jobsViewModel,
+                        applicationsViewModel
                     )
                 }
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        jobsViewModel.getJobs2()
+    }
 }
 
-@Preview
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListingWithId) -> Unit = {}, applicationsViewModel : JobApplicationViewModel = viewModel()) {
-    var jobs by remember { mutableStateOf<List<JobListingWithId>?>(null) }
+fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListing) -> Unit = {}, jobsViewModel : JobsViewModel, applicationsViewModel : JobApplicationViewModel) {
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
     val applied by applicationsViewModel.applications.observeAsState(emptyList())
-
+    val jobs by jobsViewModel.jobs.observeAsState(emptyList())
 
     val userId = getLoggedUserId()
 
@@ -92,13 +107,12 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
         loading = true
         error = null
         try {
-            jobs = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
+            jobsViewModel.getJobs2()
             applicationsViewModel.getApplicationsForStudent(userId = userId)
             Log.d("logovi", applied.toString())
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
             Log.d("Debug", e.message.toString())
-            jobs = null
         } finally {
             loading = false
         }
@@ -132,8 +146,8 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
             else -> {
                 val filtered = remember(jobs, query) {
                     val q = query.trim().lowercase()
-                    if (q.isEmpty()) jobs ?: emptyList()
-                    else (jobs ?: emptyList()).filter { job ->
+                    if (q.isEmpty()) jobs
+                    else (jobs).filter { job ->
                         val listingExpiresStr = try {
                             job.listingExpires.toString()
                         } catch (_: Exception) {
@@ -158,7 +172,7 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
 }
 
 @Composable
-fun JobListScreen(jobs: List<JobListingWithId>, applied : List<JobApplication>?, onApplyClick: (JobListingWithId) -> Unit) {
+fun JobListScreen(jobs: List<JobListing>, applied : List<JobApplication>?, onApplyClick: (JobListing) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(12.dp)
@@ -176,7 +190,7 @@ fun JobListScreen(jobs: List<JobListingWithId>, applied : List<JobApplication>?,
 }
 
 @Composable
-fun JobCard(job: JobListingWithId, applied: Boolean, onApplyClick: (JobListingWithId) -> Unit) {
+fun JobCard(job: JobListing, applied: Boolean, onApplyClick: (JobListing) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()

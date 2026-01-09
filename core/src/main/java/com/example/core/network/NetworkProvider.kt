@@ -9,7 +9,6 @@ import com.example.core.helpers.jobListingDeserializer
 import com.example.core.helpers.jobListingWithIdDeserializer
 import com.example.core.helpers.localDateTimeDeserializer
 import com.example.core.models.JobListing
-import com.example.core.models.JobListingWithId
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonPrimitive
@@ -58,7 +57,6 @@ object NetworkModule {
             .registerTypeAdapter(LocalDateTime::class.java, localDateTimeDeserializer)
             .registerTypeAdapter(LocalDate::class.java, localDateSerializer)
             .registerTypeAdapter(JobListing::class.java, jobListingDeserializer)
-            .registerTypeAdapter(JobListingWithId::class.java, jobListingWithIdDeserializer)
             .create()
     }
 

@@ -19,16 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.example.core.models.JobApplication
 import com.example.myapplication.viewmodels.JobApplicationViewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.ListApplications
 import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MyJobApplicationsActivity : ComponentActivity() {
 

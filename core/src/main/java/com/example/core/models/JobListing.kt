@@ -2,6 +2,7 @@ package com.example.core.models
 import java.time.LocalDate
 
 data class JobListing(
+    val id : Int?,
     val name: String,
     val description: String,
     val category: String,

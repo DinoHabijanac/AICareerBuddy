@@ -10,4 +10,5 @@ data class JobApplication(
     val expectedPay: Int?,
     val workExperience: String,
     val education : String,
+    val interviewDate : String?
 )
