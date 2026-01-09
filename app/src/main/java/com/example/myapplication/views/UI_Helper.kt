@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,38 +24,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.core.models.JobApplication
 import com.example.myapplication.R
 
-
 @Composable
-fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Modifier) {
+fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Modifier, onEditClick: (JobApplication) -> Unit, onDeleteClick: (JobApplication) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.padding(12.dp)
     ) {
         items(applications) { application ->
-            ApplicationCard(application)
+            ApplicationCard(application, onEditClick, onDeleteClick)
         }
     }
 }
 @Composable
-fun ApplicationCard(application: JobApplication) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors()
-    ) {
+fun ApplicationCard(application: JobApplication, onEditClick: (JobApplication) -> Unit, onDeleteClick: (JobApplication) -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors())
+    {
         Column(modifier = Modifier.padding(12.dp)) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Status: ${application.status}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.Companion.weight(1f),
+                    modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -91,6 +93,27 @@ fun ApplicationCard(application: JobApplication) {
                 text = "Edukacija: ${application.education}",
                 style = MaterialTheme.typography.bodySmall
             )
+
+            Row(
+                modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = { onEditClick(application) },
+                    modifier = Modifier.padding(horizontal = 5.dp)
+                ) {
+                    Text("Uredi prijavu")
+                }
+                Button(
+                    onClick = { onDeleteClick(application) },
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    )
+                ) {
+                    Text("Obriši prijavu")
+                }
+            }
         }
     }
 }
@@ -110,7 +133,7 @@ fun HeaderUI(modifier : Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(start = 16.dp)
             )
-            Spacer(modifier = Modifier.Companion.weight(1f))
+            Spacer(modifier = Modifier.weight(1f))
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",

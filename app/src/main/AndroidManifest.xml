@@ -17,11 +17,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".views.jobs.EditApplicationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_edit_application"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name=".views.jobs.ApplyForJobActivity"
             android:exported="false"
             android:label="@string/title_activity_apply_for_job"
-            android:theme="@style/Theme.MyApplication" />
-        <!-- HOME (LAUNCHER) -->
+            android:theme="@style/Theme.MyApplication" /> <!-- HOME (LAUNCHER) -->
         <activity
             android:name=".activities.HomeActivity"
             android:exported="true"

@@ -87,4 +87,13 @@ interface ApiService {
     @Headers("Accept: application/json")
     @POST("api/Application")
     suspend fun postApplication(@Body application: JobApplication) : Response<UploadResponse>
+
+    @PUT("api/Application/{id}")
+    suspend fun putApplication(@Path("id") id: Int?, @Body application: JobApplication) : Response<UploadResponse>
+
+    @GET("api/Application/id")
+    suspend fun getApplication(@Query("id") applicationId: Int) : JobApplication
+
+    @DELETE("api/Application/{id}")
+    suspend fun deleteApplication(@Path("id") applicationId: Int) : Response<Unit>
 }

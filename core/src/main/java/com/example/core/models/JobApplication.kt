@@ -1,6 +1,7 @@
 package com.example.core.models
 
 data class JobApplication(
+    val id : Int?,
     val studentId: Int,
     val jobId: Int,
     val employerId : Int,
