@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,28 +23,66 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.core.models.JobApplication
 import com.example.myapplication.R
 
 @Composable
-fun ListApplications(applications: List<JobApplication>, modifier: Modifier = Modifier, onEditClick: (JobApplication) -> Unit, onDeleteClick: (JobApplication) -> Unit) {
+fun HeaderUI(modifier : Modifier = Modifier) {
+    Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Blue)
+                .height(80.dp)
+        ) {
+            Text(
+                text = "AI Career Buddy",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(end = 12.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
+@Composable
+fun ListApplications(
+    applications: List<JobApplication>,
+    modifier: Modifier = Modifier,
+    onAction1Click: (JobApplication) -> Unit,
+    onAction2Click: (JobApplication) -> Unit,
+    name1: String,
+    name2: String
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.padding(12.dp)
     ) {
         items(applications) { application ->
-            ApplicationCard(application, onEditClick, onDeleteClick)
+            ApplicationCard(application, onAction1Click = onAction1Click, onAction2Click = onAction2Click, name1, name2)
         }
     }
 }
 @Composable
-fun ApplicationCard(application: JobApplication, onEditClick: (JobApplication) -> Unit, onDeleteClick: (JobApplication) -> Unit) {
+fun ApplicationCard(
+    application: JobApplication,
+    onAction1Click: (JobApplication) -> Unit,
+    onAction2Click: (JobApplication) -> Unit,
+    name1 : String,
+    name2: String
+) {
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors())
     {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -95,52 +132,27 @@ fun ApplicationCard(application: JobApplication, onEditClick: (JobApplication) -
             )
 
             Row(
-                modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(5.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Button(
-                    onClick = { onEditClick(application) },
+                    onClick = { onAction1Click(application) },
                     modifier = Modifier.padding(horizontal = 5.dp)
                 ) {
-                    Text("Uredi prijavu")
+                    Text("$name1 prijavu")
                 }
                 Button(
-                    onClick = { onDeleteClick(application) },
+                    onClick = { onAction2Click(application) },
                     modifier = Modifier.padding(horizontal = 5.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red
                     )
                 ) {
-                    Text("Obriši prijavu")
+                    Text("$name2 prijavu")
                 }
             }
         }
     }
 }
-
-@Composable
-fun HeaderUI(modifier : Modifier = Modifier) {
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Blue)
-                .height(80.dp)
-        ) {
-            Text(
-                text = "AI Career Buddy",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(end = 12.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-    }

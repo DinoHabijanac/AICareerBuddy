@@ -1,6 +1,5 @@
 package com.example.myapplication.views.jobs
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -19,13 +18,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.core.models.JobApplication
-import com.example.myapplication.views.getLoggedUserId
+import com.example.myapplication.viewmodels.JobApplicationViewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.ListApplications
-import com.example.myapplication.viewmodels.JobApplicationViewModel
+import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
+import java.time.LocalDate
+
 
 class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
 
@@ -43,22 +43,32 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
                     ViewJobApplicationsForEmployerScreen(
                         modifier = Modifier.padding(innerPadding),
                         applicationsViewModel,
-                        onEditClick = { application ->
-                            val prefs = getSharedPreferences("application_prefs", MODE_PRIVATE)
-                            prefs.edit().putInt("applicationId", application.id ?: 0).apply()
+                        onAcceptClick = { application ->
+                            application.status = "Prihvaćeno"
+                            application.interviewDate = LocalDate.now().plusDays(3).toString()
+                            applicationsViewModel.editApplication(application)
 
-                            startActivity(Intent(this, EditApplicationActivity::class.java))
+                            Toast.makeText(this, "Prijava prihvaćena", Toast.LENGTH_SHORT).show()
+                            this.onResume()
                         },
-                        onDeleteClick = { application ->
-                            applicationsViewModel.deleteApplication(application.id ?: 0)
-                            applicationsViewModel.getApplicationsForEmployer(employerId)
+                        onRejectClick = { application ->
+                            application.status = "Odbijeno"
+                            application.interviewDate = null
+                            application.employerId = null
+                            applicationsViewModel.editApplication(application)
 
-                            Toast.makeText(this, "Brisanje prijave...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Prijava odbijena", Toast.LENGTH_SHORT).show()
+                            this.onResume()
                         }
                     )
                 }
             }
         }
+    }
+    override fun onResume(){
+        super.onResume()
+        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
+        applicationsViewModel.getApplicationsForEmployer(3) //TODO promjeniti rode
     }
 }
 
@@ -66,8 +76,8 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
 fun ViewJobApplicationsForEmployerScreen(
     modifier: Modifier = Modifier,
     jobApplicationsViewModel: JobApplicationViewModel,
-    onEditClick: (JobApplication) -> Unit,
-    onDeleteClick: (JobApplication) -> Unit
+    onAcceptClick: (JobApplication) -> Unit,
+    onRejectClick: (JobApplication) -> Unit
 ) {
 
     val applications by jobApplicationsViewModel.applications.observeAsState(emptyList())
@@ -85,6 +95,6 @@ fun ViewJobApplicationsForEmployerScreen(
     ) {
         HeaderUI()
 
-        ListApplications(applications, modifier = Modifier.weight(1f), onEditClick = onEditClick, onDeleteClick = onDeleteClick)
+        ListApplications(applications, modifier = Modifier.weight(1f), onAction1Click = onAcceptClick, onAction2Click = onRejectClick, "Prihvati", "Odbij")
     }
 }

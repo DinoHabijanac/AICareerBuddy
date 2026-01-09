@@ -148,7 +148,8 @@ fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplication
                                 status = status,
                                 expectedPay = expectedPayInt,
                                 workExperience = workExperience,
-                                education = education
+                                education = education,
+                                interviewDate = null
                             )
 
                             applicationsViewModel.uploadApplication(application)

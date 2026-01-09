@@ -92,6 +92,6 @@ fun MyJobApplicationsScreen(
     ) {
         HeaderUI()
 
-        ListApplications(applications, modifier = Modifier.weight(1f), onEditClick = onEditClick, onDeleteClick = onDeleteClick)
+        ListApplications(applications, modifier = Modifier.weight(1f), onAction1Click = onEditClick, onAction2Click = onDeleteClick, "Uredi", "Obriši")
     }
 }

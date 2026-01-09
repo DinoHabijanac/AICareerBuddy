@@ -155,31 +155,10 @@ fun EditApplicationForm(modifier : Modifier, applicationsViewModel: JobApplicati
                                 status = status,
                                 expectedPay = expectedPayInt,
                                 workExperience = workExperience,
-                                education = education
+                                education = education,
+                                interviewDate = null
                             )
                             applicationsViewModel.editApplication(applicationToEdit)
-
-                           /* if (uploadCode == 200) {
-                                expectedPayText = ""
-                                workExperience = ""
-                                education = ""
-                                status = ""
-
-                                Toast.makeText(context, "Uspješno promjenjena prijava", Toast.LENGTH_SHORT).show()
-                                Thread.sleep(3000)
-                                (context as? Activity)?.finish()
-                            }
-                            else {
-                                Toast.makeText(
-                                    context,
-                                    uploadState ?: "Greška pri promjeni prijave",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                Log.d(
-                                    "Debugiranje!",
-                                    applicationsViewModel.uploadState.value.toString()
-                                )
-                            } */
 
                         } catch (e: Exception) {
                             Toast.makeText(
