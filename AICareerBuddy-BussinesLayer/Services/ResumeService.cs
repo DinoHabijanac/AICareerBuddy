@@ -30,9 +30,7 @@ namespace AICareerBuddy_BussinesLogic.Services
             return resume;
         }
 
-        //PROMJENITI NA studentski račun - MORA BITI ISTI KAO ZA UPLOAD!
-        // Trenutno koristi airfoi.file.core.windows.net account
-        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=airfoi;AccountKey=ah7wheqLKZlNItTdF4JphOiU4hFy/sAkgTx6fVtn3yLs3hdfmAhPXYr82+Ux93Z30SEAp9H6JV4X+AStj/iYtQ==;EndpointSuffix=core.windows.net";
+        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=portalfiles1;AccountKey=yKjraClCZvUMPj2MVMlTldfZVT2by1VBEiMCcdAQ3qUcwwRokjDHNkuy0SPVilikO6zIaLKylTjn+AStoAO6+g==;EndpointSuffix=core.windows.net";
         private static string shareName = "infoguardians";
 
         public async Task<ResumeFileInfo> PostResume(IFormFile file, int userId)
