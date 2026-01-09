@@ -75,7 +75,7 @@ namespace AI_CareerBuddy_Backend.Controllers
             if (application == null) return BadRequest("PReLoše");
             if (application.Id != id) return BadRequest("Loše");
             var updated = await ApplicationService.PutApplication(application);
-            if (updated) return Ok(new APIResponse { success = true, message = "Uspješna promjena" });
+            if (updated) return Ok(new API_Response { success = true, message = "Uspješna promjena" });
             else return NotFound();
         }
 

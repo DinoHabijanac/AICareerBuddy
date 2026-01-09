@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AICareerBuddy_Entities.Entities
 {
-    public class APIResponse
+    public class API_Response
     {
         public bool success { get; set; }
         public string message { get; set; }
