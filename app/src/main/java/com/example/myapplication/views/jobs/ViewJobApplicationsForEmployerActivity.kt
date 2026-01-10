@@ -95,6 +95,6 @@ fun ViewJobApplicationsForEmployerScreen(
     ) {
         HeaderUI()
 
-        ListApplications(applications, modifier = Modifier.weight(1f), onAction1Click = onAcceptClick, onAction2Click = onRejectClick, "Prihvati", "Odbij")
+        ListApplications(applications, onAction1Click = onAcceptClick, onAction2Click = onRejectClick, "Prihvati", "Odbij")
     }
 }

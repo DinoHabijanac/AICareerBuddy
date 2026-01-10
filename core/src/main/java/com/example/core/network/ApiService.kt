@@ -7,6 +7,7 @@ import com.example.core.models.LoginRequest
 import com.example.core.models.LoginResponse
 import com.example.core.models.RegistrationRequest
 import com.example.core.models.RegistrationResponse
+import com.example.core.models.Student
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -67,10 +68,15 @@ interface ApiService {
     @GET("api/Job")
     suspend fun getJobs(): List<JobListing>?
 
+    @GET("api/Job/{id}")
+    suspend fun getJob(@Path("id") jobId: Int) : JobListing
+
+    @GET("api/Job/student/{id}")
+    suspend fun getStudent(@Path("id") studentId: Int) : Student
+
     @Headers("Accept: application/json")
     @POST("api/Job")
     suspend fun postJob(@Body job: JobListing): Response<UploadResponse>
-
 
     // ---------- JOB APPLICATIONS ----------
 

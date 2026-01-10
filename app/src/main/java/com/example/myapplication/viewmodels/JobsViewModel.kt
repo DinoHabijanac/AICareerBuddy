@@ -6,11 +6,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.models.JobListing
+import com.example.core.models.Student
 import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
 
 
 class JobsViewModel : ViewModel() {
+
+    private val _job = MutableLiveData<JobListing>()
+    val job: LiveData<JobListing> = _job
+
+    private val _student = MutableLiveData<Student>()
+    val student: LiveData<Student> = _student
 
     private val _jobs = MutableLiveData<List<JobListing>>()
     val jobs: LiveData<List<JobListing>> = _jobs
@@ -51,5 +58,30 @@ class JobsViewModel : ViewModel() {
             }
         }
         return jobs
+    }
+
+    fun getJobById(jobId: Int)  {
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.getJob(jobId)
+                Log.d("dobavljanje posla", response.toString())
+                _uploadState.postValue("Uspješno dohvaćen posao")
+                _job.postValue(response)
+            }catch (e: Exception){
+                _uploadState.postValue("Greška pri dohvaćanju oglasa - ${e.message}")
+            }
+        }
+    }
+
+    fun getStudentById(studentId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.getStudent(studentId)
+                Log.d("odgovor", response.toString())
+                _student.postValue(response)
+            } catch (e: Exception) {
+                _uploadState.postValue("Greška pri dohvaćanju studenta - ${e.message}")
+            }
+        }
     }
 }
