@@ -156,7 +156,9 @@ fun EditApplicationForm(modifier : Modifier, applicationsViewModel: JobApplicati
                                 expectedPay = expectedPayInt,
                                 workExperience = workExperience,
                                 education = education,
-                                interviewDate = null
+                                interviewDate = null,
+                                studentName = null,
+                                jobName = null
                             )
                             applicationsViewModel.editApplication(applicationToEdit)
 

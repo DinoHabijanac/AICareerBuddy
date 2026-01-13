@@ -1,6 +1,5 @@
 package com.example.myapplication.views.jobs
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -26,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.core.models.JobApplication
 import com.example.myapplication.viewmodels.JobApplicationViewModel
 import com.example.myapplication.views.HeaderUI
@@ -149,7 +147,9 @@ fun JobApplicationForm(modifier: Modifier, applicationsViewModel: JobApplication
                                 expectedPay = expectedPayInt,
                                 workExperience = workExperience,
                                 education = education,
-                                interviewDate = null
+                                interviewDate = null,
+                                jobName = null,
+                                studentName = null
                             )
 
                             applicationsViewModel.uploadApplication(application)

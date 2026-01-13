@@ -28,6 +28,7 @@ class JobApplicationViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val applications = NetworkModule.apiService.getJobApplicationsForStudent(userId)
+                Log.d("aplika", applications.toString())
                 _applications.postValue(applications)
             } catch (e: Exception) {
                 _applications.postValue(emptyList())

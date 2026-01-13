@@ -1,6 +1,8 @@
 package com.example.myapplication.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -60,7 +62,8 @@ class JobsViewModel : ViewModel() {
         return jobs
     }
 
-    fun getJobById(jobId: Int)  {
+    @Composable
+    fun getJobById(jobId: Int): String {
         viewModelScope.launch {
             try {
                 val response = NetworkModule.apiService.getJob(jobId)
@@ -71,9 +74,11 @@ class JobsViewModel : ViewModel() {
                 _uploadState.postValue("Greška pri dohvaćanju oglasa - ${e.message}")
             }
         }
+        return job.observeAsState().value?.name.toString()
     }
 
-    fun getStudentById(studentId: Int) {
+    @Composable
+    fun getStudentById(studentId: Int) : String {
         viewModelScope.launch {
             try {
                 val response = NetworkModule.apiService.getStudent(studentId)
@@ -83,5 +88,7 @@ class JobsViewModel : ViewModel() {
                 _uploadState.postValue("Greška pri dohvaćanju studenta - ${e.message}")
             }
         }
+        return student.observeAsState().value?.name.toString()
     }
 }
+

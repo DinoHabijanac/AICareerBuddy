@@ -20,8 +20,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,10 +27,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.core.models.JobApplication
 import com.example.myapplication.R
-import com.example.myapplication.viewmodels.JobsViewModel
 
 @Composable
 fun HeaderUI(modifier : Modifier = Modifier) {
@@ -69,19 +65,14 @@ fun ListApplications(
     name1: String,
     name2: String
 ) {
-    val jobsViewModel : JobsViewModel = viewModel()
-    val job by jobsViewModel.job.observeAsState()
-    val student by jobsViewModel.student.observeAsState()
-
         LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(12.dp)
     ) {
         items(applications) { application ->
-            jobsViewModel.getJobById(application.jobId)
-            jobsViewModel.getStudentById(application.studentId)
+
             ApplicationCard(application,
-                job?.name , student.toString(), onAction1Click = onAction1Click, onAction2Click = onAction2Click, name1, name2)
+                application.jobName, application.studentName, onAction1Click = onAction1Click, onAction2Click = onAction2Click, name1, name2)
         }  
     }
 }
@@ -89,7 +80,7 @@ fun ListApplications(
 fun ApplicationCard(
     application: JobApplication,
     jobName: String?,
-    studentName: String,
+    studentName: String?,
     onAction1Click: (JobApplication) -> Unit,
     onAction2Click: (JobApplication) -> Unit,
     name1: String,
@@ -112,7 +103,7 @@ fun ApplicationCard(
                 Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
-                    text = application.expectedPay?.let { "€$it/h" } ?: "No pay expectation",
+                    text = application.expectedPay?.let { "€$it/h" } ?: "Nema očekivanja za plaću",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
