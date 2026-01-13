@@ -1,11 +1,5 @@
-using AI_CareerBuddy_Backend.Controllers;
 using AICareerBuddy_BussinesLogic.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using AICareerBuddy_BussinesLogic.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace AI_CareerBuddy_Backend.Controllers
 {

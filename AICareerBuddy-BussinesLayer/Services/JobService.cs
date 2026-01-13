@@ -64,5 +64,10 @@ namespace AICareerBuddy_BussinesLayer.Services
             if (result == 1) return true;
             else return false;
         }
+
+        public async Task<User> GetStudentById(int id)
+        {
+            return await Repository.GetStudent(id).FirstAsync();
+        }
     }
 }

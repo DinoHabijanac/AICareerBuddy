@@ -23,6 +23,11 @@ namespace AICareerBuddy_DataAccessLayer.Repositories
             return query;
         }
 
+        public IQueryable<User> GetStudent(int id)
+        {
+            var query = from s in Context.Users where s.Id == id select s;
+            return query;
+        }
         public override async Task<int> Update(JobListing entity, bool saveChanges = true)
         {
             var job = GetJob(entity.Id).FirstOrDefault();

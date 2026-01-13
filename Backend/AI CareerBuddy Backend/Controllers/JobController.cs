@@ -49,13 +49,12 @@ namespace AI_CareerBuddy_Backend.Controllers
             else return BadRequest();
         }
 
-        // PUT api/Job/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<JobListing>> Put(int id, [FromBody] JobListing job)
+        [HttpGet("student/{id}")]
+        public async Task<ActionResult<User>> GetStudent(int id)
         {
-            if (job == null || job.Id != id) return BadRequest();
-            var updated = await JobService.PutJob(job);
-            if (updated) return Ok(updated);
+            if (id == 0) return BadRequest();
+            var student = await JobService.GetStudentById(id);
+            if (student != null) return Ok(new { name = student.FirstName, lastname = student.LastName });
             else return NotFound();
         }
 

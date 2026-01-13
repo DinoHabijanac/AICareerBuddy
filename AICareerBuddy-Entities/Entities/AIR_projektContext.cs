@@ -53,7 +53,6 @@ public partial class AIR_projektContext : DbContext
                 .HasConstraintName("FK_Employer_User");
         });
 
-        
         modelBuilder.Entity<JobApplication>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Application");
@@ -69,7 +68,7 @@ public partial class AIR_projektContext : DbContext
             entity.HasOne(d => d.Employer).WithMany(p => p.JobApplications)
                 .HasForeignKey(d => d.EmployerId)
                 .HasConstraintName("FK_Application_JobListing");
-        }); 
+        });
 
         modelBuilder.Entity<JobListing>(entity =>
         {
