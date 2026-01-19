@@ -1,5 +1,7 @@
 package com.example.myapplication.viewmodels
 
+import android.util.Log
+import androidx.compose.ui.res.stringArrayResource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +12,8 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
 
+    val status: MutableLiveData<String> = MutableLiveData("")
+    val userId: MutableLiveData<Int> = MutableLiveData()
     val username: MutableLiveData<String> = MutableLiveData("")
     val password: MutableLiveData<String> = MutableLiveData("")
 
@@ -58,6 +62,23 @@ class LoginViewModel : ViewModel() {
                 isLoading.value = false
                 _errorMessage.value = "Greška pri povezivanju: ${e.message}"
                 onFail()
+            }
+        }
+    }
+
+    fun loginUserWithGoogle(loginRequest: LoginRequest){
+        //ZAVRŠITI
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.loginUserWithGoogle(request = loginRequest)
+                isLoading.value = false
+                status.postValue(response.code().toString())
+                userId.postValue(response.body()?.user?.id)
+                username.postValue(response.body()?.user?.username)
+            }
+            catch (e : Exception){
+                status.postValue("Greška pri prijavi sa google-om ${e.message}")
             }
         }
     }

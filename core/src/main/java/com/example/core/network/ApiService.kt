@@ -41,6 +41,10 @@ interface ApiService {
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
 
 
+    //prijava sa Google-om
+    @POST("api/Auth/loginGoogle")
+    suspend fun loginUserWithGoogle(@Body request: LoginRequest): Response<LoginResponse>
+
     // ---------- RESUME ----------
 
     @Multipart

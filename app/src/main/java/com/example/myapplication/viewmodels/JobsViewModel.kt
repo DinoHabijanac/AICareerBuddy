@@ -61,7 +61,6 @@ class JobsViewModel : ViewModel() {
         }
         return jobs
     }
-
     @Composable
     fun getJobById(jobId: Int): String {
         viewModelScope.launch {

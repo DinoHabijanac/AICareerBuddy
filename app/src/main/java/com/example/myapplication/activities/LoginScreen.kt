@@ -1,12 +1,14 @@
 // app/src/main/java/com/example/myapplication/activities/LoginScreen.kt
 package com.example.myapplication.activities
 
+import android.util.Log
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,20 +16,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.core.models.LoginRequest
 import com.example.myapplication.viewmodels.LoginViewModel
 import com.example.myapplication.R
+import com.example.myapplication.views.getLoggedUserId
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     onSuccessfulLogin: (userId: Int, username: String) -> Unit
 ) {
-    // Pratimo stanje iz ViewModel-a (LiveData pretvaramo u Compose state)
+    // Pratimo stanje iz ViewModel-a (LiveData paracetamol u Compose state)
     val username by viewModel.username.observeAsState("")
     val password by viewModel.password.observeAsState("")
     val errorMsg by viewModel.errorMessage.observeAsState("")
     val isLoading by viewModel.isLoading.observeAsState(false)
+
+    val status by viewModel.status.observeAsState()
+    val id by viewModel.userId.observeAsState()
+
+    LaunchedEffect(status) {
+        if(status == "200") {
+            onSuccessfulLogin(id?.toInt() ?: -1,username)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -120,8 +134,28 @@ fun LoginScreen(
             ) {
                 Text(text = if (isLoading) "Dohvaćam..." else "Prijava")
             }
+
+            //Dodan gumb za prijavu putem Google-a - Franjo
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(
+                onClick = {
+                    val request = LoginRequest(username.toString(), password.toString())
+                    viewModel.loginUserWithGoogle(request)
+                },
+                enabled = !isLoading && username.isNotBlank() && password.isNotBlank(),
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text("Google prijava")
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
     }
+}
+
+
+@Preview
+@Composable
+fun callPreview(){
+    LoginScreen(onSuccessfulLogin = { userId, username -> })
 }
