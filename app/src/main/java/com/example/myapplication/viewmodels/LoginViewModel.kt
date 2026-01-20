@@ -71,6 +71,7 @@ class LoginViewModel : ViewModel() {
         isLoading.value = true
         viewModelScope.launch {
             try {
+                //TODO IMPLEMENTIRATI HASHIRANJE OVDJE
                 val response = NetworkModule.apiService.loginUserWithGoogle(request = loginRequest)
                 isLoading.value = false
                 status.postValue(response.code().toString())

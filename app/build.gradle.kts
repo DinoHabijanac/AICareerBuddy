@@ -93,4 +93,9 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    implementation("androidx.credentials:credentials:1.6.0-rc01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0-rc01")
+    implementation(libs.googleid)
+
 }
