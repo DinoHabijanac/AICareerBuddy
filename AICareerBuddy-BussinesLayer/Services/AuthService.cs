@@ -46,5 +46,11 @@ namespace AICareerBuddy_BussinesLogic.Services
             // 4. ni hash ni plain nisu prošli → krivi kredencijali
             return null;
         }
+
+        //provjera postojanja korisnika - Franjo
+        public async Task<User?> UserExists(string username)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
+        }
     }
 }
