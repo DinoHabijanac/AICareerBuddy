@@ -7,10 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 
@@ -18,9 +14,6 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val webClientId = "66031714200-bcubnq7smv4mjhgl8jsg3p2c9k3t6hr1.apps.googleusercontent.com"
-
         setContent {
             MyApplicationTheme {
                 LoginScreen(onSuccessfulLogin = { userId, username ->

@@ -1,7 +1,6 @@
 package com.example.myapplication.viewmodels
 
 import android.util.Log
-import androidx.compose.ui.res.stringArrayResource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,7 @@ import com.example.core.models.LoginRequest
 import com.example.core.models.LoginResponse
 import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
+import kotlin.toString
 
 class LoginViewModel : ViewModel() {
 
@@ -66,21 +66,26 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun loginUserWithGoogle(loginRequest: LoginRequest){
-        //ZAVRŠITI
+    fun loginUserWithGoogle(loginRequest: LoginRequest, onComplete: (Boolean) -> Unit) {
         isLoading.value = true
         viewModelScope.launch {
             try {
-                //TODO IMPLEMENTIRATI HASHIRANJE OVDJE
                 val response = NetworkModule.apiService.loginUserWithGoogle(request = loginRequest)
-                isLoading.value = false
+                isLoading.postValue(false)
+
                 status.postValue(response.code().toString())
                 userId.postValue(response.body()?.user?.id)
                 username.postValue(response.body()?.user?.username)
-            }
-            catch (e : Exception){
+
+                val success = response.isSuccessful && response.body()?.success == true
+                onComplete(success)
+            } catch (e: Exception) {
+                isLoading.postValue(false)
+                Log.e("logovanje", "Greška: ${e.message}", e)
                 status.postValue("Greška pri prijavi sa google-om ${e.message}")
+                onComplete(false)
             }
         }
     }
+
 }
