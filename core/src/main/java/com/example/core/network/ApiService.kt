@@ -45,6 +45,10 @@ interface ApiService {
     @POST("api/Auth/loginGoogle")
     suspend fun loginUserWithGoogle(@Body request: LoginRequest): Response<LoginResponse>
 
+    //register Google
+    @POST("api/Auth/registerGoogle")
+    suspend fun registerUserWithGoogle(@Body request: RegistrationRequest): Response<RegistrationResponse>
+
     // ---------- RESUME ----------
 
     @Multipart

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.models.LoginRequest
 import com.example.core.models.LoginResponse
+import com.example.core.models.RegistrationRequest
 import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
 import kotlin.toString
@@ -13,6 +14,7 @@ import kotlin.toString
 class LoginViewModel : ViewModel() {
 
     val status: MutableLiveData<String> = MutableLiveData("")
+    val statusReg: MutableLiveData<String> = MutableLiveData("")
     val userId: MutableLiveData<Int> = MutableLiveData()
     val username: MutableLiveData<String> = MutableLiveData("")
     val password: MutableLiveData<String> = MutableLiveData("")
@@ -83,6 +85,28 @@ class LoginViewModel : ViewModel() {
                 isLoading.postValue(false)
                 Log.e("logovanje", "Greška: ${e.message}", e)
                 status.postValue("Greška pri prijavi sa google-om ${e.message}")
+                onComplete(false)
+            }
+        }
+    }
+
+    fun registerGoogle(request: RegistrationRequest, onComplete: (Boolean) -> Unit){
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.registerUserWithGoogle(request)
+                isLoading.postValue(false)
+
+                statusReg.postValue(response.code().toString())
+                userId.postValue(response.body()?.userId)
+                username.postValue(response.body()?.username)
+
+                val success = response.isSuccessful
+                onComplete(success)
+            } catch (e: Exception) {
+                isLoading.postValue(false)
+                Log.e("logovanje Register Google", "Greška: ${e.message}", e)
+                statusReg.postValue("Greška pri prijavi sa google-om ${e.message}")
                 onComplete(false)
             }
         }
