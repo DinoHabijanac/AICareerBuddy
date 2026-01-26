@@ -45,7 +45,8 @@ class LoginViewModel : ViewModel() {
                 isLoading.value = false
 
                 if (!response.isSuccessful) {
-                    _errorMessage.value = response.errorBody()?.string() ?: "Greška ${response.code()}"
+                    _errorMessage.value =
+                        response.errorBody()?.string() ?: "Greška ${response.code()}"
                     onFail()
                     return@launch
                 }
@@ -67,49 +68,4 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
-
-    fun loginUserWithGoogle(loginRequest: LoginRequest, onComplete: (Boolean) -> Unit) {
-        isLoading.value = true
-        viewModelScope.launch {
-            try {
-                val response = NetworkModule.apiService.loginUserWithGoogle(request = loginRequest)
-                isLoading.postValue(false)
-
-                status.postValue(response.code().toString())
-                userId.postValue(response.body()?.user?.id)
-                username.postValue(response.body()?.user?.username)
-
-                val success = response.isSuccessful && response.body()?.success == true
-                onComplete(success)
-            } catch (e: Exception) {
-                isLoading.postValue(false)
-                Log.e("logovanje", "Greška: ${e.message}", e)
-                status.postValue("Greška pri prijavi sa google-om ${e.message}")
-                onComplete(false)
-            }
-        }
-    }
-
-    fun registerGoogle(request: RegistrationRequest, onComplete: (Boolean) -> Unit){
-        isLoading.value = true
-        viewModelScope.launch {
-            try {
-                val response = NetworkModule.apiService.registerUserWithGoogle(request)
-                isLoading.postValue(false)
-
-                statusReg.postValue(response.code().toString())
-                userId.postValue(response.body()?.userId)
-                username.postValue(response.body()?.username)
-
-                val success = response.isSuccessful
-                onComplete(success)
-            } catch (e: Exception) {
-                isLoading.postValue(false)
-                Log.e("logovanje Register Google", "Greška: ${e.message}", e)
-                statusReg.postValue("Greška pri prijavi sa google-om ${e.message}")
-                onComplete(false)
-            }
-        }
-    }
-
 }

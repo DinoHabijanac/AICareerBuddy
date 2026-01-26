@@ -43,6 +43,7 @@ import com.example.core.models.RegistrationRequest
 import com.example.myapplication.R
 import com.example.myapplication.viewmodels.LoginViewModel
 import com.example.oauth.GoogleLogin
+import com.example.oauth.GoogleLoginViewModel
 
 var userEmail: String = ""
 var firstName: String = ""
@@ -51,6 +52,7 @@ var lastName: String = ""
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
+    googleViewModel: GoogleLoginViewModel = viewModel(),
     onSuccessfulLogin: (userId: Int, username: String) -> Unit,
 ) {
     val username by viewModel.username.observeAsState("")
@@ -58,9 +60,10 @@ fun LoginScreen(
     val errorMsg by viewModel.errorMessage.observeAsState("")
     val isLoading by viewModel.isLoading.observeAsState(false)
 
-    val status by viewModel.status.observeAsState()
-    val statusReg by viewModel.statusReg.observeAsState()
-    val id by viewModel.userId.observeAsState()
+    val statusGoogle by googleViewModel.status.observeAsState()
+    val statusRegGoogle by googleViewModel.statusReg.observeAsState()
+    val googleUserId by googleViewModel.userId.observeAsState()
+    val googleUsername by googleViewModel.username.observeAsState()
     val webClientId = "66031714200-bcubnq7smv4mjhgl8jsg3p2c9k3t6hr1.apps.googleusercontent.com"
     var google by remember { mutableStateOf(false) }
     var showRegisterDialog by remember { mutableStateOf(false) }
@@ -87,7 +90,7 @@ fun LoginScreen(
                 lastName = profile.lastName
 
                 val loginRequest = LoginRequest(username = userEmail.substringBefore("@"), password = "")
-                viewModel.loginUserWithGoogle(loginRequest) { success ->
+                googleViewModel.loginUserWithGoogle(loginRequest) { success ->
                     Log.d("LoginResult", "Success: $success")
                 }
             } else {
@@ -98,23 +101,23 @@ fun LoginScreen(
         }
     }
 
-    LaunchedEffect(status) {
-        if (status == "200") {
+    LaunchedEffect(statusGoogle) {
+        if (statusGoogle == "200") {
             try {
-                onLoginSuccess(id ?: -1, username ?: "")
+                onLoginSuccess(googleUserId ?: -1, googleUsername ?: userEmail.substringBefore("@"))
             } catch (t: Throwable) {
                 Log.e("LoginScreen", "onSuccessfulLogin callback greška", t)
             }
-        } else if (status == "404") {
+        } else if (statusGoogle == "404") {
             Toast.makeText(context, "Korisnik nije pronađen. Registriraj se.", Toast.LENGTH_LONG).show()
             showRegisterDialog = true
         }
     }
 
-    LaunchedEffect(statusReg) {
-        if (statusReg == "200" && !showRegisterDialog) {
+    LaunchedEffect(statusRegGoogle) {
+        if (statusRegGoogle == "200" && !showRegisterDialog) {
             try {
-                onLoginSuccess(id ?: -1, username ?: "")
+                onLoginSuccess(googleUserId ?: -1, googleUsername ?: userEmail.substringBefore("@"))
             } catch (t: Throwable) {
                 Log.e("LoginScreen", "onSuccessfulLogin callback nakon rege greška", t)
             }
@@ -179,13 +182,13 @@ fun LoginScreen(
                             role = "student"
                         )
 
-                        viewModel.registerGoogle(regRequest) { success ->
+                        googleViewModel.registerGoogle(regRequest) { success ->
                             if (success) {
                                 showRegisterDialog = false
                                 registrationPassword = ""
-                                // onLoginSuccess će biti pozvan automatski kroz LaunchedEffect(statusReg)
+                                // onLoginSuccess će biti pozvan automatski kroz LaunchedEffect(statusRegGoogle)
                             } else {
-                                registrationErrorMsg = statusReg ?: "Greška pri registraciji"
+                                registrationErrorMsg = statusRegGoogle ?: "Greška pri registraciji"
                             }
                         }
                     }
