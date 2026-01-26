@@ -48,8 +48,8 @@ class GoogleLoginViewModel : ViewModel() {
                 isLoading.postValue(false)
 
                 statusReg.postValue(response.code().toString())
-                userId.postValue(response.body()?.userId)
-                username.postValue(response.body()?.username)
+                userId.postValue(response.body()?.userId ?: 1)
+                username.postValue(response.body()?.username ?: "")
 
                 val success = response.isSuccessful
                 onComplete(success)
