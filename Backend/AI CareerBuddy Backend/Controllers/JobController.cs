@@ -36,6 +36,18 @@ namespace AI_CareerBuddy_Backend.Controllers
             else return NotFound();
         }
 
+
+        // GET api/Job/user/5
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<JobListing>>> GetByUserId(int userId)
+        {
+            if (userId == 0) return BadRequest();
+            var jobs = await JobService.GetJobsByUserId(userId);
+            if (jobs != null && jobs.Count > 0) return Ok(jobs);
+            else return NotFound();
+        }
+
+
         // POST api/Job
         [HttpPost]
         public async Task<ActionResult<JobListing>> Post([FromBody] JobListing job)

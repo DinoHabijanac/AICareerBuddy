@@ -17,5 +17,6 @@ namespace AICareerBuddy_BussinesLayer.Interfaces
         public Task<bool> DeleteJob(int id);
         public Task<bool> DeleteJob(string jobName);
         public Task<User> GetStudentById(int id);
+        public Task<List<JobListing>> GetJobsByUserId(int userId);
     }
 }

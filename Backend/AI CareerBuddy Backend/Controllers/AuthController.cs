@@ -1,4 +1,5 @@
 using AI_CareerBuddy_Backend.DTOs;   // ovdje su LoginRequest i LoginResponse
+using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_BussinesLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,13 @@ namespace AI_CareerBuddy_Backend.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly RegistrationService _registrationService;
+      
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, RegistrationService registrationService)
         {
             _authService = authService;
+            _registrationService = registrationService;
         }
 
         [HttpPost("login")]
@@ -50,7 +54,8 @@ namespace AI_CareerBuddy_Backend.Controllers
                 User = new
                 {
                     user.Id,
-                    user.Username
+                    user.Username,
+                    user.Role
                 }
             });
         }
@@ -76,20 +81,27 @@ namespace AI_CareerBuddy_Backend.Controllers
                     Message = "Uspješna autentifikacija",
                     User = new
                     {
-                        Id = user.Id,
-                        Username = user.Username
+                        user.Id,
+                        user.Username,
+                        user.Role
                     }
                 });
             }
         }
-        /*
-        //register za prijavu sa Google-om
-        [HttpPost("registerGoogle")]
-        public Task<IActionResult> RegisterGoogle([FromBody] LoginRequest request)
-        {
-            return NotFound();
-        }
-        */
 
+        //register sa google-om ako korisnik ne postoji u bazi
+        [HttpPost("registerGoogle")]
+        public async Task<IActionResult> RegisterGoogle([FromBody] RegistrationRequestDto request)
+        {
+            try
+            {
+                var response = await _registrationService.RegisterUserAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex) 
+            { 
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -28,6 +28,17 @@ namespace AICareerBuddy_DataAccessLayer.Repositories
             var query = from s in Context.Users where s.Id == id select s;
             return query;
         }
+
+        // Added: get jobs by user id (joins Employer to filter by Employer.UserId)
+        public IQueryable<JobListing> GetJobsByUserId(int userId)
+        {
+            var query = from j in Entities
+                        join e in Context.Employers on j.EmployerId equals e.Id
+                        where e.UserId == userId
+                        select j;
+            return query;
+        }
+
         public override async Task<int> Update(JobListing entity, bool saveChanges = true)
         {
             var job = GetJob(entity.Id).FirstOrDefault();

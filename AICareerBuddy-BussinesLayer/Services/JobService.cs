@@ -33,6 +33,10 @@ namespace AICareerBuddy_BussinesLayer.Services
         {
             return await Repository.GetAll().ToListAsync();
         }
+        public async Task<List<JobListing>> GetJobsByUserId(int userId)
+        {
+            return await Repository.GetJobsByUserId(userId).ToListAsync();
+        }
         public async Task<bool> PostJob(JobListing jobListing)
         {
             var result = await Repository.Add(jobListing);
