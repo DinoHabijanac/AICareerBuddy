@@ -7,6 +7,7 @@ import com.example.core.models.LoginRequest
 import com.example.core.models.LoginResponse
 import com.example.core.models.RegistrationRequest
 import com.example.core.models.RegistrationResponse
+import com.example.core.models.ResumeAIFeedback
 import com.example.core.models.Student
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -58,6 +59,9 @@ interface ApiService {
         @Part file: MultipartBody.Part,
         @Part("userId") userId: RequestBody
     ): Response<UploadResponse>
+
+    @GET("api/Resume/AnalyzeAI/{userId}")
+    suspend fun analyzeResumeAI(@Path("userId") userId: Int) : Response<ResumeAIFeedback>
 
     @DELETE("api/Resume/{id}")
     suspend fun deleteResume(

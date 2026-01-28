@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -77,6 +78,7 @@ fun ResumeUploadScreen(
     val currentUri = remember { mutableStateOf<Uri?>(null) }
     val uploadState by uploadViewModel.uploadState.collectAsState()
     val deleteState by uploadViewModel.deleteState.collectAsState()
+    val buttonWidth = 220.dp
 
     // Get the logged-in user's ID from SharedPreferences
     val userId = getLoggedUserId()
@@ -167,7 +169,8 @@ fun ResumeUploadScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
+            .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -182,7 +185,7 @@ fun ResumeUploadScreen(
             )
         }
 
-        val boxSize = 220.dp
+        val boxSize = 180.dp
         Box(
             modifier = Modifier
                 .size(boxSize)
@@ -252,28 +255,32 @@ fun ResumeUploadScreen(
             currentUri.value?.let { uri ->
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Button(onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setData(uri)
-                            flags =
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setData(uri)
+                                flags =
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                context,
+                                "Ne mogu otvoriti dokument: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            context,
-                            "Ne mogu otvoriti dokument: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
-                }) {
+                ) {
                     Text("Otvori")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
+                    modifier = Modifier.width(buttonWidth),
                     onClick = {
                         if (userId != -1) {
                             uploadViewModel.deleteResume(userId)
@@ -296,6 +303,7 @@ fun ResumeUploadScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
+                    modifier = Modifier.width(buttonWidth),
                     onClick = {
                         launcher.launch(
                             arrayOf(
@@ -316,12 +324,15 @@ fun ResumeUploadScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(onClick = {
-                    val prefs = context.getSharedPreferences("resume_prefs", 0)
-                    prefs.edit { remove("resume_uri") }
-                    currentUri.value = null
-                    uploadViewModel.reset()
-                }) {
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        val prefs = context.getSharedPreferences("resume_prefs", 0)
+                        prefs.edit { remove("resume_uri") }
+                        currentUri.value = null
+                        uploadViewModel.reset()
+                    }
+                ) {
                     Text("Ukloni lokalno")
                 }
             }
@@ -329,6 +340,7 @@ fun ResumeUploadScreen(
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(
+                modifier = Modifier.width(buttonWidth),
                 onClick = {
                     launcher.launch(
                         arrayOf(
@@ -342,6 +354,18 @@ fun ResumeUploadScreen(
                 enabled = currentUri.value == null && userId != -1
             ) {
                 Text("Prenesi životopis")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                modifier = Modifier.width(buttonWidth),
+                onClick = {
+                    uploadViewModel.analyzeResume(userId)
+                },
+                enabled = currentUri.value != null && userId != -1
+            ) {
+                Text("AI analiza životopisa")
             }
         }
     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.network.NetworkModule
 import com.example.core.helpers.uriToMultipart
+import com.example.core.models.ResumeAIFeedback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +33,9 @@ sealed class DeleteState {
 class UploadViewModel : ViewModel() {
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
     val uploadState: StateFlow<UploadState> = _uploadState
+
+    private val _aiFeedback = MutableStateFlow<ResumeAIFeedback?>(null)
+    val aiFeedback: StateFlow<ResumeAIFeedback?> = _aiFeedback
 
     private val _deleteState = MutableStateFlow<DeleteState>(DeleteState.Idle)
     val deleteState: StateFlow<DeleteState> = _deleteState
@@ -117,5 +121,20 @@ class UploadViewModel : ViewModel() {
     fun reset() {
         _uploadState.value = UploadState.Idle
         _deleteState.value = DeleteState.Idle
+    }
+
+    fun analyzeResume(userId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = NetworkModule.apiService.analyzeResumeAI(userId)
+                _aiFeedback.value = response.body()
+                Log.d("logovanje", response.body().toString())
+
+            }
+            catch (e: Exception){
+                Log.d("logovanjeGreška", e.toString())
+            }
+
+        }
     }
 }
