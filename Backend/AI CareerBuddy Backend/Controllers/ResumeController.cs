@@ -53,6 +53,21 @@ namespace AI_CareerBuddy_Backend.Controllers
             }
         }
 
+        [HttpGet("AnalyzeAI/{userId}")]
+        public async Task<IActionResult> GetResumeAnalysisAI(int userId)
+        {
+            try
+            {
+                var aiFeedback = await ResumeService.GetResumeAnalysisAI(userId);
+                return Ok(aiFeedback);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -62,11 +77,11 @@ namespace AI_CareerBuddy_Backend.Controllers
 
                 if (deleted)
                 {
-                    return NoContent(); // 204 - uspješno obrisano
+                    return NoContent(); //204 - uspješno obrisano
                 }
                 else
                 {
-                    return NotFound($"Resume for user {id} not found"); // 404 - nije pronađeno
+                    return NotFound($"Resume for user {id} not found"); //404 - nije pronađeno
                 }
             }
             catch (Exception ex)

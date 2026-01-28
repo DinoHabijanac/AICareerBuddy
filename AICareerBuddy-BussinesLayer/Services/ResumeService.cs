@@ -5,6 +5,7 @@ using Azure;
 using Azure.Storage.Files.Shares;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace AICareerBuddy_BussinesLogic.Services
 {
@@ -190,6 +191,30 @@ namespace AICareerBuddy_BussinesLogic.Services
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw new InvalidOperationException($"Error updating resume: {ex.Message}");
             }
+        }
+
+        public async Task<ResumeAIFeedback> GetResumeAnalysisAI(int id)
+        {
+            var resume = await GetResume(id);
+            if (resume == null) 
+            { 
+                throw new FileNotFoundException($"No resume found for user id {id}");
+            }
+
+            var shareClient = new ShareClient(connectionString, shareName);
+            var rootDir = shareClient.GetRootDirectoryClient();
+            var fileClient = rootDir.GetFileClient(resume.Name);
+
+            var downloadResponse = await fileClient.DownloadAsync();
+            using var contentStream = downloadResponse.Value.Content;
+            var memoryStream = new MemoryStream();
+            await contentStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0; 
+
+            return new ResumeAIFeedback
+            {
+                Feedback = "implementarisat"
+            };
         }
     }
 }
