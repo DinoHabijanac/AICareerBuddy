@@ -52,42 +52,27 @@ class JobsViewModel : ViewModel() {
                 else
                 {
                     _jobs.postValue(emptyList())
-                    Log.d("Debugiranje!", "Dohvaćeni poslovi su null")
+                    Log.d("Debug", "Dohvaćeni poslovi su null")
                 }
             } catch (e: Exception) {
                 _jobs.postValue(emptyList())
-                Log.d("Debugiranje!", e.message.toString())
+                Log.d("Debug", e.message.toString())
             }
         }
         return jobs
     }
-    @Composable
-    fun getJobById(jobId: Int): String {
-        viewModelScope.launch {
-            try {
-                val response = NetworkModule.apiService.getJob(jobId)
-                Log.d("dobavljanje posla", response.toString())
-                _uploadState.postValue("Uspješno dohvaćen posao")
-                _job.postValue(response)
-            }catch (e: Exception){
-                _uploadState.postValue("Greška pri dohvaćanju oglasa - ${e.message}")
-            }
-        }
-        return job.observeAsState().value?.name.toString()
-    }
 
-    @Composable
-    fun getStudentById(studentId: Int) : String {
+    fun getJobsForEmployer(userId : Int): LiveData<List<JobListing>> {
         viewModelScope.launch {
             try {
-                val response = NetworkModule.apiService.getStudent(studentId)
-                Log.d("odgovor", response.toString())
-                _student.postValue(response)
+                val jobs = NetworkModule.apiService.getJobsForEmployer(userId)
+                _jobs.postValue(jobs)
             } catch (e: Exception) {
-                _uploadState.postValue("Greška pri dohvaćanju studenta - ${e.message}")
+                _jobs.postValue(emptyList())
+                Log.d("Debug", e.message.toString())
             }
         }
-        return student.observeAsState().value?.name.toString()
+        return jobs
     }
 }
 

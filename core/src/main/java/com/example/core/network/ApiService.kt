@@ -76,6 +76,9 @@ interface ApiService {
     @GET("api/Job")
     suspend fun getJobs(): List<JobListing>?
 
+    @GET("/api/Job/user/{userId}")
+    suspend fun getJobsForEmployer(@Path("userId") userId: Int) : List<JobListing>
+
     @GET("api/Job/{id}")
     suspend fun getJob(@Path("id") jobId: Int) : JobListing
 

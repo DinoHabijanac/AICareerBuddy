@@ -1,7 +1,5 @@
-
 package com.example.myapplication.views.jobs
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -40,7 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.core.models.JobApplication
 import com.example.core.models.JobListing
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -49,20 +49,11 @@ import com.example.myapplication.viewmodels.JobsViewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.formatLocalDateTime
+import kotlin.getValue
 
-class JobActivity : ComponentActivity() {
-
+class ViewJobsForEmployer : ComponentActivity( ) {
     private val jobsViewModel: JobsViewModel by viewModels()
     private val applicationsViewModel: JobApplicationViewModel by viewModels()
-
-    private val applyForJobLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                jobsViewModel.getJobs2()
-                val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
-                applicationsViewModel.getApplicationsForStudent(userId)
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,14 +61,14 @@ class JobActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    JobListNetworkScreen(
+                    JobListNetworkScreen2(
                         modifier = Modifier.padding(innerPadding),
-                        onApplyClick = { job ->
+                        onViewApplicationsClick = { job ->
                             val prefs = getSharedPreferences("job_prefs", MODE_PRIVATE)
                             prefs.edit().putInt("jobId", job.id ?: 0).apply()
 
-                            val intent = Intent(this, ApplyForJobActivity::class.java)
-                            applyForJobLauncher.launch(intent)
+                            val intent = Intent(this, ViewJobApplicationsForEmployerActivity::class.java)
+                            startActivity(intent)
                         },
                         jobsViewModel,
                         applicationsViewModel
@@ -88,12 +79,13 @@ class JobActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
-        jobsViewModel.getJobs2()
+        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
+        jobsViewModel.getJobsForEmployer(userId)
     }
 }
 
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListing) -> Unit = {}, jobsViewModel : JobsViewModel, applicationsViewModel : JobApplicationViewModel) {
+fun JobListNetworkScreen2(modifier: Modifier = Modifier, onViewApplicationsClick : (JobListing) -> Unit = {}, jobsViewModel : JobsViewModel, applicationsViewModel : JobApplicationViewModel) {
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
@@ -106,7 +98,7 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
         loading = true
         error = null
         try {
-            jobsViewModel.getJobs2()
+            jobsViewModel.getJobsForEmployer(userId)
             applicationsViewModel.getApplicationsForStudent(userId = userId)
             Log.d("logovi", applied.toString())
         } catch (e: Exception) {
@@ -117,7 +109,9 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
         }
     }
     Column(
-        modifier = modifier.fillMaxSize().statusBarsPadding(),
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -149,8 +143,8 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
                     else (jobs).filter { job ->
                         val listingExpiresStr = try {
                             job.listingExpires.toString()
-                        } catch (_: Exception) {
-                            ""
+                        } catch (e: Exception) {
+                            Log.d("greška", e.toString())
                         }
                         listOf(
                             job.id,
@@ -164,14 +158,14 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListi
                         ).joinToString(" ").lowercase().contains(q)
                     }
                 }
-                JobListScreen(jobs = filtered, applied = applied, onApplyClick = onApplyClick)
+                JobListScreen2(jobs = filtered, applied = applied, onViewApplicationsClick = onViewApplicationsClick)
             }
         }
     }
 }
 
 @Composable
-fun JobListScreen(jobs: List<JobListing>, applied : List<JobApplication>?, onApplyClick: (JobListing) -> Unit) {
+fun JobListScreen2(jobs: List<JobListing>, applied : List<JobApplication>?, onViewApplicationsClick: (JobListing) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(12.dp)
@@ -181,15 +175,15 @@ fun JobListScreen(jobs: List<JobListing>, applied : List<JobApplication>?, onApp
             var appliedForJob = false
             Log.d("logoviii", application.toString())
             if(application != null){
-               appliedForJob = true
+                appliedForJob = true
             }
-            JobCard(job, appliedForJob, onApplyClick)
+            JobCard2(job, appliedForJob, onViewApplicationsClick)
         }
     }
 }
 
 @Composable
-fun JobCard(job: JobListing, applied: Boolean, onApplyClick: (JobListing) -> Unit) {
+fun JobCard2(job: JobListing, applied: Boolean, onViewApplicationsClick: (JobListing) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()
@@ -227,14 +221,21 @@ fun JobCard(job: JobListing, applied: Boolean, onApplyClick: (JobListing) -> Uni
                 style = MaterialTheme.typography.bodySmall
             )
             Button(
-                onClick = { onApplyClick(job) },
-                enabled = !applied
+                onClick = { onViewApplicationsClick(job) },
             ) {
-                if(applied)
-                    Text("Već poslana prijava")
-                else
-                    Text("Prijavi se na ovaj oglas", )
+                Text("Pogledaj prijave za ovaj oglas")
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun preview(){
+    JobListNetworkScreen2(
+        modifier = Modifier,
+        onViewApplicationsClick = { } ,
+        jobsViewModel = viewModel(),
+        applicationsViewModel = viewModel()
+    )
 }

@@ -22,6 +22,7 @@ import com.example.core.models.JobApplication
 import com.example.myapplication.viewmodels.JobApplicationViewModel
 import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.ListApplications
+import com.example.myapplication.views.getJobId
 import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.jobs.ui.theme.MyApplicationTheme
 import java.time.LocalDate
@@ -34,9 +35,6 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val employerId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
-
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -67,8 +65,8 @@ class ViewJobApplicationsForEmployerActivity : ComponentActivity() {
     }
     override fun onResume(){
         super.onResume()
-        val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
-        applicationsViewModel.getApplicationsForEmployer(3) //TODO promjeniti rode
+        val jobId = getSharedPreferences("job_prefs", MODE_PRIVATE).getInt("jobId", 0)
+        applicationsViewModel.getApplicationsForJob(jobId)
     }
 }
 
@@ -79,12 +77,12 @@ fun ViewJobApplicationsForEmployerScreen(
     onAcceptClick: (JobApplication) -> Unit,
     onRejectClick: (JobApplication) -> Unit
 ) {
-
     val applications by jobApplicationsViewModel.applications.observeAsState(emptyList())
 
-    val employerId = getLoggedUserId()
-    LaunchedEffect(employerId) {
-        jobApplicationsViewModel.getApplicationsForEmployer(3)
+    val jobId = getJobId()
+
+    LaunchedEffect(Unit) {
+        jobApplicationsViewModel.getApplicationsForJob(jobId)
     }
     Column(
         modifier = modifier
@@ -95,6 +93,12 @@ fun ViewJobApplicationsForEmployerScreen(
     ) {
         HeaderUI()
 
-        ListApplications(applications, onAction1Click = onAcceptClick, onAction2Click = onRejectClick, "Prihvati", "Odbij")
+        ListApplications(
+            applications,
+            onAction1Click = onAcceptClick,
+            onAction2Click = onRejectClick,
+            "Prihvati",
+            "Odbij"
+        )
     }
 }

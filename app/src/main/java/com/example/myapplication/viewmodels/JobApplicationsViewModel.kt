@@ -38,7 +38,7 @@ class JobApplicationViewModel : ViewModel() {
         return applications
     }
 
-    fun getApplicationsForEmployer(employerId: Int): LiveData<List<JobApplication>> {
+/*    fun getApplicationsForEmployer(employerId: Int): LiveData<List<JobApplication>> {
         viewModelScope.launch {
             try {
                 val applications = NetworkModule.apiService.getJobApplicationsForEmployer(employerId)
@@ -50,8 +50,7 @@ class JobApplicationViewModel : ViewModel() {
         }
         return applications
     }
-
-    //iskoristi kasnije za dohvat prijava za specifičan posao
+*/
     fun getApplicationsForJob(jobId: Int): LiveData<List<JobApplication>> {
         viewModelScope.launch {
             try {

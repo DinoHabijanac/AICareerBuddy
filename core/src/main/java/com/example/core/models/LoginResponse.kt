@@ -11,5 +11,6 @@ data class LoginResponse(
 
 data class UserDto(
     @SerializedName("id") val id: Int,
-    @SerializedName("username") val username: String
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val role: String,
 )

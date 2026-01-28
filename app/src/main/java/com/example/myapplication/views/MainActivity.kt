@@ -32,6 +32,7 @@ import com.example.myapplication.views.jobs.MyJobApplicationsActivity
 import com.example.myapplication.views.jobs.ViewJobApplicationsForEmployerActivity
 import com.example.myapplication.views.resume.UploadResumeActivity
 import com.example.myapplication.activities.HomeActivity
+import com.example.myapplication.views.jobs.ViewJobsForEmployer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
                         onViewJobsClick = { startActivity(Intent(this, JobActivity::class.java)) },
                         onCreateJobsClick = { startActivity(Intent(this, CreateJobActivity::class.java)) },
                         onViewMyJobApplications = { startActivity(Intent(this, MyJobApplicationsActivity::class.java)) },
-                        onViewJobApplicationsForEmployer = { startActivity(Intent(this, ViewJobApplicationsForEmployerActivity::class.java)) },
+                        onViewJobsForEmployer = { startActivity(Intent(this, ViewJobsForEmployer::class.java)) },
                         onLogout = {
                             prefs.edit().clear().apply()
                             startActivity(
@@ -76,8 +77,8 @@ fun MainScreen(
     onViewJobsClick: () -> Unit = {},
     onCreateJobsClick: () -> Unit = {},
     onViewMyJobApplications: () -> Unit = {},
-    onViewJobApplicationsForEmployer: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onViewJobsForEmployer: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -128,8 +129,7 @@ fun MainScreen(
                         Text(text = "Moje prijave na poslove (student)")
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(onClick = onViewJobApplicationsForEmployer, modifier = Modifier.width(220.dp)) {
+                    Button(onClick = onViewJobsForEmployer, modifier = Modifier.width(220.dp)) {
                         Text(text = "Moji postavljeni poslovi (employer)")
                     }
                 }
