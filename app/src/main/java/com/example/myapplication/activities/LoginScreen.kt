@@ -3,7 +3,6 @@ package com.example.myapplication.activities
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,7 +47,7 @@ import com.example.oauth.GoogleLoginViewModel
 var userEmail: String = ""
 var firstName: String = ""
 var lastName: String = ""
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
@@ -72,7 +71,6 @@ fun LoginScreen(
     val context = LocalContext.current
     val onLoginSuccess by rememberUpdatedState(onSuccessfulLogin)
 
-    // Resetiraj registracijske varijable kada se dialog zatvori
     LaunchedEffect(showRegisterDialog) {
         if (!showRegisterDialog) {
             registrationPassword = ""
@@ -82,20 +80,24 @@ fun LoginScreen(
 
     if (google) {
         LaunchedEffect(Unit) {
-            val result = GoogleLogin.signInWithFallback(context, webClientId)
-            val profile = result.profile
-            if (profile != null && profile.email.isNotEmpty()) {
-                userEmail = profile.email
-                firstName = profile.firstName
-                lastName = profile.lastName
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val result = GoogleLogin.signInWithFallback(context, webClientId)
+                val profile = result.profile
+                if (profile != null && profile.email.isNotEmpty()) {
+                    userEmail = profile.email
+                    firstName = profile.firstName
+                    lastName = profile.lastName
 
-                val loginRequest = LoginRequest(username = userEmail.substringBefore("@"), password = "")
-                googleViewModel.loginUserWithGoogle(loginRequest) { success ->
-                    Log.d("LoginResult", "Success: $success")
+                    val loginRequest = LoginRequest(username = userEmail.substringBefore("@"), password = "")
+                    googleViewModel.loginUserWithGoogle(loginRequest) { success ->
+                        Log.d("LoginResult", "Success: $success")
+                    }
+                } else {
+                    Log.e("GoogleLogin", "Prijava putem Google-a nije uspjela", result.exception)
+                    Toast.makeText(context, "Prijava putem Google-a nije uspjela", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.e("GoogleLogin", "Prijava putem Google-a nije uspjela", result.exception)
-                Toast.makeText(context, "Prijava putem Google-a nije uspjela", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Google prijava zahtijeva Android 14", Toast.LENGTH_SHORT).show()
             }
             google = false
         }
@@ -186,7 +188,6 @@ fun LoginScreen(
                             if (success) {
                                 showRegisterDialog = false
                                 registrationPassword = ""
-                                // onLoginSuccess će biti pozvan automatski kroz LaunchedEffect(statusRegGoogle)
                             } else {
                                 registrationErrorMsg = statusRegGoogle ?: "Greška pri registraciji"
                             }
@@ -309,7 +310,6 @@ fun LoginScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Preview
 @Composable
 fun callPreview() {
