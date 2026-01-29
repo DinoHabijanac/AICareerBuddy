@@ -1,4 +1,5 @@
-﻿using AICareerBuddy_BussinesLayer.Interfaces;
+﻿using AI_CareerBuddy_Backend.DTOs;
+using AICareerBuddy_BussinesLayer.Interfaces;
 using AICareerBuddy_BussinesLogic.Services;
 using AICareerBuddy_Entities.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -98,6 +99,14 @@ namespace AI_CareerBuddy_Backend.Controllers
                 _logger.LogError(ex, $"Error updating resume for user {id}");
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet("download")]
+        [ProducesResponseType(typeof(ResumeDownload), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> DownloadResume()
+        {
+
         }
     }
 }

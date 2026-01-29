@@ -1,4 +1,5 @@
 ﻿using AICareerBuddy_Entities.Entities;
+using AICareerBuddy_BussinesLogic;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace AICareerBuddy_BussinesLayer.Interfaces
         Task<ResumeFileInfo> PostResume(IFormFile file, int userId);
         Task<bool> DeleteResume(int userId);
         Task<ResumeFileInfo> UpdateResume(IFormFile file, int userId);
+        Task<ResumeDownLoad> GetDownloadLink(int userId);
     }
 }
