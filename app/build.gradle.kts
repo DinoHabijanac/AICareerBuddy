@@ -48,6 +48,19 @@ android {
 }
 
 dependencies {
+    //Matija dodano
+    // Jetpack Compose BOM (platform)
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    // Core Compose libraries
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.runtime:runtime-livedata")
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+//Matija kraj
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -61,6 +74,8 @@ dependencies {
     implementation(libs.androidx.benchmark.traceprocessor)
     implementation(libs.firebase.appdistribution.gradle)
     implementation(libs.androidx.foundation.layout)
+    implementation(project(":core"))
+    implementation(project(":oauth"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,4 +94,9 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    implementation("androidx.credentials:credentials:1.6.0-rc01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0-rc01")
+    implementation(libs.googleid)
+
 }

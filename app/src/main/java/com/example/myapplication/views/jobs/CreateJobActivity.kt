@@ -1,11 +1,13 @@
 package com.example.myapplication.views.jobs
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +27,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,10 +39,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.helpers.HeaderUI
-import com.example.myapplication.models.JobListing
+import com.example.myapplication.views.HeaderUI
+import com.example.core.models.JobListing
 import com.example.myapplication.viewmodels.JobsViewModel
+import com.example.myapplication.views.getLoggedUserId
 import com.example.myapplication.views.ui.theme.MyApplicationTheme
+import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -46,6 +52,9 @@ import java.time.format.DateTimeFormatter
 
 //ova aktivnost daje mogućnost poslodavcu da kreira oglas
 class CreateJobActivity : ComponentActivity() {
+
+    val jobsViewModel : JobsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -54,6 +63,7 @@ class CreateJobActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AddJobsScreen(
                         modifier = Modifier.padding(innerPadding),
+                        jobsViewModel = jobsViewModel
                     )
                 }
             }
@@ -62,18 +72,38 @@ class CreateJobActivity : ComponentActivity() {
 }
 
 @Composable
-fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = viewModel()) {
+fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel) {
 
     val context = LocalContext.current
 
     var name by remember { mutableStateOf("") }
-    var employerId by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var listingExpires by remember { mutableStateOf("") }
     var terms by remember { mutableStateOf("") }
     var payPerHour by remember { mutableStateOf("") }
+
+    val uploadState by jobsViewModel.uploadState.observeAsState()
+
+    LaunchedEffect(uploadState) {
+        if (uploadState == "Uspješno dodan oglas") {
+            name = ""
+            description = ""
+            category = ""
+            location = ""
+            listingExpires = ""
+            terms = ""
+            payPerHour = ""
+        Toast.makeText(context, jobsViewModel.uploadState.value, Toast.LENGTH_SHORT)
+            .show()
+        delay(2000)
+        (context as Activity).finish()
+        Log.d("Debugiranje!", jobsViewModel.uploadState.value.toString())
+        }
+    }
+
+    val userId = getLoggedUserId()
 
     Column(
         modifier = modifier
@@ -157,6 +187,7 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
                         }
 
                         val job = JobListing(
+                            id = null,
                             name = name,
                             description = description,
                             category = category,
@@ -164,21 +195,10 @@ fun AddJobsScreen(modifier: Modifier = Modifier, jobsViewModel: JobsViewModel = 
                             listingExpires = LocalDate.parse(listingExpires),
                             terms = terms,
                             payPerHour = payPerHour.toInt(),
-                            employerId = 2 // ISPRAVI NAKON PRIJAVE
+                            employerId = userId
                         )
                         jobsViewModel.uploadJob(job)
-                        if (jobsViewModel.uploadState.value == "Uspješno dodan oglas") {
-                            name = ""
-                            description = ""
-                            category = ""
-                            location = ""
-                            listingExpires = ""
-                            terms = ""
-                            payPerHour = ""
-                        }
-                        Toast.makeText(context, jobsViewModel.uploadState.value, Toast.LENGTH_SHORT)
-                            .show()
-                        Log.d("Debugiranje!", jobsViewModel.uploadState.value.toString())
+
                     } catch (e: Exception) {
                         Toast.makeText(
                             context,
@@ -269,6 +289,6 @@ fun DateOnlyPicker(
 @Composable
 fun AddJobsScreenPreview() {
     MyApplicationTheme {
-        AddJobsScreen()
+        AddJobsScreen(jobsViewModel = viewModel())
     }
 }

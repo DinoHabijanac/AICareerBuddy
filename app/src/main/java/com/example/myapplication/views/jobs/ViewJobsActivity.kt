@@ -1,10 +1,15 @@
+
 package com.example.myapplication.views.jobs
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,17 +41,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.helpers.HeaderUI
-import com.example.myapplication.models.JobListing
-import com.example.myapplication.network.NetworkModule
+import com.example.core.models.JobApplication
+import com.example.core.models.JobListing
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.example.myapplication.viewmodels.JobApplicationViewModel
+import com.example.myapplication.viewmodels.JobsViewModel
+import com.example.myapplication.views.HeaderUI
+import com.example.myapplication.views.getLoggedUserId
+import com.example.myapplication.views.formatLocalDateTime
 
-//ova aktivnost omogućuje pregled oglasa studentima, uz dohvat i prikaz iz baze
 class JobActivity : ComponentActivity() {
+
+    private val jobsViewModel: JobsViewModel by viewModels()
+    private val applicationsViewModel: JobApplicationViewModel by viewModels()
+
+    private val applyForJobLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                jobsViewModel.getJobs2()
+                val userId = getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("userId", 0)
+                applicationsViewModel.getApplicationsForStudent(userId)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -52,32 +71,47 @@ class JobActivity : ComponentActivity() {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     JobListNetworkScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onApplyClick = { job ->
+                            val prefs = getSharedPreferences("job_prefs", MODE_PRIVATE)
+                            prefs.edit().putInt("jobId", job.id ?: 0).apply()
 
+                            val intent = Intent(this, ApplyForJobActivity::class.java)
+                            applyForJobLauncher.launch(intent)
+                        },
+                        jobsViewModel,
+                        applicationsViewModel
                     )
                 }
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        jobsViewModel.getJobs2()
+    }
 }
 
 @Composable
-fun JobListNetworkScreen(modifier: Modifier = Modifier) {
-    var jobs by remember { mutableStateOf<List<JobListing>?>(null) }
+fun JobListNetworkScreen(modifier: Modifier = Modifier, onApplyClick : (JobListing) -> Unit = {}, jobsViewModel : JobsViewModel, applicationsViewModel : JobApplicationViewModel) {
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
+    val applied by applicationsViewModel.applications.observeAsState(emptyList())
+    val jobs by jobsViewModel.jobs.observeAsState(emptyList())
+
+    val userId = getLoggedUserId()
 
     LaunchedEffect(Unit) {
         loading = true
         error = null
         try {
-            jobs = withContext(Dispatchers.IO) { NetworkModule.apiService.getJobs() }
+            jobsViewModel.getJobs2()
+            applicationsViewModel.getApplicationsForStudent(userId = userId)
+            Log.d("logovi", applied.toString())
         } catch (e: Exception) {
             error = e.message ?: "Greška pri dohvaćanju podataka"
             Log.d("Debug", e.message.toString())
-            jobs = null
         } finally {
             loading = false
         }
@@ -111,14 +145,15 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
             else -> {
                 val filtered = remember(jobs, query) {
                     val q = query.trim().lowercase()
-                    if (q.isEmpty()) jobs ?: emptyList()
-                    else (jobs ?: emptyList()).filter { job ->
+                    if (q.isEmpty()) jobs
+                    else (jobs).filter { job ->
                         val listingExpiresStr = try {
                             job.listingExpires.toString()
                         } catch (_: Exception) {
                             ""
                         }
                         listOf(
+                            job.id,
                             job.name,
                             job.description,
                             job.category,
@@ -129,27 +164,32 @@ fun JobListNetworkScreen(modifier: Modifier = Modifier) {
                         ).joinToString(" ").lowercase().contains(q)
                     }
                 }
-                JobListScreen(jobs = filtered)
+                JobListScreen(jobs = filtered, applied = applied, onApplyClick = onApplyClick)
             }
         }
     }
 }
 
 @Composable
-fun JobListScreen(jobs: List<JobListing>) {
+fun JobListScreen(jobs: List<JobListing>, applied : List<JobApplication>?, onApplyClick: (JobListing) -> Unit) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(12.dp)
-
     ) {
         items(jobs) { job ->
-            JobCard(job)
+            val application = applied?.find { application -> application.jobId == job.id }
+            var appliedForJob = false
+            Log.d("logoviii", application.toString())
+            if(application != null){
+               appliedForJob = true
+            }
+            JobCard(job, appliedForJob, onApplyClick)
         }
     }
 }
 
 @Composable
-fun JobCard(job: JobListing) {
+fun JobCard(job: JobListing, applied: Boolean, onApplyClick: (JobListing) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors()
@@ -178,23 +218,23 @@ fun JobCard(job: JobListing) {
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            Text(text = "Terms: ${job.terms}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Uvjeti: ${job.terms}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.size(6.dp))
 
             Text(
-                text = "Listing expires: ${formatLocalDateTime(job.listingExpires)}",
+                text = "Oglas ističe: ${formatLocalDateTime(job.listingExpires)}",
                 style = MaterialTheme.typography.bodySmall
             )
+            Button(
+                onClick = { onApplyClick(job) },
+                enabled = !applied
+            ) {
+                if(applied)
+                    Text("Već poslana prijava")
+                else
+                    Text("Prijavi se na ovaj oglas", )
+            }
         }
-    }
-}
-
-private fun formatLocalDateTime(ldt: LocalDate?): String {
-    return try {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        ldt?.format(formatter) ?: LocalDate.now().toString()
-    } catch (_: Exception) {
-        ldt.toString()
     }
 }

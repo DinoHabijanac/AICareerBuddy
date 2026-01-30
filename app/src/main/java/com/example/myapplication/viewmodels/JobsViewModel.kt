@@ -1,16 +1,25 @@
 package com.example.myapplication.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.models.JobListing
-import com.example.myapplication.network.NetworkModule
+import com.example.core.models.JobListing
+import com.example.core.models.Student
+import com.example.core.network.NetworkModule
 import kotlinx.coroutines.launch
 
 
 class JobsViewModel : ViewModel() {
+
+    private val _job = MutableLiveData<JobListing>()
+    val job: LiveData<JobListing> = _job
+
+    private val _student = MutableLiveData<Student>()
+    val student: LiveData<Student> = _student
 
     private val _jobs = MutableLiveData<List<JobListing>>()
     val jobs: LiveData<List<JobListing>> = _jobs
@@ -18,7 +27,6 @@ class JobsViewModel : ViewModel() {
     private val _uploadState = MutableLiveData<String>()
     var uploadState : LiveData<String> = _uploadState
     fun uploadJob(job: JobListing) {
-        Log.d("pregled joba",job.toString())
         viewModelScope.launch {
             try {
                 val response = NetworkModule.apiService.postJob(job)
@@ -34,4 +42,37 @@ class JobsViewModel : ViewModel() {
             }
         }
     }
+    fun getJobs2(): LiveData<List<JobListing>> {
+        viewModelScope.launch {
+            try {
+                val jobs = NetworkModule.apiService.getJobs()
+                if(jobs != null) {
+                    _jobs.postValue(jobs)
+                }
+                else
+                {
+                    _jobs.postValue(emptyList())
+                    Log.d("Debug", "Dohvaćeni poslovi su null")
+                }
+            } catch (e: Exception) {
+                _jobs.postValue(emptyList())
+                Log.d("Debug", e.message.toString())
+            }
+        }
+        return jobs
+    }
+
+    fun getJobsForEmployer(userId : Int): LiveData<List<JobListing>> {
+        viewModelScope.launch {
+            try {
+                val jobs = NetworkModule.apiService.getJobsForEmployer(userId)
+                _jobs.postValue(jobs)
+            } catch (e: Exception) {
+                _jobs.postValue(emptyList())
+                Log.d("Debug", e.message.toString())
+            }
+        }
+        return jobs
+    }
 }
+
