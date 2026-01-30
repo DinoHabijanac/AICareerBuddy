@@ -6,6 +6,10 @@ using Azure.Storage.Files.Shares;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using System.Text;
+using UglyToad.PdfPig;
+using DocumentFormat.OpenXml.Packaging;
+using AICareerBuddy_BussinesLayer.Services;
 
 namespace AICareerBuddy_BussinesLogic.Services
 {
@@ -25,9 +29,8 @@ namespace AICareerBuddy_BussinesLogic.Services
 
         public async Task<ResumeFileInfo> GetResume(int userId)
         {
-            var resume = await Repository.GetResume(userId)
-                .OrderByDescending(r => r.Id)
-                .FirstOrDefaultAsync();
+            var resume = await Repository.GetResume(userId).FirstOrDefaultAsync();
+            if (resume == null) throw new FileNotFoundException("neima");
             return resume;
         }
 
@@ -63,7 +66,6 @@ namespace AICareerBuddy_BussinesLogic.Services
             {
                 try
                 {
-                    // ===== DELETE ANY EXISTING RESUME FIRST =====
                     var existingResume = await Repository.GetResume(userId)
                         .OrderByDescending(r => r.Id)
                         .FirstOrDefaultAsync();
@@ -78,7 +80,6 @@ namespace AICareerBuddy_BussinesLogic.Services
                         await oldFileClient.DeleteIfExistsAsync();
                         await Repository.Remove(existingResume);
                     }
-                    // ============================================
 
                     var shareClient = new ShareClient(connectionString, shareName);
                     await shareClient.CreateIfNotExistsAsync();
@@ -193,11 +194,37 @@ namespace AICareerBuddy_BussinesLogic.Services
             }
         }
 
+        private static string ExtractTextFromPdf(Stream pdfStream)
+        {
+            pdfStream.Position = 0;
+            var sb = new StringBuilder();
+            using (var doc = PdfDocument.Open(pdfStream))
+            {
+                foreach (var page in doc.GetPages())
+                {
+                    var text = page.Text;
+                    if (!string.IsNullOrWhiteSpace(text)) sb.AppendLine(text);
+                }
+            }
+            return sb.ToString();
+        }
+
+        private static string ExtractTextFromDocx(Stream docxStream)
+        {
+            docxStream.Position = 0;
+            using var ms = new MemoryStream();
+            docxStream.CopyTo(ms);
+            ms.Position = 0;
+            using var word = WordprocessingDocument.Open(ms, false);
+            var body = word.MainDocumentPart?.Document?.Body;
+            return body?.InnerText ?? string.Empty;
+        }
+
         public async Task<ResumeAIFeedback> GetResumeAnalysisAI(int id)
         {
             var resume = await GetResume(id);
-            if (resume == null) 
-            { 
+            if (resume == null)
+            {
                 throw new FileNotFoundException($"No resume found for user id {id}");
             }
 
@@ -209,12 +236,27 @@ namespace AICareerBuddy_BussinesLogic.Services
             using var contentStream = downloadResponse.Value.Content;
             var memoryStream = new MemoryStream();
             await contentStream.CopyToAsync(memoryStream);
-            memoryStream.Position = 0; 
+            memoryStream.Position = 0;
 
-            return new ResumeAIFeedback
+            string docText = string.Empty;
+            var ext = (resume.Extension ?? string.Empty).ToLowerInvariant();
+            try
             {
-                Feedback = "implementarisat"
-            };
+                if (ext == ".pdf") docText = ExtractTextFromPdf(memoryStream);
+                else if (ext == ".docx") docText = ExtractTextFromDocx(memoryStream);
+                else docText = Encoding.UTF8.GetString(memoryStream.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error extracting text: {ex.Message}");
+            }
+
+            if (string.IsNullOrWhiteSpace(docText)) throw new InvalidOperationException("No extractable text found in resume");
+
+            var chatbot = new ChatbotService("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", "groq/compound");
+            var feedback = await chatbot.GetResumeAnalysisAsync(docText);
+
+            return new ResumeAIFeedback { Feedback = feedback };
         }
     }
 }
