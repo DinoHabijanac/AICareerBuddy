@@ -36,6 +36,18 @@ namespace AI_CareerBuddy_Backend.Controllers
             else return NotFound();
         }
 
+
+        // GET api/Job/user/5
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<JobListing>>> GetByUserId(int userId)
+        {
+            if (userId == 0) return BadRequest();
+            var jobs = await JobService.GetJobsByUserId(userId);
+            if (jobs != null && jobs.Count > 0) return Ok(jobs);
+            else return NotFound();
+        }
+
+
         // POST api/Job
         [HttpPost]
         public async Task<ActionResult<JobListing>> Post([FromBody] JobListing job)
@@ -49,13 +61,12 @@ namespace AI_CareerBuddy_Backend.Controllers
             else return BadRequest();
         }
 
-        // PUT api/Job/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<JobListing>> Put(int id, [FromBody] JobListing job)
+        [HttpGet("student/{id}")]
+        public async Task<ActionResult<User>> GetStudent(int id)
         {
-            if (job == null || job.Id != id) return BadRequest();
-            var updated = await JobService.PutJob(job);
-            if (updated) return Ok(updated);
+            if (id == 0) return BadRequest();
+            var student = await JobService.GetStudentById(id);
+            if (student != null) return Ok(new { name = student.FirstName, lastname = student.LastName });
             else return NotFound();
         }
 

@@ -29,7 +29,7 @@ public partial class AIR_projektContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=tcp:portalgrupa.database.windows.net;Initial Catalog=AIR_projekt;Persist Security Info=True;User ID=portal_admin;Password=eutUu3i94XD!P$G");
+        => optionsBuilder.UseSqlServer("Data Source=tcp:portalgrupa.database.windows.net;Initial Catalog=AIR_projekt;Persist Security Info=True;User ID=portal_admin;Password=eutUu3i94XD!P$G;Encrypt=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,7 +59,7 @@ public partial class AIR_projektContext : DbContext
 
             entity.ToTable("JobApplication");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Education).HasColumnType("text");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);

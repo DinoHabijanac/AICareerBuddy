@@ -33,6 +33,10 @@ namespace AICareerBuddy_BussinesLayer.Services
         {
             return await Repository.GetAll().ToListAsync();
         }
+        public async Task<List<JobListing>> GetJobsByUserId(int userId)
+        {
+            return await Repository.GetJobsByUserId(userId).ToListAsync();
+        }
         public async Task<bool> PostJob(JobListing jobListing)
         {
             var result = await Repository.Add(jobListing);
@@ -63,6 +67,11 @@ namespace AICareerBuddy_BussinesLayer.Services
             var result = await Repository.Remove(job);
             if (result == 1) return true;
             else return false;
+        }
+
+        public async Task<User> GetStudentById(int id)
+        {
+            return await Repository.GetStudent(id).FirstAsync();
         }
     }
 }

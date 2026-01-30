@@ -23,5 +23,9 @@ public partial class JobApplication
 
     public int? EmployerId { get; set; }
 
+    public string Education { get; set; }
+
+    public DateOnly? InterviewDate { get; set; }
+
     public virtual Employer Employer { get; set; }
 }

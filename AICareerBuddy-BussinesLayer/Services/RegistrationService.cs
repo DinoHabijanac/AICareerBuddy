@@ -39,6 +39,9 @@ namespace AICareerBuddy_BussinesLogic.Services
 
         [JsonPropertyName("username")]
         public string Username { get; set; }
+
+        [JsonPropertyName("role")]
+        public string Role { get; set; }
     }
 
     public class RegistrationService
@@ -106,7 +109,8 @@ namespace AICareerBuddy_BussinesLogic.Services
             return new RegistrationResponseDto
             {
                 UserId = user.Id,
-                Username = user.Username
+                Username = user.Username,
+                Role = user.Role
             };
         }
     }
