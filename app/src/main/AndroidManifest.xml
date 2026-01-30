@@ -17,15 +17,41 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".views.jobs.ViewJobApplicationsForEmployerActivity"
+            android:name=".views.jobs.EditApplicationActivity"
             android:exported="false"
-            android:label="@string/title_activity_view_job_applications_for_employer"
+            android:label="@string/title_activity_edit_application"
             android:theme="@style/Theme.MyApplication" />
         <activity
-            android:name=".views.jobs.MyJobApplicationsActivity"
+            android:name=".views.jobs.ApplyForJobActivity"
             android:exported="false"
-            android:label="@string/title_activity_my_job_applications"
+            android:label="@string/title_activity_apply_for_job"
+            android:theme="@style/Theme.MyApplication" /> <!-- HOME (LAUNCHER) -->
+        <activity
+            android:name=".activities.HomeActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyApplication">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> <!-- AUTH -->
+        <activity
+            android:name=".activities.LoginActivity"
+            android:exported="false"
+            android:label="Login"
             android:theme="@style/Theme.MyApplication" />
+        <activity
+            android:name=".activities.RegistrationActivity"
+            android:exported="false"
+            android:label="Registracija"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
+            android:name=".activities.PostRegistrationActivity"
+            android:exported="false"
+            android:label="PostRegistracija"
+            android:theme="@style/Theme.MyApplication" /> <!-- JOBS -->
         <activity
             android:name=".views.jobs.CreateJobActivity"
             android:exported="false"
@@ -37,21 +63,30 @@
             android:label="@string/title_activity_job"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name=".views.jobs.MyJobApplicationsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_my_job_applications"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
+            android:name=".views.jobs.ViewJobApplicationsForEmployerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_view_job_applications_for_employer"
+            android:theme="@style/Theme.MyApplication" /> <!-- RESUME -->
+        <activity
             android:name=".views.resume.UploadResumeActivity"
             android:exported="false"
             android:label="Učitaj životopis"
             android:theme="@style/Theme.MyApplication" />
         <activity
             android:name=".views.MainActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.MyApplication" />
+        <activity
+            android:name=".views.jobs.ViewJobsForEmployer"
+            android:exported="false"
+            android:label="ViewJobsForEmployerActivity"
+            android:theme="@style/Theme.MyApplication" />
     </application>
 
 </manifest>

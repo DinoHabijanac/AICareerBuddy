@@ -6,4 +6,7 @@
     <string name="title_activity_view_job_applications_for_employer">
         ViewJobApplicationsForEmployerActivity
     </string>
+    <string name="title_activity_apply_for_job">ApplyForJobActivity</string>
+    <string name="title_activity_edit_application">EditApplicationActivity</string>
+    <string name="title_activity_delete_application">DeleteApplicationActivity</string>
 </resources>

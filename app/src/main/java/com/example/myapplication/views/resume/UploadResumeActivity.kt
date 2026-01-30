@@ -16,12 +16,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,12 +51,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.helpers.HeaderUI
+import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
+import com.example.myapplication.views.getLoggedUserId
+import androidx.compose.ui.window.Dialog
 
-// ova aktivnost omogućuje upload zivotopisa studentima i spremanje na azure i u bazu referencu
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +81,30 @@ fun ResumeUploadScreen(
     val context = LocalContext.current
     val currentUri = remember { mutableStateOf<Uri?>(null) }
     val uploadState by uploadViewModel.uploadState.collectAsState()
+    val deleteState by uploadViewModel.deleteState.collectAsState()
+    val aiFeedback by uploadViewModel.aiFeedback.collectAsState()
+    val showAiDialog = remember { mutableStateOf(false) }
+    val buttonWidth = 220.dp
+
+    // Get the logged-in user's ID from SharedPreferences
+    val userId = getLoggedUserId()
+
+    LaunchedEffect(aiFeedback) {
+        showAiDialog.value = aiFeedback != null
+    }
+
+    // Redirect to login if not logged in
+    LaunchedEffect(userId) {
+        if (userId == -1) {
+            Toast.makeText(
+                context,
+                "Morate biti prijavljeni za pristup ovoj stranici",
+                Toast.LENGTH_LONG
+            ).show()
+            // Optional: Navigate back to HomeActivity/LoginActivity
+            // (context as? ComponentActivity)?.finish()
+        }
+    }
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("resume_prefs", 0)
@@ -83,6 +114,31 @@ fun ResumeUploadScreen(
                 currentUri.value = it.toUri()
             } catch (_: Exception) {
             }
+        }
+    }
+
+    // Handle delete state
+    LaunchedEffect(deleteState) {
+        when (deleteState) {
+            is DeleteState.Success -> {
+                Toast.makeText(
+                    context,
+                    (deleteState as DeleteState.Success).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Clear local storage
+                val prefs = context.getSharedPreferences("resume_prefs", 0)
+                prefs.edit { remove("resume_uri") }
+                currentUri.value = null
+            }
+            is DeleteState.Error -> {
+                Toast.makeText(
+                    context,
+                    (deleteState as DeleteState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            else -> {}
         }
     }
 
@@ -96,24 +152,39 @@ fun ResumeUploadScreen(
                     )
                 } catch (_: Exception) {
                 }
+
                 val prefs = context.getSharedPreferences("resume_prefs", 0)
                 prefs.edit { putString("resume_uri", it.toString()) }
                 currentUri.value = it
-                val userId = 2
-                uploadViewModel.uploadResume(context, it, userId)
-                //TODO("IMPLEMENRIRATI pravi userID KAD SE RIJEŠI PRIJAVA")
+
+                // Use the real logged-in user's ID
+                if (userId != -1) {
+                    // Ako već postoji resume, koristi UPDATE, inače POST
+                    val existingResume = currentUri.value
+                    if (existingResume != null && existingResume != it) {
+                        uploadViewModel.updateResume(context, it, userId)
+                    } else {
+                        uploadViewModel.uploadResume(context, it, userId)
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Greška: Niste prijavljeni",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
+            .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderUI()
-
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Učitaj svoj životopis", style = MaterialTheme.typography.headlineSmall)
@@ -124,7 +195,7 @@ fun ResumeUploadScreen(
             )
         }
 
-        val boxSize = 220.dp
+        val boxSize = 180.dp
         Box(
             modifier = Modifier
                 .size(boxSize)
@@ -180,57 +251,183 @@ fun ResumeUploadScreen(
                     (uploadState as UploadState.Success).message,
                     color = Color.Green
                 )
-
                 is UploadState.Error -> Text(
                     (uploadState as UploadState.Error).message,
                     color = Color.Red
                 )
             }
 
+            when (deleteState) {
+                is DeleteState.Deleting -> Text("Brisanje...", color = Color.Gray)
+                else -> {}
+            }
+
             currentUri.value?.let { uri ->
                 Spacer(modifier = Modifier.height(12.dp))
-                Button(onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setData(uri)
-                            flags =
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setData(uri)
+                                flags =
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                context,
+                                "Ne mogu otvoriti dokument: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            context,
-                            "Ne mogu otvoriti dokument: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
-                }) {
+                ) {
                     Text("Otvori")
                 }
+
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = {
-                    val prefs = context.getSharedPreferences("resume_prefs", 0)
-                    prefs.edit { remove("resume_uri") }
-                    currentUri.value = null
-                    uploadViewModel.reset()
-                }) {
-                    Text("Ukloni")
+
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        if (userId != -1) {
+                            uploadViewModel.deleteResume(userId)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Greška: Niste prijavljeni",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    ),
+                    enabled = deleteState !is DeleteState.Deleting && userId != -1
+                ) {
+                    Text("Obriši sa servera")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        launcher.launch(
+                            arrayOf(
+                                "application/pdf",
+                                "application/msword",
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                "*/*"
+                            )
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2196F3) // Blue
+                    ),
+                    enabled = userId != -1
+                ) {
+                    Text("Zamijeni životopis")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        val prefs = context.getSharedPreferences("resume_prefs", 0)
+                        prefs.edit { remove("resume_uri") }
+                        currentUri.value = null
+                        uploadViewModel.reset()
+                    }
+                ) {
+                    Text("Ukloni lokalno")
                 }
             }
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                launcher.launch(
-                    arrayOf(
-                        "application/pdf",
-                        "application/msword",
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        "*/*"
+            Button(
+                modifier = Modifier.width(buttonWidth),
+                onClick = {
+                    launcher.launch(
+                        arrayOf(
+                            "application/pdf",
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            "*/*"
+                        )
                     )
-                )
-            }, enabled = currentUri.value == null) {
+                },
+                enabled = currentUri.value == null && userId != -1
+            ) {
                 Text("Prenesi životopis")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                modifier = Modifier.width(buttonWidth),
+                onClick = {
+                    uploadViewModel.analyzeResume(userId)
+                },
+                enabled = currentUri.value != null && userId != -1
+            ) {
+                Text("AI analiza životopisa")
+            }
+        }
+    }
+
+    if (showAiDialog.value && aiFeedback != null) {
+        Dialog(
+            onDismissRequest = {
+                showAiDialog.value = false
+                uploadViewModel.clearAiFeedback()
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xCC000000)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .background(Color.White, shape = RoundedCornerShape(16.dp))
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "AI analiza životopisa",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = aiFeedback?.feedback.orEmpty(),
+                        textAlign = TextAlign.Start,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            showAiDialog.value = false
+                            uploadViewModel.clearAiFeedback()
+                        }
+                    ) {
+                        Text("Zatvori")
+                    }
+                }
             }
         }
     }
