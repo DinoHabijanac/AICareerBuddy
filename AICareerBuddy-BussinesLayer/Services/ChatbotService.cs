@@ -40,7 +40,7 @@ namespace AICareerBuddy_BussinesLayer.Services
 
         public async Task<string> GetResumeAnalysisAsync(string docText)
         {
-            if (string.IsNullOrWhiteSpace(docText)) throw new ArgumentException("Document text is empty", nameof(docText));
+            if (string.IsNullOrWhiteSpace(docText)) { throw new ArgumentException("Document text is empty", nameof(docText)); }
 
             var apiKey = ApiKey;
             var model = string.IsNullOrWhiteSpace(ApiModel) ? "groq/compound" : ApiModel;
@@ -49,7 +49,7 @@ namespace AICareerBuddy_BussinesLayer.Services
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var userPrompt = "Analiziraj priloženi životopis i ocijenite ga od1 do10. Dajte ocjenu i sažet povratni komentar u najviše100 riječi. Neka povratne informacije obavezno budu na hrvatskom jeziku\n" + docText;
+            var userPrompt = "Analiziraj priloženi životopis i ocijenite ga od 1 do 10. Dajte ocjenu i sažet povratni komentar u najviše 100 riječi. Neka povratne informacije obavezno budu na hrvatskom jeziku\n" + docText;
 
             var payload = new
             {
@@ -62,7 +62,7 @@ namespace AICareerBuddy_BussinesLayer.Services
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             using var resp = await http.PostAsync("https://api.groq.com/openai/v1/chat/completions", content);
             var respJson = await resp.Content.ReadAsStringAsync();
-            if (!resp.IsSuccessStatusCode) throw new InvalidOperationException($"Groq API {(int)resp.StatusCode}: {respJson}");
+            if (!resp.IsSuccessStatusCode) { throw new InvalidOperationException($"Groq API {(int)resp.StatusCode}: {respJson}"); }
 
             string feedback = respJson;
             try
@@ -71,7 +71,7 @@ namespace AICareerBuddy_BussinesLayer.Services
                 if (doc.RootElement.TryGetProperty("choices", out var choices) && choices.GetArrayLength() >0)
                 {
                     var msg = choices[0].GetProperty("message");
-                    if (msg.TryGetProperty("content", out var cont)) feedback = cont.GetString() ?? respJson;
+                    if (msg.TryGetProperty("content", out var cont)) { feedback = cont.GetString() ?? respJson; }
                 }
             }
             catch { }
