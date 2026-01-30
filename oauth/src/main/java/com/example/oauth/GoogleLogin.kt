@@ -28,7 +28,7 @@ data class GoogleLoginResult(
     val exception: Exception?
 )
 
-object GoogleLogin {
+object GoogleLogin : IGoogleLogin {
     fun generateSecureRandomNonce(byteLength: Int = 32): String {
         val randomBytes = ByteArray(byteLength)
         SecureRandom.getInstanceStrong().nextBytes(randomBytes)
@@ -50,14 +50,13 @@ object GoogleLogin {
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    suspend fun signIn(
+    override suspend fun signIn(
         context: Context,
         webClientId: String,
-        filterByAuthorizedAccounts: Boolean = true
+        filterByAuthorizedAccounts: Boolean
     ): GoogleLoginResult {
         val credentialManager = CredentialManager.create(context)
         val failureMessage = "Neuspješna prijava!"
-        var exception: Exception? = null
 
         delay(250)
         return try {
@@ -79,37 +78,32 @@ object GoogleLogin {
         } catch (e: GetCredentialException) {
             Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
             Log.e("GoogleLogin", "$failureMessage: Greška pri dobavljanju vjerodavnice", e)
-            exception = e
-            GoogleLoginResult(null, exception)
+            GoogleLoginResult(null, e)
 
         } catch (e: GoogleIdTokenParsingException) {
             Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
             Log.e("GoogleLogin", "$failureMessage: Greška parsiranja GoogleIdTokena", e)
-            exception = e
-            GoogleLoginResult(null, exception)
+            GoogleLoginResult(null, e)
 
         } catch (e: NoCredentialException) {
             Toast.makeText(context, "Nije pronađen Google račun na uređaju", Toast.LENGTH_SHORT).show()
             Log.e("GoogleLogin", "$failureMessage: Nije pronađen Google račun na uređaju", e)
-            exception = e
-            GoogleLoginResult(null, exception)
+            GoogleLoginResult(null, e)
 
         } catch (e: GetCredentialCustomException) {
             Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
             Log.e("GoogleLogin", "$failureMessage: Greška sa specijalnim zahtjevom vjerodavnica", e)
-            exception = e
-            GoogleLoginResult(null, exception)
+            GoogleLoginResult(null, e)
 
         } catch (e: GetCredentialCancellationException) {
             Toast.makeText(context, "Otkazana prijava Google-om", Toast.LENGTH_SHORT).show()
             Log.e("GoogleLogin", "$failureMessage: Otkazana prijava", e)
-            exception = e
-            GoogleLoginResult(null, exception)
+            GoogleLoginResult(null, e)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    suspend fun signInWithFallback(
+    override suspend fun signInWithFallback(
         context: Context,
         webClientId: String
     ): GoogleLoginResult {

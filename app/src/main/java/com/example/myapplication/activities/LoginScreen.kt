@@ -42,6 +42,7 @@ import com.example.core.models.RegistrationRequest
 import com.example.myapplication.R
 import com.example.myapplication.viewmodels.LoginViewModel
 import com.example.oauth.GoogleLogin
+import com.example.oauth.IGoogleLogin
 import com.example.oauth.GoogleLoginViewModel
 
 var userEmail: String = ""
@@ -52,6 +53,7 @@ var lastName: String = ""
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     googleViewModel: GoogleLoginViewModel = viewModel(),
+    googleLogin: IGoogleLogin = GoogleLogin,
     onSuccessfulLogin: (userId: Int, username: String) -> Unit,
 ) {
     val username by viewModel.username.observeAsState("")
@@ -81,7 +83,7 @@ fun LoginScreen(
     if (google) {
         LaunchedEffect(Unit) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                val result = GoogleLogin.signInWithFallback(context, webClientId)
+                val result = googleLogin.signInWithFallback(context, webClientId)
                 val profile = result.profile
                 if (profile != null && profile.email.isNotEmpty()) {
                     userEmail = profile.email
