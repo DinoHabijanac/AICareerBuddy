@@ -26,8 +26,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<IEnumerable<JobApplication>>> Get()
         {
             var applications = await ApplicationService.GetApplications();
-            if (applications != null) return Ok(applications);
-            else return NotFound();
+            if (applications != null) { return Ok(applications); }
+            else { return NotFound(); }
         }
 
         [HttpGet("student")]
@@ -67,7 +67,7 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<IEnumerable<JobApplication>>> GetByEmployerId([FromQuery] int employerId)
         {
             var applications = await ApplicationService.GetApplicationsByEmployerId(employerId);
-            if (applications == null) return NotFound();
+            if (applications == null) { return NotFound(); }
 
             var result = new List<object>();
 
@@ -100,8 +100,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<IEnumerable<JobApplication>>> GetByJobId([FromQuery] int jobId)
         {
             var applications = await ApplicationService.GetApplicationsByJobId(jobId);
-            if (applications != null) return Ok(applications);
-            else return NotFound();
+            if (applications != null) { return Ok(applications); }
+            else { return NotFound(); }
         }
 
         // GET api/<ApplicationController>/5
@@ -109,8 +109,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<JobApplication>> Get([FromQuery] int id)
         {
             var application = await ApplicationService.GetApplicationById(id);
-            if (application != null) return Ok(application);
-            else return NotFound();
+            if (application != null) { return Ok(application); }
+            else { return NotFound(); }
         }
 
         // POST api/<ApplicationController>
@@ -118,19 +118,19 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<JobApplication>> Post([FromBody] JobApplication application)
         {
             var isCreated = await ApplicationService.PostApplication(application);
-            if (isCreated) return Created();
-            else return BadRequest();
+            if (isCreated) { return Created(); }
+            else { return BadRequest(); }
         }
 
         // PUT api/<ApplicationController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<JobApplication>> Put(int id, [FromBody] JobApplication application)
         {
-            if (application == null) return BadRequest("PReLoše");
-            if (application.Id != id) return BadRequest("Loše");
+            if (application == null) { return BadRequest("PReLoše"); }
+            if (application.Id != id) { return BadRequest("Loše"); }
             var updated = await ApplicationService.PutApplication(application);
-            if (updated) return Ok(new API_Response { success = true, message = "Uspješna promjena" });
-            else return NotFound();
+            if (updated) { return Ok(new API_Response { success = true, message = "Uspješna promjena" }); }
+            else { return NotFound(); }
         }
 
         // DELETE api/<ApplicationController>/5
@@ -138,8 +138,8 @@ namespace AI_CareerBuddy_Backend.Controllers
         public async Task<ActionResult<JobApplication>> Delete(int id)
         {
             var deleted = await ApplicationService.DeleteApplication(id);
-            if (deleted) return NoContent();
-            else return NotFound();
+            if (deleted) { return NoContent(); }
+            else { return NotFound(); }
         }
     }
 }

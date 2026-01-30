@@ -30,7 +30,7 @@ namespace AICareerBuddy_BussinesLogic.Services
         public async Task<ResumeFileInfo> GetResume(int userId)
         {
             var resume = await Repository.GetResume(userId).FirstOrDefaultAsync();
-            if (resume == null) throw new FileNotFoundException("neima");
+            if (resume == null) { throw new FileNotFoundException("neima"); }
             return resume;
         }
 
@@ -96,7 +96,7 @@ namespace AICareerBuddy_BussinesLogic.Services
                     using (var stream = file.OpenReadStream())
                     {
                         if (stream.CanSeek)
-                            stream.Position = 0;
+                        { stream.Position = 0; }
 
                         await fileClient.UploadRangeAsync(new HttpRange(0, file.Length), stream);
                     }
@@ -242,9 +242,9 @@ namespace AICareerBuddy_BussinesLogic.Services
             var ext = (resume.Extension ?? string.Empty).ToLowerInvariant();
             try
             {
-                if (ext == ".pdf") docText = ExtractTextFromPdf(memoryStream);
-                else if (ext == ".docx") docText = ExtractTextFromDocx(memoryStream);
-                else docText = Encoding.UTF8.GetString(memoryStream.ToArray());
+                if (ext == ".pdf") { docText = ExtractTextFromPdf(memoryStream); }
+                else if (ext == ".docx") { docText = ExtractTextFromDocx(memoryStream); }
+                else { docText = Encoding.UTF8.GetString(memoryStream.ToArray()); }
             }
             catch (Exception ex)
             {
