@@ -16,12 +16,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +57,7 @@ import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
 import com.example.myapplication.views.getLoggedUserId
+import androidx.compose.ui.window.Dialog
 
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,10 +82,16 @@ fun ResumeUploadScreen(
     val currentUri = remember { mutableStateOf<Uri?>(null) }
     val uploadState by uploadViewModel.uploadState.collectAsState()
     val deleteState by uploadViewModel.deleteState.collectAsState()
+    val aiFeedback by uploadViewModel.aiFeedback.collectAsState()
+    val showAiDialog = remember { mutableStateOf(false) }
     val buttonWidth = 220.dp
 
     // Get the logged-in user's ID from SharedPreferences
     val userId = getLoggedUserId()
+
+    LaunchedEffect(aiFeedback) {
+        showAiDialog.value = aiFeedback != null
+    }
 
     // Redirect to login if not logged in
     LaunchedEffect(userId) {
@@ -366,6 +376,58 @@ fun ResumeUploadScreen(
                 enabled = currentUri.value != null && userId != -1
             ) {
                 Text("AI analiza životopisa")
+            }
+        }
+    }
+
+    if (showAiDialog.value && aiFeedback != null) {
+        Dialog(
+            onDismissRequest = {
+                showAiDialog.value = false
+                uploadViewModel.clearAiFeedback()
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xCC000000)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .background(Color.White, shape = RoundedCornerShape(16.dp))
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "AI analiza životopisa",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = aiFeedback?.feedback.orEmpty(),
+                        textAlign = TextAlign.Start,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            showAiDialog.value = false
+                            uploadViewModel.clearAiFeedback()
+                        }
+                    ) {
+                        Text("Zatvori")
+                    }
+                }
             }
         }
     }

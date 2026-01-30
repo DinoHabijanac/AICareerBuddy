@@ -137,4 +137,8 @@ class UploadViewModel : ViewModel() {
 
         }
     }
+
+    fun clearAiFeedback() {
+        _aiFeedback.value = null
+    }
 }
