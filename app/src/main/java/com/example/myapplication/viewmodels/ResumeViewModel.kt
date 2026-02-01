@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.network.NetworkModule
 import com.example.core.helpers.uriToMultipart
 import com.example.core.models.ResumeAIFeedback
+import com.example.core.models.ResumeImprovements
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,15 @@ class UploadViewModel : ViewModel() {
 
     private val _aiFeedback = MutableStateFlow<ResumeAIFeedback?>(null)
     val aiFeedback: StateFlow<ResumeAIFeedback?> = _aiFeedback
+
+    private val _improvements = MutableStateFlow<ResumeImprovements?>(null)
+    val improvements: StateFlow<ResumeImprovements?> = _improvements
+
+    private val _improvementsLoading = MutableStateFlow(false)
+    val improvementsLoading: StateFlow<Boolean> = _improvementsLoading
+
+    private val _improvementsError = MutableStateFlow<String?>(null)
+    val improvementsError: StateFlow<String?> = _improvementsError
 
     private val _deleteState = MutableStateFlow<DeleteState>(DeleteState.Idle)
     val deleteState: StateFlow<DeleteState> = _deleteState
@@ -102,7 +112,6 @@ class UploadViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     _deleteState.value = DeleteState.Success("Životopis uspješno obrisan")
-                    // Reset upload state također
                     _uploadState.value = UploadState.Idle
                 } else {
                     val err = when (response.code()) {
@@ -129,16 +138,42 @@ class UploadViewModel : ViewModel() {
                 val response = NetworkModule.apiService.analyzeResumeAI(userId)
                 _aiFeedback.value = response.body()
                 Log.d("logovanje", response.body().toString())
-
-            }
-            catch (e: Exception){
+            } catch (e: Exception) {
                 Log.d("logovanjeGreška", e.toString())
             }
-
         }
     }
 
     fun clearAiFeedback() {
         _aiFeedback.value = null
+    }
+
+    fun analyzeImprovements(userId: Int) {
+        viewModelScope.launch {
+            _improvementsLoading.value = true
+            _improvementsError.value = null
+            _improvements.value = null
+            try {
+                val response = NetworkModule.apiService.getResumeImprovements(userId)
+                if (response.isSuccessful) {
+                    _improvements.value = response.body()
+                } else {
+                    val err = response.errorBody()?.string() ?: "HTTP ${response.code()}"
+                    _improvementsError.value = err
+                    Log.e("UploadViewModel", "Improvements error: $err")
+                }
+            } catch (e: Exception) {
+                _improvementsError.value = e.message ?: "Neuspjeh pri dohvaćanju prijedloga"
+                Log.e("UploadViewModel", "Improvements exception", e)
+            } finally {
+                _improvementsLoading.value = false
+            }
+        }
+    }
+
+    fun clearImprovements() {
+        _improvements.value = null
+        _improvementsError.value = null
+        _improvementsLoading.value = false
     }
 }

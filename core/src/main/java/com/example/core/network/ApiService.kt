@@ -9,6 +9,7 @@ import com.example.core.models.RegistrationRequest
 import com.example.core.models.RegistrationResponse
 import com.example.core.models.ResumeAIFeedback
 import com.example.core.models.Student
+import com.example.core.models.ResumeImprovements
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -63,6 +64,8 @@ interface ApiService {
     @GET("api/Resume/AnalyzeAI/{userId}")
     suspend fun analyzeResumeAI(@Path("userId") userId: Int) : Response<ResumeAIFeedback>
 
+    @GET("api/Resume/ImprovementsAI/{userId}")
+    suspend fun getResumeImprovements(@Path("userId") userId: Int): Response<ResumeImprovements>
     @DELETE("api/Resume/{id}")
     suspend fun deleteResume(
         @Path("id") userId: Int
