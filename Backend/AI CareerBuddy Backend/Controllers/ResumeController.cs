@@ -67,6 +67,24 @@ namespace AI_CareerBuddy_Backend.Controllers
             }
         }
 
+        [HttpGet("ImprovementsAI/{userId}")]
+        public async Task<IActionResult> GetResumeImprovementsAI(int userId)
+        {
+            try
+            {
+                var suggestions = await ResumeService.GetResumeImprovementsAI(userId);
+                return Ok(suggestions);
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting improvement suggestions for user {userId}");
+                return BadRequest(ex.Message + ex.InnerException?.Message);
+            }
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
