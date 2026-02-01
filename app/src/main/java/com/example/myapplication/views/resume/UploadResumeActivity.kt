@@ -11,9 +11,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,16 +51,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.text.font.FontStyle
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.views.HeaderUI
+import com.example.core.models.ImprovementSection
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.DeleteState
 import com.example.myapplication.viewmodels.UploadState
 import com.example.myapplication.viewmodels.UploadViewModel
+import com.example.myapplication.views.HeaderUI
 import com.example.myapplication.views.getLoggedUserId
-import androidx.compose.ui.window.Dialog
 
 class UploadResumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,14 +91,23 @@ fun ResumeUploadScreen(
     val showAiDialog = remember { mutableStateOf(false) }
     val buttonWidth = 220.dp
 
-    // Get the logged-in user's ID from SharedPreferences
+    val improvements by uploadViewModel.improvements.collectAsState()
+    val improvementsLoading by uploadViewModel.improvementsLoading.collectAsState()
+    val improvementsError by uploadViewModel.improvementsError.collectAsState()
+    val showImprovementsDialog = remember { mutableStateOf(false) }
+
     val userId = getLoggedUserId()
 
     LaunchedEffect(aiFeedback) {
         showAiDialog.value = aiFeedback != null
     }
 
-    // Redirect to login if not logged in
+    LaunchedEffect(improvements) {
+        if (improvements != null) {
+            showImprovementsDialog.value = true
+        }
+    }
+
     LaunchedEffect(userId) {
         if (userId == -1) {
             Toast.makeText(
@@ -101,8 +115,6 @@ fun ResumeUploadScreen(
                 "Morate biti prijavljeni za pristup ovoj stranici",
                 Toast.LENGTH_LONG
             ).show()
-            // Optional: Navigate back to HomeActivity/LoginActivity
-            // (context as? ComponentActivity)?.finish()
         }
     }
 
@@ -117,7 +129,6 @@ fun ResumeUploadScreen(
         }
     }
 
-    // Handle delete state
     LaunchedEffect(deleteState) {
         when (deleteState) {
             is DeleteState.Success -> {
@@ -126,7 +137,6 @@ fun ResumeUploadScreen(
                     (deleteState as DeleteState.Success).message,
                     Toast.LENGTH_SHORT
                 ).show()
-                // Clear local storage
                 val prefs = context.getSharedPreferences("resume_prefs", 0)
                 prefs.edit { remove("resume_uri") }
                 currentUri.value = null
@@ -157,9 +167,7 @@ fun ResumeUploadScreen(
                 prefs.edit { putString("resume_uri", it.toString()) }
                 currentUri.value = it
 
-                // Use the real logged-in user's ID
                 if (userId != -1) {
-                    // Ako već postoji resume, koristi UPDATE, inače POST
                     val existingResume = currentUri.value
                     if (existingResume != null && existingResume != it) {
                         uploadViewModel.updateResume(context, it, userId)
@@ -325,7 +333,7 @@ fun ResumeUploadScreen(
                         )
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2196F3) // Blue
+                        containerColor = Color(0xFF2196F3)
                     ),
                     enabled = userId != -1
                 ) {
@@ -380,6 +388,7 @@ fun ResumeUploadScreen(
         }
     }
 
+    // PRVI DIALOG - AI ANALIZA
     if (showAiDialog.value && aiFeedback != null) {
         Dialog(
             onDismissRequest = {
@@ -389,8 +398,7 @@ fun ResumeUploadScreen(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xCC000000)),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -421,8 +429,45 @@ fun ResumeUploadScreen(
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
+                            uploadViewModel.analyzeImprovements(userId)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFD32F2F),
+                            contentColor = Color.White
+                        ),
+                        enabled = !improvementsLoading
+                    ) {
+                        if (improvementsLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Generira prijedloge...")
+                        } else {
+                            Text("Prijedlozi poboljšanja")
+                        }
+                    }
+
+                    if (improvementsError != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = improvementsError ?: "",
+                            color = Color(0xFFD32F2F),
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
                             showAiDialog.value = false
                             uploadViewModel.clearAiFeedback()
+                            uploadViewModel.clearImprovements()
                         }
                     ) {
                         Text("Zatvori")
@@ -430,6 +475,126 @@ fun ResumeUploadScreen(
                 }
             }
         }
+    }
+
+    // DRUGI DIALOG - PRIJEDLOZI POBOLJŠANJA
+    if (showImprovementsDialog.value && improvements != null) {
+        Dialog(
+            onDismissRequest = {
+                showImprovementsDialog.value = false
+                uploadViewModel.clearImprovements()
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .background(Color.White, shape = RoundedCornerShape(16.dp))
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Prijedlozi poboljšanja",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFFD32F2F)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val summary = improvements?.overallSummary
+                    if (!summary.isNullOrBlank()) {
+                        Text(
+                            text = summary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = Color(0xFF616161),
+                            fontStyle = FontStyle.Italic
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    val sections = improvements?.sections ?: emptyList()
+                    sections.forEachIndexed { index, section ->
+                        ImprovementSectionCard(section)
+                        if (index < sections.size - 1) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            showImprovementsDialog.value = false
+                            uploadViewModel.clearImprovements()
+                        }
+                    ) {
+                        Text("Zatvori")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ImprovementSectionCard(section: ImprovementSection) {
+    val isOk = section.status.trim().equals("U redu", ignoreCase = true)
+
+    val statusColor = if (isOk) Color(0xFF4CAF50) else Color(0xFFFF9800)
+    val bgColor     = if (isOk) Color(0xFFF1F8E9) else Color(0xFFFFF3E0)
+    val borderColor = if (isOk) Color(0xFFA5D6A7) else Color(0xFFFFCC80)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bgColor, shape = RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, shape = RoundedCornerShape(12.dp))
+            .padding(14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = section.title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                ),
+                color = Color.Black
+            )
+
+            Box(
+                modifier = Modifier
+                    .background(statusColor, shape = RoundedCornerShape(20.dp))
+                    .padding(horizontal = 10.dp, vertical = 3.dp)
+            ) {
+                Text(
+                    text = if (isOk) "✓ U redu" else "⚠ Poboljšiti",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    ),
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = section.description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF424242)
+        )
     }
 }
 
