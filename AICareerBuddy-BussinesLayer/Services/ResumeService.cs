@@ -258,5 +258,51 @@ namespace AICareerBuddy_BussinesLogic.Services
 
             return new ResumeAIFeedback { Feedback = feedback };
         }
+
+        public async Task<ResumeImprovementSuggestions> GetResumeImprovementsAI(int userId)
+        {
+            var resume = await GetResume(userId);
+            if (resume == null) { throw new FileNotFoundException($"No resume found for user id {userId}"); }
+
+            var shareClient = new ShareClient(connectionString, shareName);
+            var rootDir = shareClient.GetRootDirectoryClient();
+            var fileClient = rootDir.GetFileClient(resume.Name);
+
+            var downloadResponse = await fileClient.DownloadAsync();
+            using var contentStream = downloadResponse.Value.Content;
+            var memoryStream = new MemoryStream();
+            await contentStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            string docText = string.Empty;
+            var ext = (resume.Extension ?? string.Empty).ToLowerInvariant();
+            try
+            {
+                if (ext == ".pdf") { docText = ExtractTextFromPdf(memoryStream); }
+                else if (ext == ".docx") { docText = ExtractTextFromDocx(memoryStream); }
+                else { docText = Encoding.UTF8.GetString(memoryStream.ToArray()); }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error extracting text: {ex.Message}");
+            }
+
+            if (string.IsNullOrWhiteSpace(docText)) { throw new InvalidOperationException("No extractable text found in resume"); }
+
+            var chatbot = new ChatbotService("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", "groq/compound");
+
+            string previousAnalysis;
+            try
+            {
+                previousAnalysis = await chatbot.GetResumeAnalysisAsync(docText);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error during initial analysis for improvements: {ex.Message}");
+            }
+
+            var suggestions = await chatbot.GetImprovementSuggestionsAsync(docText, previousAnalysis);
+            return suggestions;
+        }
     }
 }
