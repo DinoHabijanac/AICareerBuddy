@@ -22,5 +22,6 @@ Swagger UI je dostupan na:
 Preko Swaggera je moguće testirati sve API endpointove.
 
 ## Deployment
-API je deployan i dostupan online.
+API je deployan i dostupan online:
+https://aicareerbuddy-api.onrender.com/swagger/index.html
 
